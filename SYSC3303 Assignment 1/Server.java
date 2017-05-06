@@ -37,7 +37,8 @@ public class Server {
 		System.out.println("\n" + Arrays.toString(datagram) + "\n");
 
 		String strArr[] = packet.split("\0");
-		if(strArr.length != 3) throw new InvalidPacketException("Packet does not meet standard format.");
+		System.out.println(strArr.length + "\n");
+		if(strArr.length != 2) throw new InvalidPacketException("Packet does not meet standard format.");
 
 		byte response[] = {0, 0, 0, 0};
 		if(datagram[1] == 1) {
