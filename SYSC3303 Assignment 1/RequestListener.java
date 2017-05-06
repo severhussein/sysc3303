@@ -40,4 +40,11 @@ public class RequestListener {
 			}
 		}
 	}
+
+	public static void main(String args[]) {
+		RequestListener s = new RequestListener();
+		while(true) {
+			s.receiveRequests();
+		}
+	}
 }	

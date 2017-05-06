@@ -70,4 +70,11 @@ public class HostListener {
 
 		new Thread(new HostSender(sendSock, clientPort, serverPort)).start();
 	}
+
+	public void static main(String args[]) {
+		HostListener h = new HostListener();
+		while(true) {
+			h.receiveRequests();
+		}
+	}
 }	
