@@ -85,6 +85,12 @@ public class RequestManager implements Runnable {
 		else if(type == 2) {
 			boolean serve = true;
 			byte writeData[] = new byte[516], ack[] = new byte[4];
+			BufferedOutputStream out = null;
+				try {
+					out = new BufferedOutputStream(new FileOutputStream(fileName));
+				} catch(IOException e) {
+					System.out.println("ERROR CREATING FILE\n" + e.getMessage());
+				}
 
 			ack[0] = 0;
 			ack[1] = 4;
@@ -102,14 +108,6 @@ public class RequestManager implements Runnable {
 			}
 
 			while(serve) {
-				BufferedOutputStream out = null;
-				try {
-					out = new BufferedOutputStream(new FileOutputStream(fileName));
-				} catch(IOException e) {
-					System.out.println("ERROR CREATING FILE\n" + e.getMessage());
-				}
-
-
 				received = new DatagramPacket(writeData, writeData.length);
 				try {
 					socket.receive(received);
@@ -120,7 +118,7 @@ public class RequestManager implements Runnable {
 				if(writeData[1] == DATA) {
 
 					try {
-						out.write(writeData, 4, DATA_LENGTH);
+						out.write(writeData, 4, received.getLength()-4);
 					} catch (IOException e) {
 						System.out.println("ERROR WRITING TO FILE\n" + e.getMessage());
 					}
