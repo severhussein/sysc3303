@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class Client {
-	public final int DEFAULT_HOST_SOCKET = 23;
+	public final int DEFAULT_HOST_SOCKET = 69;
 
 	DatagramSocket socket;
 	DatagramPacket send, receive;
