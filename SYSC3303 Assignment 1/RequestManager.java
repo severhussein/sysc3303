@@ -2,6 +2,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.BufferedInputStream;
@@ -45,7 +46,9 @@ public class RequestManager implements Runnable {
 					ByteArrayOutputStream buf = new ByteArrayOutputStream();
 					buf.write(0);
 					buf.write(3);
+					byte readBlock[] = ByteBuffer.allocate(2).putInt(i).array();
 					try {
+						buf.write(readBlock);
 						buf.write(readData);
 					} catch(IOException e) {
 						System.out.println("ERROR READING DATA INTO BYTE ARRAY\n" + e.getMessage());
