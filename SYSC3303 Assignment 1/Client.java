@@ -1,4 +1,3 @@
-package sysc3303;
 
 /**
  * Client component of SYSC3303 assignment 1, based on the simple echo program provided in class
@@ -9,9 +8,6 @@ package sysc3303;
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
-
-import sysc3303.RequestPacket;
-import sysc3303.Utils;
 
 public class Client {
 
@@ -129,7 +125,7 @@ public class Client {
 			} catch (IOException e) {
 				System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
 			}
-
+			System.out.println(new String(receivePacket.getData(), 4, receivePacket.getData().length-4));
 			if (writeData[1] == DATA) {
 
 				try {

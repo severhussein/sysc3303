@@ -17,12 +17,12 @@ public class RequestManager implements Runnable {
 	private DatagramSocket socket;
 	private DatagramPacket send, received;
 	private String fileName;
-	private int clientPort, type;
+	private int hostPort, type;
 
-	public RequestManager(int clientPort, String fileName, int type) {
+	public RequestManager(int hostPort, String fileName, int type) {
 		try {
 			socket = new DatagramSocket();
-			this.clientPort = clientPort;
+			this.hostPort = hostPort;
 			this.fileName = fileName;
 			this.type = type;
 		} catch(SocketException e) {
@@ -31,6 +31,7 @@ public class RequestManager implements Runnable {
 	}
 
 	public void run() {
+System.out.println(type + "\n");
 		if(type == 1) {
 			byte readData[] = new byte[DATA_LENGTH], ack[] = new byte[4];
 			int i = 0;
@@ -40,13 +41,18 @@ public class RequestManager implements Runnable {
 			} catch(IOException e) {
 				System.out.println("ERROR OPENING FILE\n" + e.getMessage());
 			}
-
-			try {
-				while((i = in.read(readData)) != -1) {
+System.out.println("Reading File...\n");
+			try {System.out.println(in.read(readData) + "\n");
+				while(in.read(readData) != -1) {
+					i += 1;
+System.out.println("Reached Here.\n");
 					ByteArrayOutputStream buf = new ByteArrayOutputStream();
 					buf.write(0);
 					buf.write(3);
-					byte readBlock[] = ByteBuffer.allocate(2).putInt(i).array();
+					byte readBlock[] = new byte[2];
+					readBlock[0] = (byte) (i >> 8);
+					readBlock[1] = (byte) i;
+					//byte readBlock[] = ByteBuffer.allocate(2).putInt(i).array();
 					try {
 						buf.write(readBlock);
 						buf.write(readData);
@@ -55,16 +61,17 @@ public class RequestManager implements Runnable {
 					}
 					
 					byte dataSend[] = buf.toByteArray();
+System.out.println("Sending:\n" + new String(dataSend, 0, dataSend.length));
 					try {
 						send = new DatagramPacket(dataSend,
 							dataSend.length,
 							InetAddress.getLocalHost(),
-							clientPort);
+							hostPort);
 						socket.send(send);
 					} catch(IOException e) {
 						System.out.println("ERROR SENDING READ\n" + e.getMessage());
 					}
-					
+System.out.println("Waiting for ack...\n");
 					received = new DatagramPacket(ack, ack.length);
 					try {
 						socket.receive(received);
@@ -104,7 +111,7 @@ public class RequestManager implements Runnable {
 				send = new DatagramPacket(ack,
 					ack.length,
 					InetAddress.getLocalHost(),
-					clientPort);
+					hostPort);
 				socket.send(send);
 			} catch(IOException e) {
 				System.out.println("ERROR SENDING ACK\n" + e.getMessage());
@@ -133,7 +140,7 @@ public class RequestManager implements Runnable {
 						send = new DatagramPacket(ack,
 							ack.length,
 							InetAddress.getLocalHost(),
-							clientPort);
+							hostPort);
 						socket.send(send);
 					} catch(IOException e) {
 						System.out.println("ERROR SENDING ACK\n" + e.getMessage());

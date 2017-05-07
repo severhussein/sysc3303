@@ -20,7 +20,7 @@ public class HostListener {
 		}
 	}
 
-	public void receiveRequests() throws InvalidPacketException {
+	public void receiveRequests() {
 		try {
 			sendSock = new DatagramSocket();
 		} catch(SocketException e) {
@@ -29,7 +29,7 @@ public class HostListener {
 
 		byte datagram[] = new byte[516];
 		received = new DatagramPacket(datagram, datagram.length);
-
+System.out.println("Host waiting for requests...\n");
 		// Receive initial request from client.
 		try {
 			receiveSock.receive(received);
@@ -38,7 +38,7 @@ public class HostListener {
 		}
 		
 		clientPort = received.getPort();
-		
+System.out.println("Host Received:\n" + new String(received.getData(), 0, received.getLength()));		
 		// Create new forward packet and send to server. Then wait for response.
 		try {
 			send = new DatagramPacket(received.getData(),
@@ -49,7 +49,7 @@ public class HostListener {
 		} catch(IOException e) {
 			System.out.println("ERROR CREATING CLIENT FORWARD PACKET" + e.getMessage());
 		}
-
+System.out.println("Host forwarding client to server...\n");
 		try {
 			sendSock.receive(received);
 		} catch(IOException e) {
@@ -57,17 +57,18 @@ public class HostListener {
 		}
 
 		serverPort = received.getPort();
-
+System.out.println("Host received:\n" + new String(received.getData(), 0, received.getLength()));
 		// Create new forward packet and send to client. Then create new manager thread.
 		try {
 			send = new DatagramPacket(received.getData(),
 				received.getLength(),
 				InetAddress.getLocalHost(),
 				clientPort);
+			sendSock.send(send);
 		} catch(IOException e) {
 			System.out.println("ERROR CREATING SERVER FORWARD PACKET" + e.getMessage());
 		}
-
+System.out.println("Host is creating new thread...\n");
 		new Thread(new HostSender(sendSock, clientPort, serverPort)).start();
 	}
 

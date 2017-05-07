@@ -1,4 +1,3 @@
-package sysc3303;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -42,7 +41,7 @@ public class RequestPacket {
 	 *
 	 */
 	public enum RequestType {
-		REQUEST_WRTIE(READ_REQUEST_BYTES), REQUEST_READ(WRITE_REQUEST_BYTES);
+		REQUEST_WRTIE(WRITE_REQUEST_BYTES), REQUEST_READ(READ_REQUEST_BYTES);
 	
 		private byte type[];
 	

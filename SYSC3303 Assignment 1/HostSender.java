@@ -32,7 +32,7 @@ public class HostSender implements Runnable {
 	public void run() {
 		byte datagram[] = new byte[516];
 		received = new DatagramPacket(datagram, datagram.length);
-		
+System.out.println("Waiting for client data...\n");		
 		// Receive datagram from client and forward to server.
 		try {
 			socket.receive(received);
@@ -40,7 +40,7 @@ public class HostSender implements Runnable {
 			if(e instanceof SocketTimeoutException) return;
 			System.out.println("ERROR RECEIVING DATA FROM CLIENT\n" + e.getMessage());
 		}
-
+System.out.println("Forwarding client data...\n");
 		try {
 			send = new DatagramPacket(received.getData(),
 				received.getLength(),
@@ -50,7 +50,7 @@ public class HostSender implements Runnable {
 		} catch(IOException e) {
 			System.out.println("ERROR FORWARDING TO SERVER\n" + e.getMessage());
 		}
-
+System.out.println("Waiting for server data...\n");
 		// Receive datagram from server and forward to client.
 		try {
 			socket.receive(received);
@@ -58,7 +58,7 @@ public class HostSender implements Runnable {
 			if(e instanceof SocketTimeoutException) return; 
 			System.out.println("ERROR RECEIVE DATA FROM SERVER\n" + e.getMessage());
 		}
-
+System.out.println("Forwarding server data...\n");
 		try {
 			send = new DatagramPacket(received.getData(),
 				received.getLength(),

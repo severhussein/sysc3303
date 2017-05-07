@@ -21,7 +21,7 @@ public class RequestListener {
 	public void receiveRequests() throws InvalidPacketException {
 		byte datagram[] = new byte[512];
 		received = new DatagramPacket(datagram, datagram.length);
-
+System.out.println("Server is waiting for request...\n");
 		try {
 			receiveSock.receive(received);
 		} catch(IOException e) {
@@ -33,10 +33,11 @@ public class RequestListener {
 		System.out.println("\n" + Arrays.toString(packet.getBytes()) + "\n");
 
 		String strArr[] = packet.split("\0");
+		System.out.println(Arrays.toString(strArr) + "\n");
 		if(datagram[1] == READ || datagram[1] == WRITE) {
-			if(strArr.length != 2) throw new InvalidPacketException("Request is not in valid format.");
+			if(strArr.length != 3) throw new InvalidPacketException("Request is not in valid format.");
 			else {
-				new Thread(new RequestManager(received.getPort(), strArr[1], datagram[1])).start();
+				new Thread(new RequestManager(received.getPort(), strArr[1].substring(1), datagram[1])).start();
 			}
 		}
 	}
@@ -44,7 +45,11 @@ public class RequestListener {
 	public static void main(String args[]) {
 		RequestListener s = new RequestListener();
 		while(true) {
-			s.receiveRequests();
+			try {
+				s.receiveRequests();
+			} catch(InvalidPacketException e) {
+				System.out.println("PACKET FORMAT ERROR\n" + e.getMessage());
+			}
 		}
 	}
 }	

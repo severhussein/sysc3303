@@ -1,5 +1,3 @@
-package sysc3303;
-
 /**
  * As the name implies, common constants are kept here for easier management
  * 
@@ -11,7 +9,7 @@ public class CommonConstants {
 	/**
 	 * Client send to this port, host listen on this port
 	 */
-	public static final int HOST_LISTEN_PORT = 5000;
+	public static final int HOST_LISTEN_PORT = 23;
 	
 	/**
 	 * Host forward request sent by client to this port, server listen on this port

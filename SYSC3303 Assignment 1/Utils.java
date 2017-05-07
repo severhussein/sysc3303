@@ -1,5 +1,3 @@
-package sysc3303;
-
 import java.net.DatagramPacket;
 import java.util.Arrays;
 
