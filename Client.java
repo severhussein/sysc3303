@@ -11,7 +11,7 @@ import java.util.Scanner;
 
 public class Client {
 
-	private final static int DATA = 1;
+	private final static int DATA = 3;
 	private final static int MAX_DATA_LENGTH = 512;
 	private final static int HOST_PORT = 23;
 	private final static int ACKNOWLEDGE = 4;
@@ -127,7 +127,6 @@ public class Client {
 			}
 			System.out.println(new String(receivePacket.getData(), 4, receivePacket.getData().length-4));
 			if (writeData[1] == DATA) {
-
 				try {
 					out.write(writeData, 4, receivePacket.getLength() - 4);
 				} catch (IOException e) {
@@ -146,9 +145,9 @@ public class Client {
 					System.out.println("ERROR SENDING ACK\n" + e.getMessage());
 				}
 			}
-
+System.out.println(receivePacket.getLength()+"\n");
 			if (receivePacket.getLength() < MAX_DATA_LENGTH)
-				endOfFile = false;
+				endOfFile = true;
 		}
 		out.close();
 	}
