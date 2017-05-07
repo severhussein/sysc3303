@@ -11,7 +11,7 @@ import java.util.Scanner;
 
 public class Client {
 
-	private final static int DATA = 1;
+	private final static int DATA = 3;
 	private final static int MAX_DATA_LENGTH = 512;
 	private final static int HOST_PORT = 23;
 	private final static int ACKNOWLEDGE = 4;
@@ -148,7 +148,7 @@ public class Client {
 			}
 
 			if (receivePacket.getLength() < MAX_DATA_LENGTH)
-				endOfFile = false;
+				endOfFile = true;
 		}
 		out.close();
 	}

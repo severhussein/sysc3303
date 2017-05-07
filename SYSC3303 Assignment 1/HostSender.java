@@ -30,43 +30,45 @@ public class HostSender implements Runnable {
 	}
 
 	public void run() {
-		byte datagram[] = new byte[516];
-		received = new DatagramPacket(datagram, datagram.length);
+		while(true) {
+			byte datagram[] = new byte[516];
+			received = new DatagramPacket(datagram, datagram.length);
 System.out.println("Waiting for client data...\n");		
-		// Receive datagram from client and forward to server.
-		try {
-			socket.receive(received);
-		} catch(IOException e) {
-			if(e instanceof SocketTimeoutException) return;
-			System.out.println("ERROR RECEIVING DATA FROM CLIENT\n" + e.getMessage());
-		}
+			// Receive datagram from client and forward to server.
+			try {
+				socket.receive(received);
+			} catch(IOException e) {
+				if(e instanceof SocketTimeoutException) return;
+				System.out.println("ERROR RECEIVING DATA FROM CLIENT\n" + e.getMessage());
+			}
 System.out.println("Forwarding client data...\n");
-		try {
-			send = new DatagramPacket(received.getData(),
-				received.getLength(),
-				InetAddress.getLocalHost(),
-				serverPort);
-			socket.send(send);
-		} catch(IOException e) {
-			System.out.println("ERROR FORWARDING TO SERVER\n" + e.getMessage());
-		}
+			try {
+				send = new DatagramPacket(received.getData(),
+					received.getLength(),
+					InetAddress.getLocalHost(),
+					serverPort);
+				socket.send(send);
+			} catch(IOException e) {
+				System.out.println("ERROR FORWARDING TO SERVER\n" + e.getMessage());
+			}
 System.out.println("Waiting for server data...\n");
-		// Receive datagram from server and forward to client.
-		try {
-			socket.receive(received);
-		} catch(IOException e) {
-			if(e instanceof SocketTimeoutException) return; 
-			System.out.println("ERROR RECEIVE DATA FROM SERVER\n" + e.getMessage());
-		}
+			// Receive datagram from server and forward to client.
+			try {
+				socket.receive(received);
+			} catch(IOException e) {
+				if(e instanceof SocketTimeoutException) return; 
+				System.out.println("ERROR RECEIVE DATA FROM SERVER\n" + e.getMessage());
+			}
 System.out.println("Forwarding server data...\n");
-		try {
-			send = new DatagramPacket(received.getData(),
-				received.getLength(),
-				InetAddress.getLocalHost(),
-				clientPort);
-			socket.send(send);
-		} catch(IOException e) {
-			System.out.println("ERROR FORWARDING TO CLIENT\n" + e.getMessage());
+			try {
+				send = new DatagramPacket(received.getData(),
+					received.getLength(),
+					InetAddress.getLocalHost(),
+					clientPort);
+				socket.send(send);
+			} catch(IOException e) {
+				System.out.println("ERROR FORWARDING TO CLIENT\n" + e.getMessage());
+			}
 		}
 	}
 }

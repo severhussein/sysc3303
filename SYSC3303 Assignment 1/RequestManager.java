@@ -34,7 +34,7 @@ public class RequestManager implements Runnable {
 System.out.println(type + "\n");
 		if(type == 1) {
 			byte readData[] = new byte[DATA_LENGTH], ack[] = new byte[4];
-			int i = 0;
+			int i = 0, size = 0;
 			BufferedInputStream in = null;
 			try {
 				in = new BufferedInputStream(new FileInputStream(fileName));
@@ -43,7 +43,7 @@ System.out.println(type + "\n");
 			}
 System.out.println("Reading File...\n");
 			try {System.out.println(in.read(readData) + "\n");
-				while(in.read(readData) != -1) {
+				while((size = in.read(readData)) != -1) {
 					i += 1;
 System.out.println("Reached Here.\n");
 					ByteArrayOutputStream buf = new ByteArrayOutputStream();
@@ -78,7 +78,6 @@ System.out.println("Waiting for ack...\n");
 					} catch(IOException e) {
 						System.out.println("RECEPTION ERROR AT MANAGER ACK\n" + e.getMessage());
 					}
-					
 					// Check acknowledge packet, before continuing.
 					// Right now, does not throw exception nor 
 					// requests re-transmission.
@@ -90,6 +89,28 @@ System.out.println("Waiting for ack...\n");
 				}
 			} catch(IOException e) {
 				System.out.println("ERROR READING FILE\n" + e.getMessage());
+			}
+
+			if(size == DATA_LENGTH) {
+				i += 1;
+				ByteArrayOutputStream buf = new ByteArrayOutputStream();
+				buf.write(0);
+				buf.write(3);
+				byte readBlock[] = new byte[2];
+				readBlock[0] = (byte) (i >> 8);
+				readBlock[1] = (byte) i;
+				buf.write(0);
+				byte dataSend[] = buf.toByteArray();
+				
+				try {
+					send = new DatagramPacket(dataSend,
+						dataSend.length,
+						InetAddress.getLocalHost(),
+						hostPort);
+					socket.send(send);
+				} catch(IOException e) {
+					System.out.println("ERROR SENDING READ\n" + e.getMessage());
+				}
 			}
 		}
 		else if(type == 2) {
