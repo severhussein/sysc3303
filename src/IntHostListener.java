@@ -11,8 +11,8 @@ public class IntHostListener {
 	
 	public static final boolean VERB_MODE = true;
 
-	private DatagramSocket receiveSocket;
-	private DatagramPacket receivePacket;
+	private DatagramSocket receiveSocket, socket;
+	private DatagramPacket receivePacket, sendPacket;
 
 	public IntHostListener() {
 	      try {
@@ -24,9 +24,16 @@ public class IntHostListener {
 	}
 
 	
-	
 	public void receiveRequests() {
 		
+	      try {
+	          socket = new DatagramSocket();
+	       } catch (SocketException se) {
+	          se.printStackTrace();
+	          System.exit(1);
+	       }
+		
+		//step 1
 		byte data[] = new byte[PACKAGE_SIZE];
 		receivePacket = new DatagramPacket(data, data.length);
 		try {
@@ -35,19 +42,45 @@ public class IntHostListener {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		printPacket(receivePacket);
+		IntHostListener.printPacket(receivePacket);
+		int clientPort = receivePacket.getPort();//save client port
 		
-		new Thread(new IntHostManager(receivePacket)).start();
+		//step 2
+        sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), IntHostListener.DEFAULT_SERVER_PORT);
+        IntHostListener.printPacket(sendPacket);
+        try {
+           socket.send(sendPacket);
+        } catch (IOException e) {
+           e.printStackTrace();
+           System.exit(1);
+        }
+
+		//step 3
+		//byte data[] = new byte[PACKAGE_SIZE];
+		receivePacket = new DatagramPacket(data, data.length);
+		try {
+			socket.receive(receivePacket);
+		} catch(IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		IntHostListener.printPacket(receivePacket);
+		int serverPort = receivePacket.getPort();//save server port
+		
+		//step 4
+        sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), clientPort);
+        IntHostListener.printPacket(sendPacket);
+        try {
+           socket.send(sendPacket);
+        } catch (IOException e) {
+           e.printStackTrace();
+           System.exit(1);
+        }
+		
+		new Thread(new IntHostManager(clientPort, serverPort)).start();
 	}
 	
-	
-	
 
-	
-	
-	
-	
-	
 	
 	public static void printPacket(DatagramPacket receivePacket){
 		if (!VERB_MODE) return;
