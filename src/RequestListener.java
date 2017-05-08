@@ -11,7 +11,7 @@ public class RequestListener {
 
 	private DatagramSocket receiveSock;
 	private DatagramPacket send, received;
-	private String response;
+	private String response, serverMode = "quiet";
 
 	// types of requests we can receive
 	public static enum Request {
@@ -21,7 +21,7 @@ public class RequestListener {
 	public RequestListener() {
 		try {
 			receiveSock = new DatagramSocket(DEFAULT_SERVER_PORT);
-			receiveSock.setSoTimeout(10000);
+			receiveSock.setSoTimeout(30000);
 		} catch (SocketException e) {
 			System.out.println(e.getMessage());
 		}
@@ -31,7 +31,7 @@ public class RequestListener {
 		Request req; // READ, WRITE or ERROR
 		byte datagram[] = new byte[512];
 
-		String filename = "", mode = "", serverMode = "quiet";
+		String filename = "", mode = "";
 		int packetLength, j = 0, k = 0;
 
 		System.out.println("Server: currently in " + serverMode + " mode");
@@ -67,6 +67,7 @@ public class RequestListener {
 		// If it's a read, send back DATA (03) block 1
 		// If it's a write, send back ACK (04) block 0
 		// Otherwise, ignore it
+		Utils.printPacketContent(received);
 		if (datagram[0] != 0)
 			req = Request.ERROR; // bad
 		else if (datagram[1] == 1)
@@ -86,8 +87,11 @@ public class RequestListener {
 				req = Request.ERROR; // didn't find a 0 byte
 			if (j == 2)
 				req = Request.ERROR; // filename is 0 bytes long
+			if(req==Request.ERROR)
+				System.out.println("INDEX J= "+j);
 			// otherwise, extract filename
 			filename = new String(datagram, 2, j - 2);
+			System.out.println(filename);
 		}
 
 		if (req != Request.ERROR) { // check for mode
@@ -100,13 +104,21 @@ public class RequestListener {
 				req = Request.ERROR; // didn't find a 0 byte
 			if (k == j + 1)
 				req = Request.ERROR; // mode is 0 bytes long
-			mode = new String(datagram, j, k - j - 1);
+			if(req==Request.ERROR)
+				System.out.println("INDEX J= "+j+" INDEX K="+k);
+				
+			mode = new String(datagram, j+1, k - j).trim();
+			
 		}
 
 		if (k != packetLength - 1)
 			req = Request.ERROR; // other stuff at end of packet
+		if(req==Request.ERROR)
+			System.out.println("INDEX J= "+j+" INDEX K="+k);
 		if (!mode.equalsIgnoreCase("netascii") && !mode.equalsIgnoreCase("octet"))
 			req = Request.ERROR;// mode is not correct
+		if(req==Request.ERROR)
+			System.out.println(mode);
 
 		if (req == Request.READ || req == Request.WRITE)
 			new Thread(new RequestManager(received.getPort(), filename, datagram[1],serverMode)).start();

@@ -181,6 +181,7 @@ public class Client {
 		}
 
 		System.out.println("Client: Sending packet:");
+		System.out.println(mode);
 		if(mode.equals("verbose"))
 			Utils.printVerbose(sendPacket);
 
@@ -201,7 +202,7 @@ public class Client {
 		for(;;)
 		{
 			System.out.println("Client: currently in " + mode + " mode");
-			String request = queryUserRequest(mode);
+			String request = queryUserRequest();
 			if(request.equals("4"))
 				shutdown();
 			
@@ -244,7 +245,7 @@ public class Client {
 		return mode;
 	}
 
-	private static String queryUserRequest(String mode) {
+	private static String queryUserRequest() {
 		// start a scanner
 		Scanner sc = new Scanner(System.in);
 

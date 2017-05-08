@@ -115,7 +115,7 @@ public class RequestManager implements Runnable {
 					System.out.println("ERROR SENDING READ\n" + e.getMessage());
 				}
 			}
-		} else if (type == 2) {
+		} else if (type == 2) {//write
 			boolean serve = true;
 			byte writeData[] = new byte[516], ack[] = new byte[4];
 			BufferedOutputStream out = null;
@@ -170,8 +170,15 @@ public class RequestManager implements Runnable {
 					}
 				}
 
-				if (received.getLength() < DATA_LENGTH)
+				if (received.getLength() < DATA_LENGTH){
 					serve = false;
+					try{
+						out.close();
+					}catch(IOException e){
+						System.out.println(e.getMessage());
+					}
+				}
+					
 			}
 		}
 	}
