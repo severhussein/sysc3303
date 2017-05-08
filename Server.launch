@@ -8,5 +8,5 @@
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="RequestListener"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="sysc3303_t4"/>
-<stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${workspace_loc:sysc3303_t4/severFileStorage}"/>
+<stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${workspace_loc:sysc3303_t4/serverFileStorage}"/>
 </launchConfiguration>

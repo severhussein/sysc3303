@@ -25,11 +25,8 @@ public class TftpDataPacket extends TftpPacket {
 
 		super(TftpType.DATA);
 
-		if (packet.getLength() > (CommonConstants.BLOCK_SIZE + 2 + 2)) {// fix
-																		// me,
-																		// magic
-																		// number
-			throw new IllegalArgumentException("Large block size not supported");
+		if (packet.getLength() > TftpOackPacket.OPT_BLOCKSIZE_MAX) {
+			throw new IllegalArgumentException("Trying to pack large than possible data block in packet");
 		}
 
 		byte temp[] = packet.getData();
