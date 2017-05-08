@@ -12,11 +12,7 @@ public class IntHostListener {
 
 	public IntHostListener() {
 	      try {
-	          // Construct a datagram socket and bind it to port 23
-	          // on the local host machine. This socket will be used to
-	          // receive UDP Datagram packets from clients.
 	          receiveSocket = new DatagramSocket(DEFAULT_LISTENER_PORT);
-
 	       } catch (SocketException se) {
 	          se.printStackTrace();
 	          //System.exit(1);
@@ -44,8 +40,9 @@ public class IntHostListener {
         
         // print the bytes
         for (int j=0;j<len;j++) {
-           System.out.println("byte " + j + " " + data[j]);
+           System.out.print("byte " + j + " " + data[j]);
         }
+        System.out.println();
 
         // Form a String from the byte array, and print the string.
         String received = new String(data,0,len);
@@ -59,6 +56,8 @@ public class IntHostListener {
 	   public static void main( String args[] )
 	   {
 		   IntHostListener s = new IntHostListener();
+		   while(true) {
 	      s.receiveRequests();
+		   }
 	   }
 }	

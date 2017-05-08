@@ -15,32 +15,25 @@ public class IntHostManager implements Runnable {
 
 	private DatagramSocket sendSocket, sendReceiveSocket;
 	private DatagramPacket sendPacket, receivePacket;
-	//private String fileName;
-	//private int clientPort, type;
+	int clientPort;
 
-	public IntHostManager(DatagramPacket received_from_client) {
+	public IntHostManager(DatagramPacket packet_from_client) {
 	      try {
-	          // Construct a datagram socket and bind it to any available
-	          // port on the local host machine. This socket will be used to
-	          // send and receive UDP Datagram packets from the server.
 	    	  sendReceiveSocket = new DatagramSocket();
-	          this.receivePacket = received_from_client;
+	    	  this.receivePacket = packet_from_client;
+	    	  this.clientPort = packet_from_client.getPort();
 	       } catch (SocketException se) {
 	          se.printStackTrace();
 	          //System.exit(1);
 	       }
-			//this.clientPort = clientPort;
-			//this.fileName = fileName;
-			//this.type = type;
 	}
 
 	public void run() {
 
 			int j;
-			int clientPort = receivePacket.getPort();
 			//InetAddress clientAddress = receivePacket.getAddress();
-			byte[] data;
-			data = receivePacket.getData();
+			//byte[] data;
+			//data = receivePacket.getData();
 			
 			int len = receivePacket.getLength();
 	         sendPacket = new DatagramPacket(receivePacket.getData(), len, receivePacket.getAddress(), 69);
@@ -52,7 +45,7 @@ public class IntHostManager implements Runnable {
 	         System.out.println("Length: " + len);
 	         System.out.println("Containing: ");
 	         for (j=0;j<len;j++) {
-	             System.out.println("byte " + j + " " + data[j]);
+	             System.out.println("byte " + j + " " + receivePacket.getData()[j]);
 	         }
 
 	         // Send the datagram packet to the server via the send/receive socket.
@@ -67,7 +60,7 @@ public class IntHostManager implements Runnable {
 	         // Construct a DatagramPacket for receiving packets up
 	         // to 100 bytes long (the length of the byte array).
 
-	         data = new byte[100];
+	         byte[] data = new byte[1000];
 	         receivePacket = new DatagramPacket(data, data.length);
 
 	         System.out.println("Simulator: Waiting for packet.");
@@ -87,8 +80,9 @@ public class IntHostManager implements Runnable {
 	         System.out.println("Length: " + len);
 	         System.out.println("Containing: ");
 	         for (j=0;j<len;j++) {
-	            System.out.println("byte " + j + " " + data[j]);
+	            System.out.print("byte " + j + " " + data[j]);
 	         }
+	         System.out.println();
 
 	         // Construct a datagram packet that is to be sent to a specified port
 	         // on a specified host.
@@ -118,8 +112,9 @@ public class IntHostManager implements Runnable {
 	         System.out.println("Length: " + len);
 	         System.out.println("Containing: ");
 	         for (j=0;j<len;j++) {
-	            System.out.println("byte " + j + " " + data[j]);
-	         }
+		            System.out.print("byte " + j + " " + data[j]);
+		         }
+		     System.out.println();
 
 	         // Send the datagram packet to the client via a new socket.
 
@@ -144,7 +139,7 @@ public class IntHostManager implements Runnable {
 	         System.out.println();
 
 	         // We're finished with this socket, so close it.
-	         sendSocket.close();
+	         //sendSocket.close();
 	      } // end of loop
 
 	}
