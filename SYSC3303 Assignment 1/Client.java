@@ -125,7 +125,7 @@ public class Client {
 			} catch (IOException e) {
 				System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
 			}
-			System.out.println(new String(receivePacket.getData(), 4, receivePacket.getData().length-4));
+Utils.printPacketContent(receivePacket);			
 			if (writeData[1] == DATA) {
 
 				try {
@@ -137,7 +137,7 @@ public class Client {
 
 				ack[2] = writeData[2];
 				ack[3] = writeData[3];
-
+System.out.println("Sending ack...\n");
 				try {
 					sendPacket = new DatagramPacket(ack, ack.length,
 							InetAddress.getLocalHost(), receivePacket.getPort());

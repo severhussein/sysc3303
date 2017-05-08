@@ -33,6 +33,16 @@ public class Utils {
 		System.out.println("   In raw bytes: "  + Arrays.toString(Arrays.copyOfRange(payload,0,len)));
 	}
 
+	public static byte[] trimPacket(byte[] buf) {
+		int i, consecNulls = 0;
+		for(i = 0; i < buf.length-1; i += 1) {
+			if(buf[i] == 0) consecNulls += 1;
+			if(consecNulls == 2) break;
+		}
+
+		return Arrays.copyOf(buf, i-1);
+	}
+
 	/**
 	 * @return true if OS is Windows
 	 */

@@ -51,6 +51,7 @@ System.out.println("Forwarding client data...\n");
 			} catch(IOException e) {
 				System.out.println("ERROR FORWARDING TO SERVER\n" + e.getMessage());
 			}
+Utils.printPacketContent(send);
 System.out.println("Waiting for server data...\n");
 			// Receive datagram from server and forward to client.
 			try {
