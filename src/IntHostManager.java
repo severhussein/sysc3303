@@ -24,29 +24,24 @@ public class IntHostManager implements Runnable {
 	    	  this.clientPort = packet_from_client.getPort();
 	       } catch (SocketException se) {
 	          se.printStackTrace();
-	          //System.exit(1);
+	          System.exit(1);
 	       }
 	}
 
+	
+	
 	public void run() {
 
-			int j;
-			//InetAddress clientAddress = receivePacket.getAddress();
-			//byte[] data;
-			//data = receivePacket.getData();
+		//int j;
+		//int len = receivePacket.getLength();
+		
+		
+		
+			//step 1, send recieved data to server
 			
-			int len = receivePacket.getLength();
-	         sendPacket = new DatagramPacket(receivePacket.getData(), len, receivePacket.getAddress(), 69);
-	        
-	         System.out.println("Simulator: sending packet.");
-	         System.out.println("To host: " + sendPacket.getAddress());
-	         System.out.println("Destination host port: " + sendPacket.getPort());
-	         len = sendPacket.getLength();
-	         System.out.println("Length: " + len);
-	         System.out.println("Containing: ");
-	         for (j=0;j<len;j++) {
-	             System.out.println("byte " + j + " " + receivePacket.getData()[j]);
-	         }
+	         sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), IntHostListener.DEFAULT_SERVER_PORT);
+	         IntHostListener.printPacket(sendPacket);
+
 
 	         // Send the datagram packet to the server via the send/receive socket.
 
@@ -57,10 +52,10 @@ public class IntHostManager implements Runnable {
 	            System.exit(1);
 	         }
 	         
-	         // Construct a DatagramPacket for receiving packets up
-	         // to 100 bytes long (the length of the byte array).
+	         
+	         //step 2, recieve from server
 
-	         byte[] data = new byte[1000];
+	         byte[] data = new byte[IntHostListener.PACKAGE_SIZE];
 	         receivePacket = new DatagramPacket(data, data.length);
 
 	         System.out.println("Simulator: Waiting for packet.");
@@ -71,51 +66,15 @@ public class IntHostManager implements Runnable {
 	            e.printStackTrace();
 	            System.exit(1);
 	         }
+	         IntHostListener.printPacket(receivePacket);
 
-	         // Process the received datagram.
-	         System.out.println("Simulator: Packet received:");
-	         System.out.println("From host: " + receivePacket.getAddress());
-	         System.out.println("Host port: " + receivePacket.getPort());
-	         len = receivePacket.getLength();
-	         System.out.println("Length: " + len);
-	         System.out.println("Containing: ");
-	         for (j=0;j<len;j++) {
-	            System.out.print("byte " + j + " " + data[j]);
-	         }
-	         System.out.println();
 
-	         // Construct a datagram packet that is to be sent to a specified port
-	         // on a specified host.
-	         // The arguments are:
-	         //  data - the packet data (a byte array). This is the response.
-	         //  receivePacket.getLength() - the length of the packet data.
-	         //     This is the length of the msg we just created.
-	         //  receivePacket.getAddress() - the Internet address of the
-	         //     destination host. Since we want to send a packet back to the
-	         //     client, we extract the address of the machine where the
-	         //     client is running from the datagram that was sent to us by
-	         //     the client.
-	         //  receivePacket.getPort() - the destination port number on the
-	         //     destination host where the client is running. The client
-	         //     sends and receives datagrams through the same socket/port,
-	         //     so we extract the port that the client used to send us the
-	         //     datagram, and use that as the destination port for the TFTP
-	         //     packet.
-
+	         //step 3, send back to client
 	         sendPacket = new DatagramPacket(data, receivePacket.getLength(),
 	                               receivePacket.getAddress(), clientPort);
 
-	         System.out.println( "Simulator: Sending packet:");
-	         System.out.println("To host: " + sendPacket.getAddress());
-	         System.out.println("Destination host port: " + sendPacket.getPort());
-	         len = sendPacket.getLength();
-	         System.out.println("Length: " + len);
-	         System.out.println("Containing: ");
-	         for (j=0;j<len;j++) {
-		            System.out.print("byte " + j + " " + data[j]);
-		         }
-		     System.out.println();
-
+	         IntHostListener.printPacket(sendPacket);
+	         
 	         // Send the datagram packet to the client via a new socket.
 
 	         try {
