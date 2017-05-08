@@ -17,6 +17,7 @@ public class Client {
 	private final static int ACKNOWLEDGE = 4;
 	private final static int ACKNOWLEDGE_PACKAGE_SIZE = 4;
 	private final static int MAX_DATA_PACKET_SIZE = 516;
+	private static String mode = "quiet";
 	byte[] ack = { 0, 4, 0, 0 };
 
 	private DatagramPacket sendPacket, receivePacket;
@@ -33,9 +34,9 @@ public class Client {
 
 	private void writeToHost(String fileName) throws IOException {
 
-		//BEFORE WRITING TO HOST, MAKE SURE TO RECEIVE ACKNOWLEDGE BLK#0
+		// BEFORE WRITING TO HOST, MAKE SURE TO RECEIVE ACKNOWLEDGE BLK#0
 		// Construct a DatagramPacket for receiving packets
-		
+
 		byte data[] = new byte[ACKNOWLEDGE_PACKAGE_SIZE];
 		receivePacket = new DatagramPacket(data, data.length);
 
@@ -47,9 +48,10 @@ public class Client {
 			e.printStackTrace();
 			System.exit(1);
 		}
-Utils.printPacketContent(receivePacket);
-		//have not done any error checking on receivepacket ack blk#0 
-		
+		if(mode.equals("verbose"))
+			Utils.printVerbose(receivePacket);
+		// have not done any error checking on receivepacket ack blk#0
+
 		byte readData[] = new byte[MAX_DATA_LENGTH], ack[] = new byte[ACKNOWLEDGE_PACKAGE_SIZE];
 		short blockNumber = 1;
 		int i = 0;
@@ -74,21 +76,23 @@ Utils.printPacketContent(receivePacket);
 
 				byte dataSend[] = buf.toByteArray();
 				try {
-					sendPacket = new DatagramPacket(dataSend, dataSend.length,
-							InetAddress.getLocalHost(), receivePacket.getPort());
+					sendPacket = new DatagramPacket(dataSend, dataSend.length, InetAddress.getLocalHost(),
+							receivePacket.getPort());
 					sendReceiveSocket.send(sendPacket);
 				} catch (IOException e) {
 					System.out.println("ERROR SENDING READ\n" + e.getMessage());
 				}
-				Utils.printPacketContent(sendPacket);
+				if(mode.equals("verbose"))
+					Utils.printVerbose(sendPacket);
 
-				//receive the ack
+				// receive the ack
 				receivePacket = new DatagramPacket(ack, ack.length);
 				try {
 					sendReceiveSocket.receive(receivePacket);
+					if(mode.equals("verbose"))
+						Utils.printVerbose(receivePacket);
 				} catch (IOException e) {
-					System.out.println("RECEPTION ERROR AT MANAGER ACK\n"
-							+ e.getMessage());
+					System.out.println("RECEPTION ERROR AT MANAGER ACK\n" + e.getMessage());
 				}
 
 				// Check acknowledge packet, before continuing.
@@ -99,8 +103,8 @@ Utils.printPacketContent(receivePacket);
 				if (ack[1] != ACKNOWLEDGE && block != i) {
 					System.out.println("ACK BLOCK DOES NOT MATCH\n");
 				}
-				
-				//increment block#
+
+				// increment block#
 				blockNumber++;
 			}
 		} catch (IOException e) {
@@ -111,7 +115,7 @@ Utils.printPacketContent(receivePacket);
 	private void readFromHost(String fileName) throws IOException {
 
 		boolean endOfFile = false;
-		byte[] writeData = new byte[MAX_DATA_PACKET_SIZE]; 
+		byte[] writeData = new byte[MAX_DATA_PACKET_SIZE];
 		BufferedOutputStream out = null;
 		try {
 			out = new BufferedOutputStream(new FileOutputStream(fileName));
@@ -126,22 +130,26 @@ Utils.printPacketContent(receivePacket);
 			} catch (IOException e) {
 				System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
 			}
-Utils.printPacketContent(receivePacket);
+			
+			if(mode.equals("verbose"))
+				Utils.printVerbose(sendPacket);
+			
 			if (writeData[1] == DATA) {
 				try {
 					out.write(writeData, 4, receivePacket.getLength() - 4);
 				} catch (IOException e) {
-					System.out.println("ERROR WRITING TO FILE\n"
-							+ e.getMessage());
+					System.out.println("ERROR WRITING TO FILE\n" + e.getMessage());
 				}
 
 				ack[2] = writeData[2];
 				ack[3] = writeData[3];
-System.out.println("Sending ack...\n");
+				System.out.println("Sending ack...\n");
 				try {
-					sendPacket = new DatagramPacket(ack, ack.length,
-							InetAddress.getLocalHost(), receivePacket.getPort());
+					sendPacket = new DatagramPacket(ack, ack.length, InetAddress.getLocalHost(),
+							receivePacket.getPort());
 					sendReceiveSocket.send(sendPacket);
+					if(mode.equals("verbose"))
+						Utils.printVerbose(sendPacket);
 				} catch (IOException e) {
 					System.out.println("ERROR SENDING ACK\n" + e.getMessage());
 				}
@@ -163,8 +171,7 @@ System.out.println("Sending ack...\n");
 	 */
 	public void sendRequest(byte[] payload) {
 		try {
-			sendPacket = new DatagramPacket(payload, payload.length,
-					InetAddress.getLocalHost(),
+			sendPacket = new DatagramPacket(payload, payload.length, InetAddress.getLocalHost(),
 					CommonConstants.HOST_LISTEN_PORT);
 			// InetAddress.getByName("192.168.1.1"),
 			// CommonConstants.HOST_LISTEN_PORT);
@@ -174,7 +181,8 @@ System.out.println("Sending ack...\n");
 		}
 
 		System.out.println("Client: Sending packet:");
-		Utils.printPacketContent(sendPacket);
+		if(mode.equals("verbose"))
+			Utils.printVerbose(sendPacket);
 
 		try {
 			sendReceiveSocket.send(sendPacket);
@@ -185,41 +193,44 @@ System.out.println("Sending ack...\n");
 		System.out.println("Client: Packet sent.\n");
 	}
 
-	public static void main(String args[]) throws IllegalArgumentException,
-			IOException {
+	public static void main(String args[]) throws IllegalArgumentException, IOException {
 		Client c = new Client();
-		String mode = "quiet";
 		// assumption is to have it in quiet mode
 
 		// query user for RRQ or WRQ or toggle between modes
-		System.out.println("Client: currently in " + mode + " mode");
-		String request = queryUserRequest(mode);
-		String filename = queryFilename();
+		for(;;)
+		{
+			System.out.println("Client: currently in " + mode + " mode");
+			String request = queryUserRequest(mode);
+			if(request.equals("4"))
+				shutdown();
+			
+			String filename = queryFilename();
 
-		System.out.println("Filename: " + filename);
-		if (request.equals("1")) {
-			// read request
-			System.out.println("Read request");
-			// create a file
-			// read file put it in
-			byte[] data = new RequestPacket(
-					RequestPacket.RequestType.REQUEST_READ, filename,
-					RequestPacket.Mode.MODE_ASCII).generatePayloadArray();
+			System.out.println("Filename: " + filename);
+			if (request.equals("1")) {
+				// read request
+				System.out.println("Read request");
+				// create a file
+				// read file put it in
+				byte[] data = new RequestPacket(RequestPacket.RequestType.REQUEST_READ, filename,
+						RequestPacket.Mode.MODE_ASCII).generatePayloadArray();
 
-			c.sendRequest(data);
-			c.readFromHost(filename);
+				c.sendRequest(data);
+				c.readFromHost(filename);
 
-		} else {
-			// write request
-			System.out.println("write request");
-			byte[] data = new RequestPacket(
-					RequestPacket.RequestType.REQUEST_WRTIE, filename,
-					RequestPacket.Mode.MODE_ASCII).generatePayloadArray();
-			c.sendRequest(data);
-			c.writeToHost(filename);
-			//
+			} else if(request.equals("2")) {
+				// write request
+				System.out.println("write request");
+				byte[] data = new RequestPacket(RequestPacket.RequestType.REQUEST_WRTIE, filename,
+						RequestPacket.Mode.MODE_ASCII).generatePayloadArray();
+				c.sendRequest(data);
+				c.writeToHost(filename);
+				//
+			}
 		}
-		sendReceiveSocket.close();
+		
+		
 
 	}
 
@@ -238,17 +249,15 @@ System.out.println("Sending ack...\n");
 		Scanner sc = new Scanner(System.in);
 
 		// ask user for input
-		System.out
-				.println("Enter:\n1 to read a file\n2 to write a file\n3 to toggle mode");
+		System.out.println("Enter:\n1 to read a file\n2 to write a file\n3 to toggle mode\n4 to shutdown");
 		String request = sc.next();
 
-		while (!request.equals("1") && !request.equals("2")) {
+		while (!request.equals("1") && !request.equals("2")&&!request.equals("4")) {
 			// request to toggle mode
 			if (request.equals("3")) {
 				mode = toggleMode(mode);
 			}
-			System.out
-					.println("Enter:\n1 to read a file\n2 to write a file\n3 to toggle mode");
+			System.out.println("Enter:\n1 to read a file\n2 to write a file\n3 to toggle mode\n4 to shutdown");
 			request = sc.next();
 		}
 		// sc.close();
@@ -263,5 +272,10 @@ System.out.println("Sending ack...\n");
 		// sc.close();
 
 		return filename;
+	}
+	private static void shutdown(){
+		System.out.println("Client is exiting");
+		sendReceiveSocket.close();
+		System.exit(1);
 	}
 }
