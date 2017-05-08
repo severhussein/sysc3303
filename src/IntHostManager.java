@@ -98,7 +98,8 @@ public class IntHostManager implements Runnable {
 	         System.out.println();
 
 	         // We're finished with this socket, so close it.
-	         //sendSocket.close();
+	         sendSocket.close();
+	         sendReceiveSocket.close();
 	      } // end of loop
 
 	}
