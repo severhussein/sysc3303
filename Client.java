@@ -47,6 +47,7 @@ public class Client {
 			e.printStackTrace();
 			System.exit(1);
 		}
+Utils.printPacketContent(receivePacket);
 		//have not done any error checking on receivepacket ack blk#0 
 		
 		byte readData[] = new byte[MAX_DATA_LENGTH], ack[] = new byte[ACKNOWLEDGE_PACKAGE_SIZE];
@@ -74,7 +75,7 @@ public class Client {
 				byte dataSend[] = buf.toByteArray();
 				try {
 					sendPacket = new DatagramPacket(dataSend, dataSend.length,
-							InetAddress.getLocalHost(), HOST_PORT);
+							InetAddress.getLocalHost(), receivePacket.getPort());
 					sendReceiveSocket.send(sendPacket);
 				} catch (IOException e) {
 					System.out.println("ERROR SENDING READ\n" + e.getMessage());

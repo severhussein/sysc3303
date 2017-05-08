@@ -54,8 +54,7 @@ System.out.println("Reading File...\n");
 					readBlock[1] = (byte) i;
 					try {
 						buf.write(readBlock);
-						if(n < DATA_LENGTH) readData = Utils.trimPacket(readData);
-						buf.write(readData);
+						buf.write(readData, 0, n);
 					} catch(IOException e) {
 						System.out.println("ERROR READING DATA INTO BYTE ARRAY\n" + e.getMessage());
 					}
@@ -126,7 +125,7 @@ System.out.println("Size compare: " + lastSize + "\t" + DATA_LENGTH);
 				} catch(IOException e) {
 					System.out.println("ERROR CREATING FILE\n" + e.getMessage());
 				}
-
+System.out.println("Opened file...\n");
 			ack[0] = 0;
 			ack[1] = 4;
 			ack[2] = 0;
@@ -141,7 +140,7 @@ System.out.println("Size compare: " + lastSize + "\t" + DATA_LENGTH);
 			} catch(IOException e) {
 				System.out.println("ERROR SENDING ACK\n" + e.getMessage());
 			}
-
+System.out.println("Righer before serve loop...\n");
 			while(serve) {
 				received = new DatagramPacket(writeData, writeData.length);
 				try {
@@ -149,9 +148,9 @@ System.out.println("Size compare: " + lastSize + "\t" + DATA_LENGTH);
 				} catch(IOException e) {
 					System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
 				}
-			
+System.out.println("Reached serve loop...\n");			
 				if(writeData[1] == DATA) {
-
+System.out.println("Found data packet...\n");
 					try {
 						out.write(writeData, 4, received.getLength()-4);
 					} catch (IOException e) {
@@ -166,13 +165,21 @@ System.out.println("Size compare: " + lastSize + "\t" + DATA_LENGTH);
 							ack.length,
 							InetAddress.getLocalHost(),
 							hostPort);
+Utils.printPacketContent(send);
 						socket.send(send);
 					} catch(IOException e) {
 						System.out.println("ERROR SENDING ACK\n" + e.getMessage());
 					}
 				}
 
-				if(received.getLength() < DATA_LENGTH) serve = false;
+				if(received.getLength() < DATA_LENGTH) {
+					serve = false;
+					try{ 
+						out.close();
+					} catch(IOException e) {
+						System.out.println("Failed to close file\n" + e.getMessage());
+					}
+				}
 			}
 		}
 	}

@@ -29,6 +29,7 @@ public class HostListener {
 
 		byte datagram[] = new byte[516];
 		received = new DatagramPacket(datagram, datagram.length);
+
 System.out.println("Host waiting for requests...\n");
 		// Receive initial request from client.
 		try {
@@ -38,7 +39,8 @@ System.out.println("Host waiting for requests...\n");
 		}
 		
 		clientPort = received.getPort();
-System.out.println("Host Received:\n" + new String(received.getData(), 0, received.getLength()));		
+
+Utils.printPacketContent(received);
 		// Create new forward packet and send to server. Then wait for response.
 		try {
 			send = new DatagramPacket(received.getData(),
@@ -49,6 +51,7 @@ System.out.println("Host Received:\n" + new String(received.getData(), 0, receiv
 		} catch(IOException e) {
 			System.out.println("ERROR CREATING CLIENT FORWARD PACKET" + e.getMessage());
 		}
+
 System.out.println("Host forwarding client to server...\n");
 		try {
 			sendSock.receive(received);
@@ -57,7 +60,8 @@ System.out.println("Host forwarding client to server...\n");
 		}
 
 		serverPort = received.getPort();
-System.out.println("Host received:\n" + new String(received.getData(), 0, received.getLength()));
+
+Utils.printPacketContent(received);
 		// Create new forward packet and send to client. Then create new manager thread.
 		try {
 			send = new DatagramPacket(received.getData(),

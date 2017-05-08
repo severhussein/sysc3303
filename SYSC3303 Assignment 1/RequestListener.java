@@ -29,11 +29,9 @@ System.out.println("Server is waiting for request...\n");
 		}
 
 		String packet = new String(datagram, 0, datagram.length);
-		System.out.println("RequestListener received:\n\n" + packet);
-		System.out.println("\n" + Arrays.toString(packet.getBytes()) + "\n");
+		Utils.printPacketContent(received);
 
 		String strArr[] = packet.split("\0");
-		System.out.println(Arrays.toString(strArr) + "\n");
 		if(datagram[1] == READ || datagram[1] == WRITE) {
 			if(strArr.length != 3) throw new InvalidPacketException("Request is not in valid format.");
 			else {
