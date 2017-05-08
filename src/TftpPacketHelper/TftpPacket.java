@@ -1,4 +1,4 @@
-package sysc3303;
+package TftpPacketHelper;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

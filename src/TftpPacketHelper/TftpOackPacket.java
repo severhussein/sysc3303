@@ -1,4 +1,4 @@
-package sysc3303;
+package TftpPacketHelper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -39,7 +39,7 @@ public class TftpOackPacket extends TftpPacket{
 		super(TftpType.OACK);//ok.. type will be an issue here
 		
 		byte[] payload = packet.getData();
-		int position = TftpAckPacket.ACK_PACKET_SIZE;
+		int position = 3;//fixme
 		int len = packet.getLength();
 		StringBuilder sb;
 	

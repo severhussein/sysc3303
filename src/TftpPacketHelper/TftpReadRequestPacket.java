@@ -1,4 +1,4 @@
-package sysc3303;
+package TftpPacketHelper;
 
 import java.net.DatagramPacket;
 

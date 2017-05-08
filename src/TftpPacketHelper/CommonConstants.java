@@ -1,4 +1,4 @@
-package sysc3303;
+package TftpPacketHelper;
 
 /**
  * As the name implies, common constants are kept here for easier management
