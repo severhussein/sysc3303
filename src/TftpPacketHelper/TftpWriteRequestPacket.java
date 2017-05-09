@@ -2,19 +2,20 @@ package TftpPacketHelper;
 
 import java.net.DatagramPacket;
 
-
 public class TftpWriteRequestPacket extends TftpRequestPacket {
 
-	TftpWriteRequestPacket(String filename, Mode mode) throws IllegalArgumentException {
-
-		super(TftpType.REQUEST_WRTIE, filename, mode);
-
-		if (filename.length() > 64000) {
-			throw new IllegalArgumentException("Filename too long");
-		}
+	/**
+	 * Construct a TFTP Write Request packet object. Use the public method to control options.
+	 * 
+	 * @param filename filename in the request packet
+	 * @param mode transfer mode
+	 * @throws IllegalArgumentException
+	 */
+	public TftpWriteRequestPacket(String filename, TftpTransferMode mode) throws IllegalArgumentException {
+		super(TftpType.WRTIE_REQUEST, filename, mode);
 	}
-	
+
 	TftpWriteRequestPacket(DatagramPacket packet) throws IllegalArgumentException {
-		super(TftpType.REQUEST_WRTIE, packet);
+		super(TftpType.WRTIE_REQUEST, packet);
 	}
 }

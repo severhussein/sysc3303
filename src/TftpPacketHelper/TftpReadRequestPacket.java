@@ -4,16 +4,18 @@ import java.net.DatagramPacket;
 
 public class TftpReadRequestPacket extends TftpRequestPacket {
 
-	TftpReadRequestPacket(String filename, Mode mode) throws IllegalArgumentException {
-
-		super(TftpType.REQUEST_READ, filename, mode);
-
-		if (filename.length() > 64000) {
-			throw new IllegalArgumentException("Filename too long");
-		}
+	/**
+	 * Construct a TFTP Read Request packet object. Use the public method to control options.
+	 * 
+	 * @param filename filename in the request packet
+	 * @param mode transfer mode
+	 * @throws IllegalArgumentException
+	 */
+	public TftpReadRequestPacket(String filename, TftpTransferMode mode) throws IllegalArgumentException {
+		super(TftpType.READ_REQUEST, filename, mode);
 	}
 
 	TftpReadRequestPacket(DatagramPacket packet) throws IllegalArgumentException {
-		super(TftpType.REQUEST_READ, packet);
+		super(TftpType.READ_REQUEST, packet);
 	}
 }

@@ -70,14 +70,14 @@ public class Utils {
 		System.out.println("   Port: " + packet.getPort());
 		System.out.println("   Length: " + len);
 		System.out.print("   Content:");
-		while (i < payload.length) {
+		while (i < len) {
 			if (printHex) {
 				if (printHeader) {
 					System.out.println();
-					System.out.format("%04x | ", (i == 0) ? i : i + 1); //
+					System.out.format("%04x | ", i); //
 					printHeader = false;
 				}
-				System.out.print(String.format("%02x ", payload[i]));//
+				System.out.print(String.format("%02x ", payload[i]));
 				if (count == 16) {
 					printHex = false;
 					i -= 16;
@@ -98,13 +98,10 @@ public class Utils {
 					count = 1;
 				}
 			} else {
-				if (payload[i] == 0) {
+				if (Character.isISOControl(payload[i])) {
 					System.out.print(".");//
 				} else {
-					System.out.print((char) payload[i]);// not quite, NEED TO
-														// make sure every
-														// platform supports the
-														// box with number
+					System.out.print((char) payload[i]);
 				}
 				if (count == 16) {
 					printHex = true;

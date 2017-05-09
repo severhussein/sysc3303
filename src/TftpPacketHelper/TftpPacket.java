@@ -5,42 +5,39 @@ import java.net.DatagramPacket;
 
 /**
  * Helper class to encode/decode TFTP packet with support for RFC 1350, 2347, 2348, 2349, 7440
- * not finished yet, not completed tested
+ * blksize works, other options not tested. 
  * 
  * @author Yu-Kai Yang 100786472
  *
  */
 public abstract class TftpPacket {
-
-	public static final byte[] READ_REQUEST_BYTES = { 0, 1 };
-	public static final byte[] WRITE_REQUEST_BYTES = { 0, 2 };
-	public static final byte[] DATA_BYTES = { 0, 3 };
-	public static final byte[] ACK_BYTES = { 0, 4 };
-	public static final byte[] ERROR_BYTES = { 0, 5 };
-	public static final byte[] OACK_BYTES = { 0, 6 };
+	public static final int TFTP_RRQ = 1;
+	public static final int TFTP_WRQ = 2;
+	public static final int TFTP_DATA = 3;
+	public static final int TFTP_ACK = 4;
+	public static final int TFTP_ERROR = 5;
+	public static final int TFTP_OACK = 6;
 	
 	public static final String OPTION_BLKSIZE_STRING = "blksize";
 	public static final String OPTION_TIMEOUT_STRING = "timeout";
 	public static final String OPTION_TSIZE_STRING = "tsize";
 	public static final String OPTION_WINDOWSIZE_STRING = "windowsize";
 
-	/**
-	 * 
-	 * Probably not worth using an enum.... what's the overhead?
-	 *
-	 */
 	public enum TftpType {
-		REQUEST_WRTIE(READ_REQUEST_BYTES), REQUEST_READ(WRITE_REQUEST_BYTES), DATA(DATA_BYTES), ACK(ACK_BYTES), ERROR(
-				ERROR_BYTES), OACK(OACK_BYTES);
+		READ_REQUEST(TFTP_RRQ), WRTIE_REQUEST(TFTP_WRQ), DATA(TFTP_DATA), ACK(TFTP_ACK), ERROR(
+				TFTP_ERROR), OACK(TFTP_OACK);
 
-		private byte type[];
+		private int opcode;
 
-		TftpType(byte type[]) {
-			this.type = type;
+		private TftpType(int opcode) {
+			this.opcode = opcode;
 		}
 
-		public byte[] getArray() {
-			return type;
+		public byte[] getOpcodeBytes() {
+			byte[] opcodeArray = { 0, 0 };
+			opcodeArray[1] = (byte) opcode;
+
+			return opcodeArray;
 		}
 	}
 
@@ -50,6 +47,13 @@ public abstract class TftpPacket {
 		this.packetType = type;
 	}
 
+	/**
+	 * Use this method to decode TFTP packets
+	 * 
+	 * @param packet DatagramPacket to be decoded
+	 * @return decoded TFTP packet
+	 * @throws IllegalArgumentException if something goes wrong while decoding
+	 */
 	public static TftpPacket decodeTftpPacket(DatagramPacket packet) throws IllegalArgumentException {
 		byte[] payload = packet.getData();
 
@@ -58,28 +62,27 @@ public abstract class TftpPacket {
 		}
 
 		switch (payload[1]) {
-		/// magic number...
-		case 1:
+		case TFTP_RRQ:
 			return new TftpReadRequestPacket(packet);
-		case 2:
+		case TFTP_WRQ:
 			return new TftpWriteRequestPacket(packet);
-		case 3:
+		case TFTP_DATA:
 			return new TftpDataPacket(packet);
-		case 4:
+		case TFTP_ACK:
 			return new TftpAckPacket(packet);
-		case 5:
+		case TFTP_ERROR:
 			return new TftpErrorPacket(packet);
-		case 6:
+		case TFTP_OACK:
 			return new TftpOackPacket(packet);
 		default:
-			throw new IllegalArgumentException("Invalid opcode");
+			throw new IllegalArgumentException("Invalid opcode.. is this really a TFTP packet?");
 		}
 	}
 
 	/**
-	 * Should just use generateDatagram instead
+	 * Generates a byte array to be packed in a DatagramPacket (or anywhere else)
 	 * 
-	 * @return the payload to be used in a DatagramPacket
+	 * @return Tftp packet in byte array form
 	 * @throws IOException
 	 */
 	public abstract byte[] generatePayloadArray() throws IOException;
@@ -97,14 +100,14 @@ public abstract class TftpPacket {
 	}
 
 	/**
-	 * @return
+	 * Get the type of this TFTP packet
+	 * 
+	 * @return the type of this TFTP packet
 	 */
 	public final TftpType getType() {
 		return packetType;
 	}
 
 	@Override
-	public String toString(){
-		return "" + getType().name() + " ... you really want to print out the data?";
-	}
+	public abstract String toString();
 }

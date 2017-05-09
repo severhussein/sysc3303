@@ -10,22 +10,17 @@ import java.net.DatagramPacket;
  * @author Yu-Kai Yang 1000786472
  *
  */
-public class TftpRequestPacket extends TftpPacket {
+public abstract class TftpRequestPacket extends TftpPacket {
 
 	public static final String MODE_ASCII_STRING = "netascii";
 	public static final String MODE_OCTET_STRING = "octet";
 
-	/**
-	 * 
-	 * Probably not worth using an enum....
-	 *
-	 */
-	public enum Mode {
+	public enum TftpTransferMode {
 		MODE_ASCII(MODE_ASCII_STRING.getBytes()), MODE_OCTET(MODE_OCTET_STRING.getBytes());
 
 		private byte type[];
 
-		Mode(byte type[]) {
+		TftpTransferMode(byte type[]) {
 			this.type = type;
 		}
 
@@ -34,7 +29,7 @@ public class TftpRequestPacket extends TftpPacket {
 		}
 	}
 
-	private final Mode mode;
+	private final TftpTransferMode mode;
 	private final String filename;
 
 	///make these final? constructor will have a lot of parameters...
@@ -48,18 +43,7 @@ public class TftpRequestPacket extends TftpPacket {
 	private long tsize;
 	private int windowsize;
 
-	/**
-	 * Constructs a RequestPacket with provided input
-	 * 
-	 * @param request
-	 *            read or write
-	 * @param filename
-	 *            the filename
-	 * @param mode
-	 *            octet or ASCII
-	 * @throws IllegalArgumentException
-	 */
-	TftpRequestPacket(TftpType type, String filename, Mode mode) throws IllegalArgumentException {
+	TftpRequestPacket(TftpType type, String filename, TftpTransferMode mode) throws IllegalArgumentException {
 
 		super(type);
 		this.filename = filename;
@@ -109,9 +93,9 @@ public class TftpRequestPacket extends TftpPacket {
 		String modeStr = sb.toString().toLowerCase();
 		System.out.println("   This packet contains:" + modeStr);
 		if (modeStr.equals(MODE_ASCII_STRING)) {
-			mode = Mode.MODE_ASCII;
+			mode = TftpTransferMode.MODE_ASCII;
 		} else if (modeStr.equals(MODE_OCTET_STRING)) {
-			mode = Mode.MODE_OCTET;
+			mode = TftpTransferMode.MODE_OCTET;
 		} else {
 			throw new IllegalArgumentException("Neither ascii nor octet mode");
 		}
@@ -164,7 +148,7 @@ public class TftpRequestPacket extends TftpPacket {
 	public byte[] generatePayloadArray() throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-		baos.write(getType().getArray());
+		baos.write(getType().getOpcodeBytes());
 		baos.write(filename.getBytes());
 		baos.write((byte) 0);
 		baos.write(mode.getArray());
@@ -204,7 +188,7 @@ public class TftpRequestPacket extends TftpPacket {
 	/**
 	 * @return mode specified in the request packet. either octet or ascii
 	 */
-	public final Mode getMode() {
+	public final TftpTransferMode getMode() {
 		return mode;
 	}
 
@@ -271,6 +255,6 @@ public class TftpRequestPacket extends TftpPacket {
 	
 	@Override
 	public String toString() {
-		return ("Type: " + getType().name() + "Filename: " + filename + "Mode: " + mode.name());
+		return ("Type: " + getType().name() + " Filename: " + filename + " Mode: " + mode.name());
 	}
 }

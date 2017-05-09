@@ -11,11 +11,13 @@ public class TftpDataPacket extends TftpPacket {
 	private final byte[] data;
 
 	/**
-	 * @param blockNumber
-	 * @param data
+	 * Construct a TFTP Data packet object.
+	 * 
+	 * @param blockNumber block number in the data packet
+	 * @param data data to be put into the packet
 	 * @throws IllegalArgumentException
 	 */
-	TftpDataPacket(int blockNumber, byte[] data) throws IllegalArgumentException {
+	public TftpDataPacket(int blockNumber, byte[] data) throws IllegalArgumentException {
 		super(TftpType.DATA);
 		this.blockNumber = (short) blockNumber;
 		this.data = data.clone();
@@ -29,10 +31,10 @@ public class TftpDataPacket extends TftpPacket {
 			throw new IllegalArgumentException("Trying to pack large than possible data block in packet");
 		}
 
-		byte temp[] = packet.getData();
+		byte payload[] = packet.getData();
 
-		blockNumber = (short) (temp[2] & temp[3] << 8);
-		data = Arrays.copyOfRange(temp, 4, temp.length - 1);
+		blockNumber = (short) ((payload[2] & 0xff) << 8 | payload[3] & 0xff);
+		data = Arrays.copyOfRange(payload, 4, packet.getLength());
 	}
 
 	/**
@@ -44,7 +46,7 @@ public class TftpDataPacket extends TftpPacket {
 	public byte[] generatePayloadArray() throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-		baos.write(getType().getArray());
+		baos.write(getType().getOpcodeBytes());
 		baos.write((byte) (blockNumber >> 8 & 0xff));
 		baos.write((byte) (blockNumber & 0xff));
 		baos.write(data);

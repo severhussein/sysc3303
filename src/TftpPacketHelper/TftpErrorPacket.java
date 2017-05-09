@@ -6,6 +6,11 @@ import java.net.DatagramPacket;
 
 public class TftpErrorPacket extends TftpPacket {
 
+	
+	public static final String[] errorString = { "Not defined, see error message (if any).", "File not found.",
+			"Access violation.", "Disk full or allocation exceeded.", "Illegal TFTP operation.", "Unknown transfer ID.",
+			"File already exists.", "No such user." };
+		
 	private final short errorCode;
 	private final String errorMsg;
 
@@ -19,22 +24,18 @@ public class TftpErrorPacket extends TftpPacket {
 		super(TftpType.ERROR);
 
 		byte payload[] = packet.getData();
-		int position = 2;
+		int position = 4;
 		int len = packet.getLength();
 		StringBuilder sb = new StringBuilder();
 
-		errorCode = (short) (payload[2] << 8 & payload[3]);
+		errorCode = (short) ((payload[2] & 0xff) << 8 | payload[3] & 0xff);
 
 		while (position < len && payload[position] != 0) {
 			sb.append((char) payload[position]);
 			position++;
 		}
-		if (position == len) {
-			throw new IllegalArgumentException("Reached end of packet after getting filename");
-		}
 		errorMsg = sb.toString();
 		position++;
-
 	}
 
 	public final String getErrorMsg() {
@@ -49,7 +50,7 @@ public class TftpErrorPacket extends TftpPacket {
 	public byte[] generatePayloadArray() throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-		baos.write(getType().getArray());
+		baos.write(getType().getOpcodeBytes());
 		baos.write((byte) (errorCode >> 8 & 0xff));
 		baos.write((byte) (errorCode & 0xff));
 		baos.write(errorMsg.getBytes());
@@ -59,7 +60,7 @@ public class TftpErrorPacket extends TftpPacket {
 
 	@Override
 	public String toString() {
-		return ("Type: " + getType().name() + "Error Code: " + getErrorCode() + "Error Message:" + getErrorMsg());
+		return ("Type: " + getType().name() + " Error Code: " + getErrorCode() + " Error Message: " + getErrorMsg());
 	}
 
 }
