@@ -21,7 +21,7 @@ public class IntHostManager implements Runnable {
 	public IntHostManager(DatagramPacket receivePacket) {
 		socket = Socket.newSocket();
 		if (socket!= null) {
-			//this.serverPort = IntHostListener.DEFAULT_SERVER_PORT;
+			this.serverPort = IntHostListener.DEFAULT_SERVER_PORT;
 			this.clientPort = receivePacket.getPort();
 			this.receivePacket = receivePacket;
 		}
@@ -29,26 +29,9 @@ public class IntHostManager implements Runnable {
 
 	
 	public void run() {
-		IntHostListener.print("Host sending request to server...\n");
-		sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), IntHostListener.DEFAULT_SERVER_PORT);
-		Socket.send(socket, sendPacket);
-		IntHostListener.printPacket(sendPacket);
-		
-		IntHostListener.print("Host receiving from server...\n");
-		Socket.receive(socket, receivePacket);
-		serverPort = receivePacket.getPort();
-		IntHostListener.printPacket(receivePacket);
-		
-		IntHostListener.print("Host sending to Client...\n");
-		sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), clientPort);
-		Socket.send(socket, sendPacket);
-		IntHostListener.printPacket(sendPacket);
+		boolean server_port_needed = true;
 		
 		while(true) {
-			IntHostListener.print("Host waiting for client data...\n");
-			Socket.receive(socket, receivePacket);
-			IntHostListener.printPacket(receivePacket);
-			
 			IntHostListener.print("Host sending to server...\n");
 			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), serverPort);
 			Socket.send(socket, sendPacket);
@@ -56,15 +39,19 @@ public class IntHostManager implements Runnable {
 			
 			IntHostListener.print("Host receiving from server...\n");
 			Socket.receive(socket, receivePacket);
-			serverPort = receivePacket.getPort();
 			IntHostListener.printPacket(receivePacket);
+			if (server_port_needed) {server_port_needed = false; serverPort = receivePacket.getPort();}//get server port here!
 			
 			IntHostListener.print("Host sending to Client...\n");
 			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), clientPort);
 			Socket.send(socket, sendPacket);
 			IntHostListener.printPacket(sendPacket);
 			
+			IntHostListener.print("Host waiting for client data...\n");
+			Socket.receive(socket, receivePacket);
+			IntHostListener.printPacket(receivePacket);			
 		}
+		
 	}
 }
 
