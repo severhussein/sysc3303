@@ -33,10 +33,7 @@ public class RequestListener {
 
 		String filename = "", mode = "";
 		int packetLength, j = 0, k = 0;
-
-		System.out.println("Server: currently in " + serverMode + " mode");
-		serverMode = queryServerMode(serverMode);
-		
+				
 		received = new DatagramPacket(datagram, datagram.length);
 		System.out.println("Server is waiting for request...\n");
 		try {
@@ -67,7 +64,7 @@ public class RequestListener {
 		// If it's a read, send back DATA (03) block 1
 		// If it's a write, send back ACK (04) block 0
 		// Otherwise, ignore it
-		Utils.printPacketContent(received);
+		if(serverMode.equals("verbose")) Utils.printPacketContent(received);
 		if (datagram[0] != 0)
 			req = Request.ERROR; // bad
 		else if (datagram[1] == 1)
@@ -139,8 +136,19 @@ public class RequestListener {
 		// }
 	}
 
+	public String getOutputMode() {
+		return this.serverMode;
+	}
+
+	public void setOutputMode(String serverMode) {
+		this.serverMode = serverMode;
+	}
+
 	public static void main(String args[]) {
 		RequestListener s = new RequestListener();
+		System.out.println("Server: currently in " + s.getOutputMode() + " mode");
+		queryServerMode(s);
+
 		while (true) {
 			try {
 				s.receiveRequests();
@@ -150,7 +158,7 @@ public class RequestListener {
 		}
 	}
 
-	private static String queryServerMode(String mode) {
+	private static void queryServerMode(RequestListener s) {
 		// start a scanner
 		Scanner sc = new Scanner(System.in);
 
@@ -161,22 +169,25 @@ public class RequestListener {
 		while (!request.equals("2")) {
 			// request to toggle mode
 			if (request.equals("1")) {
-				mode = toggleMode(mode);
+				toggleMode(s);
+				//mode = toggleMode(mode);
 			}
 			System.out.println("Enter:\n1 Toggle mode\n2 Begin Server");
 			request = sc.next();
 		}
 		//sc.close();
-		return mode;
+		//return mode;
 	}
-	private static String toggleMode(String mode) {
-		if (mode.equals("verbose"))
+	private static void toggleMode(RequestListener s) {
+		if(s.getOutputMode().equals("verbose")) s.setOutputMode("quiet");
+		else if(s.getOutputMode().equals("quiet")) s.setOutputMode("verbose");
+		/*if (mode.equals("verbose"))
 			mode = "quiet";
 		else
 			mode = "verbose";
 
 		System.out.println("Mode changed to: " + mode);
-		return mode;
+		return mode;*/
 	}
 	private static String queryServerShutDown(){
 		Scanner sc = new Scanner(System.in);

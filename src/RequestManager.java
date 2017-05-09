@@ -71,7 +71,7 @@ public class RequestManager implements Runnable {
 					} catch (IOException e) {
 						System.out.println("ERROR SENDING READ\n" + e.getMessage());
 					}
-					System.out.println("Waiting for ack...\n");
+					if(serverMode.equals("verbose")) System.out.println("Waiting for ack...\n");
 					received = new DatagramPacket(ack, ack.length);
 					try {
 						socket.receive(received);
@@ -85,7 +85,6 @@ public class RequestManager implements Runnable {
 					// requests re-transmission.
 					// Just prints to console.
 					int block = ((ack[2] & 0xFF) >> 8) | (ack[3] & 0xFF);
-					System.out.println("block compare: " + block + "\t" + i + "\n");
 					if (ack[1] != ACKNOWLEDGE && block != i) {
 						System.out.println("ACK BLOCK DOES NOT MATCH\n");
 					}
@@ -94,7 +93,7 @@ public class RequestManager implements Runnable {
 			} catch (IOException e) {
 				System.out.println("ERROR READING FILE\n" + e.getMessage());
 			}
-			System.out.println("Size compare: " + lastSize + "\t" + DATA_LENGTH);
+			if(serverMode.equals("verbose")) System.out.println("Size compare: " + lastSize + "\t" + DATA_LENGTH);
 			if (lastSize == DATA_LENGTH) {
 				i += 1;
 				ByteArrayOutputStream buf = new ByteArrayOutputStream();
