@@ -231,6 +231,7 @@ public class Client {
 		{
 			System.out.println("Client: currently in " + c.getOutputMode() + "output mode");
 			String request = queryUserRequest(c);
+			
 			if(request.equals("5"))
 				shutdown();
 			
