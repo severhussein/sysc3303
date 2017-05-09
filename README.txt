@@ -1,21 +1,27 @@
 How to run the code:
 
-The launch configurations for the three components are already 
-included as part of the Eclipse project.
+The necessary files required to run the components as an Eclipse project 
+are already included.
+Please select the dropdown menu "File" -> "Import" -> "General"-> 
+"Existing Projects into Workspace" in Eclipse and select the directory 
+containing this readme file as the root directory.
 
-Simply import the project, and click on the dropdown menu 
-"Run" -> "Run Configuration" to start each components individually.
+Once the project is imported, the components can be launched easily via Eclipse.
+Simply navigate to the dropdown menu "Run" -> "Run Configuration" to start each 
+components individually using the included run configurations.
 
-By default the client has the working directory set to the clientFileStorage 
-folder in the project while server has it set to serverFileStorage. 
-If absolute path is not provided then the components will use 
-these directories as the reference points. 
+By default the client has the working directory set to the "clientFileStorage"
+folder in the project, while server has it set to "serverFileStorage" folder. 
+If absolute path is not provided, then the components will use these directories
+as the reference points. 
 
 A test file acronyms.txt is included for your convenience.
 
 Alternatively, user can choose to do a right click, then select "Run As" -> 
 "Java Application" on the source code file containing the main method instead.
-
+Be aware that eclipse default the working directory to the root of the project
+folder, user must manually modify the Run configuration just created to prevent
+client/server from accessing the same file.
 
 Brief explanation of the source directory:
 
