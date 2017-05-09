@@ -13,13 +13,10 @@ public class Client {
 
 	private final static int DATA = 3;
 	private final static int MAX_DATA_LENGTH = 512;
-	private final static int HOST_PORT = 23;
-	private final static int SERVER_PORT = 69;
 	private final static int ACKNOWLEDGE = 4;
 	private final static int ACKNOWLEDGE_PACKAGE_SIZE = 4;
 	private final static int MAX_DATA_PACKET_SIZE = 516;
 	private String outputMode = "quiet", operationMode = "normal";
-	private int recipient;
 	byte[] ack = { 0, 4, 0, 0 };
 
 	private DatagramPacket sendPacket, receivePacket;
@@ -113,7 +110,10 @@ public class Client {
 			}
 		} catch (IOException e) {
 			System.out.println("ERROR READING FILE\n" + e.getMessage());
+		} finally {
+			in.close();
 		}
+		
 	}
 
 	private void readFromHost(String fileName) throws IOException {
@@ -159,7 +159,7 @@ public class Client {
 				}
 			}
 
-			if (receivePacket.getLength() < MAX_DATA_LENGTH)
+			if (receivePacket.getLength() < MAX_DATA_PACKET_SIZE)
 				endOfFile = true;
 		}
 		out.close();
