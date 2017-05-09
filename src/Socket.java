@@ -4,6 +4,11 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.io.IOException;
 
+/**
+ * Helper functions to save a bit of time
+ * @author Dawei Chen 101020959
+ */
+
 public class Socket {
 	
 	//using by calling: DatagramSocket socket = Socket.newSocket();
