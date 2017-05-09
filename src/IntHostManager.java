@@ -8,7 +8,7 @@ import java.io.IOException;
 
 /**
  * IntHostManager for multi threads
- * need Socket.java
+ * need Helper.java
  * @author Dawei Chen 101020959
  */
 
@@ -19,9 +19,9 @@ public class IntHostManager implements Runnable {
 	int clientPort, serverPort;
 
 	public IntHostManager(DatagramPacket receivePacket) {
-		socket = Socket.newSocket();
+		socket = Helper.newSocket();
 		if (socket!= null) {
-			this.serverPort = IntHostListener.DEFAULT_SERVER_PORT;
+			this.serverPort = Helper.DEFAULT_SERVER_PORT;
 			this.clientPort = receivePacket.getPort();
 			this.receivePacket = receivePacket;
 		}
@@ -32,24 +32,24 @@ public class IntHostManager implements Runnable {
 		boolean server_port_needed = true;
 		
 		while(true) {
-			IntHostListener.print("Host sending to server...\n");
+			Helper.print("Host sending to server...\n");
 			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), serverPort);
-			Socket.send(socket, sendPacket);
-			IntHostListener.printPacket(sendPacket);
+			Helper.send(socket, sendPacket);
+			Helper.printPacket(sendPacket);
 			
-			IntHostListener.print("Host receiving from server...\n");
-			Socket.receive(socket, receivePacket);
-			IntHostListener.printPacket(receivePacket);
+			Helper.print("Host receiving from server...\n");
+			Helper.receive(socket, receivePacket);
+			Helper.printPacket(receivePacket);
 			if (server_port_needed) {server_port_needed = false; serverPort = receivePacket.getPort();}//get server port here!
 			
-			IntHostListener.print("Host sending to Client...\n");
+			Helper.print("Host sending to Client...\n");
 			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), clientPort);
-			Socket.send(socket, sendPacket);
-			IntHostListener.printPacket(sendPacket);
+			Helper.send(socket, sendPacket);
+			Helper.printPacket(sendPacket);
 			
-			IntHostListener.print("Host waiting for client data...\n");
-			Socket.receive(socket, receivePacket);
-			IntHostListener.printPacket(receivePacket);			
+			Helper.print("Host waiting for client data...\n");
+			Helper.receive(socket, receivePacket);
+			Helper.printPacket(receivePacket);			
 		}
 		
 	}
