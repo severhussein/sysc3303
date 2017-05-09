@@ -170,7 +170,7 @@ public class RequestManager implements Runnable {
 					}
 				}
 
-				if (received.getLength() < DATA_LENGTH){
+				if (received.getLength() < DATA_LENGTH + 4){ // Length < 516, changed from <512, edited by David
 					serve = false;
 					try{
 						out.close();
