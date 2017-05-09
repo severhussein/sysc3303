@@ -15,7 +15,7 @@ public class Socket {
 	public static DatagramSocket newSocket() {
 		try {
 			DatagramSocket socket = new DatagramSocket();
-			socket.setSoTimeout(5000);
+			//socket.setSoTimeout(5000);
 			return socket;
 		} catch(SocketException e) {
 			System.out.println(e.getMessage());
@@ -26,7 +26,7 @@ public class Socket {
 	public static DatagramSocket newSocket(int port) {
 		try {
 			DatagramSocket socket = new DatagramSocket(port);
-			socket.setSoTimeout(5000);
+			//socket.setSoTimeout(5000);
 			return socket;
 		} catch(SocketException e) {
 			System.out.println(e.getMessage());
@@ -45,18 +45,18 @@ public class Socket {
 	}
 	
 	
-	//Socket.socketReceive(socket, packet);
-	public static void socketReceive(DatagramSocket socket, DatagramPacket received) {
+	//Socket.receive(socket, packet);
+	public static void receive(DatagramSocket socket, DatagramPacket received) {
 			try {
 				socket.receive(received);
 			} catch(IOException e) {
-				if(e instanceof SocketTimeoutException) return;
+				//if(e instanceof SocketTimeoutException) return;
 				System.out.println(e.getMessage());
 			}
 	}
 	
-	//Socket.socketSend(socket, packet);
-	public static void socketSend(DatagramSocket socket, DatagramPacket send) {
+	//Socket.send(socket, packet);
+	public static void send(DatagramSocket socket, DatagramPacket send) {
 			try {
 				socket.send(send);
 			} catch(IOException e) {
