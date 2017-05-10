@@ -27,7 +27,7 @@ public class IntHostManager implements Runnable {
 			this.receivePacket = receivePacket;
 		}
 	}
-mode
+
 	
 	public void run() {
 		int type = IntHostListener.mode;//promt user which error want to simulate

@@ -16,9 +16,10 @@ public class IntHostListener {
 
 	private DatagramSocket receiveSocket;
 	private DatagramPacket receivePacket;
-	public static int mode;
+	public static int mode = -1;
 
 	public IntHostListener() {
+	    mode = decideMode();
 		receiveSocket = Helper.newSocket(Helper.DEFAULT_HOST_PORT);
 	}
 
@@ -33,7 +34,6 @@ public class IntHostListener {
 	}	
 	
 	public static void main( String args[] ) {
-		mode = decideMode()
 		IntHostListener s = new IntHostListener();
 		while(true) {
 			s.receiveRequests();
