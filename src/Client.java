@@ -218,8 +218,8 @@ public class Client {
 		return this.operationMode;
 	}
 
-	public void setOperationMode(String outputMode) {
-		this.outputMode = outputMode;
+	public void setOperationMode(String operationMode) {
+		this.operationMode = operationMode;
 	}
 
 	public static void main(String args[]) throws IllegalArgumentException, IOException {
@@ -229,7 +229,7 @@ public class Client {
 		// query user for RRQ or WRQ or toggle between modes
 		for(;;)
 		{
-			System.out.println("Client: currently in " + c.getOutputMode() + "output mode");
+			System.out.println("Client: currently in " + c.getOutputMode() + " output mode");
 			String request = queryUserRequest(c);
 			
 			if(request.equals("5"))
@@ -266,7 +266,9 @@ public class Client {
 
 	private static void toggleOperation(Client c) {
 		if(c.getOperationMode().equals("normal")) c.setOperationMode("test");
-		else if(c.getOperationMode().equals("test")) c.setOperationMode("normal");
+		else if (c.getOperationMode().equals("test")) c.setOperationMode("normal");
+		
+		System.out.println("Operation Mode changed to: " + c.getOperationMode());
 	}
 
 	private static void toggleMode(Client c) {
@@ -276,9 +278,9 @@ public class Client {
 			outputMode = "quiet";
 		else
 			outputMode = "verbose";
-
-		System.out.println("Mode changed to: " + mode);
 		return outputMode;*/
+		
+		System.out.println("Output Mode changed to: " + c.getOutputMode());
 	}
 
 	private static String queryUserRequest(Client c) {
@@ -291,12 +293,9 @@ public class Client {
 
 		while (!request.equals("1") && !request.equals("2")&& !request.equals("5")) {
 			// request to toggle mode
-			if (request.equals("3")) {
-				toggleMode(c);
-				//mode = toggleMode(mode);
-			}
+			if (request.equals("3")) toggleMode(c);
 			else if(request.equals("4")) toggleOperation(c);
-			System.out.println("Enter:\n1 to read a file\n2 to write a file\n3 to toggle mode\n4 to shutdown");
+			System.out.println("Enter:\n1 to read a file\n2 to write a file\n3 to toggle output mode\n4 to toggle operation mode\n5 to shutdown");
 			request = sc.next();
 		}
 		// sc.close();
