@@ -21,7 +21,7 @@ public class RequestListener {
 	public RequestListener() {
 		try {
 			receiveSock = new DatagramSocket(DEFAULT_SERVER_PORT);
-			receiveSock.setSoTimeout(30000);
+			receiveSock.setSoTimeout(120000);
 		} catch (SocketException e) {
 			System.out.println(e.getMessage());
 		}
@@ -44,10 +44,10 @@ public class RequestListener {
 				response = queryServerShutDown();
 				if(response.equals("1")){
 					shutDown();
-				}
-					
+				}		
 			}
-			System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
+			else
+				System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
 		}
 
 		if(serverMode.equals("verbose"))
@@ -84,8 +84,8 @@ public class RequestListener {
 				req = Request.ERROR; // didn't find a 0 byte
 			if (j == 2)
 				req = Request.ERROR; // filename is 0 bytes long
-			if(req==Request.ERROR)
-				System.out.println("INDEX J= "+j);
+			//if(req==Request.ERROR)
+				//System.out.println("INDEX J= "+j);
 			// otherwise, extract filename
 			filename = new String(datagram, 2, j - 2);
 			System.out.println(filename);
@@ -101,8 +101,8 @@ public class RequestListener {
 				req = Request.ERROR; // didn't find a 0 byte
 			if (k == j + 1)
 				req = Request.ERROR; // mode is 0 bytes long
-			if(req==Request.ERROR)
-				System.out.println("INDEX J= "+j+" INDEX K="+k);
+			//if(req==Request.ERROR)
+				//System.out.println("INDEX J= "+j+" INDEX K="+k);
 				
 			mode = new String(datagram, j+1, k - j).trim();
 			
@@ -110,12 +110,12 @@ public class RequestListener {
 
 		if (k != packetLength - 1)
 			req = Request.ERROR; // other stuff at end of packet
-		if(req==Request.ERROR)
-			System.out.println("INDEX J= "+j+" INDEX K="+k);
+		//if(req==Request.ERROR) for debugging
+			//System.out.println("INDEX J= "+j+" INDEX K="+k);
 		if (!mode.equalsIgnoreCase("netascii") && !mode.equalsIgnoreCase("octet"))
 			req = Request.ERROR;// mode is not correct
-		if(req==Request.ERROR)
-			System.out.println(mode);
+		//if(req==Request.ERROR)
+			//System.out.println(mode);
 
 		if (req == Request.READ || req == Request.WRITE)
 			new Thread(new RequestManager(received.getPort(), filename, datagram[1],serverMode)).start();
@@ -188,6 +188,7 @@ public class RequestListener {
 
 		System.out.println("Mode changed to: " + mode);
 		return mode;*/
+		System.out.println("Mode changed to: " + s.getOutputMode());
 	}
 	private static String queryServerShutDown(){
 		Scanner sc = new Scanner(System.in);
@@ -206,7 +207,9 @@ public class RequestListener {
 	}
 	private void shutDown()
 	{
+		System.out.println("Server is exiting.");
 		receiveSock.close();
 		System.exit(1);
+		
 	}
 }
