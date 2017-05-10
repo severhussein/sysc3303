@@ -27,10 +27,10 @@ public class IntHostManager implements Runnable {
 			this.receivePacket = receivePacket;
 		}
 	}
-
+mode
 	
 	public void run() {
-		int type = askType();//promt user which error want to simulate
+		int type = IntHostListener.mode;//promt user which error want to simulate
 		
 		boolean server_port_needed = true;
 		
@@ -75,22 +75,7 @@ public class IntHostManager implements Runnable {
 		}
 	}
 	
-	public int askType() {
-		Scanner sc = new Scanner(System.in);
-		System.out.println("Type the digit number to choose which error you want to simulate");
-		System.out.println("0 = Error type 4 packet send to Client");
-		System.out.println("1 = Error type 4 packet send to Sever");
-		System.out.println("2 = Error type 5 packet send to Client");
-		System.out.println("3 = Error type 5 packet send to Sever");
-		String str = sc.next();
-		int number =Integer.parseInt(str);
-		while (number < 0 || number > 3) {//number is not 0,1,2,3
-			str = sc.next();
-		}
-		System.out.println("Will simulate the " + number + " type error.");
-		sc.close();
-		return number;
-	}
+
 	
 	public void simulate_wrong_port(int i) {
 		
