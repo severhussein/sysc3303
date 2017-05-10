@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.Scanner;
 import java.io.IOException;
 
 /**
@@ -29,29 +30,103 @@ public class IntHostManager implements Runnable {
 
 	
 	public void run() {
+		int type = askType();//promt user which error want to simulate
+		
 		boolean server_port_needed = true;
 		
-		while(true) {
-			Helper.print("Host sending to server...\n");
-			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), serverPort);
-			Helper.send(socket, sendPacket);
-			Helper.printPacket(sendPacket);
+		//create error on the 2nd pass of the while loop
+		for(int i = 0; ; i++) {
+			
+			if (i == 1) {
+				if (type == 0){
+					simulate_wrong_port(0);//0 is to client
+				} else if (type == 1) {
+					simulate_wrong_port(1);//1 is to server
+				}
+			}
+			
+			if (i == 1 && type == 3) {
+				simulate_wrong_opcode(1);//1 is to server
+			} else {		
+				Helper.print("Host sending to server...\n");
+				sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), serverPort);
+				Helper.send(socket, sendPacket);
+				Helper.printPacket(sendPacket);
+			}
 			
 			Helper.print("Host receiving from server...\n");
 			Helper.receive(socket, receivePacket);
 			Helper.printPacket(receivePacket);
 			if (server_port_needed) {server_port_needed = false; serverPort = receivePacket.getPort();}//get server port here!
 			
-			Helper.print("Host sending to Client...\n");
-			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), clientPort);
-			Helper.send(socket, sendPacket);
-			Helper.printPacket(sendPacket);
+			
+			if (i == 1 && type == 2) {
+				simulate_wrong_opcode(0);//0 is to client
+			} else {	
+				Helper.print("Host sending to Client...\n");
+				sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), clientPort);
+				Helper.send(socket, sendPacket);
+				Helper.printPacket(sendPacket);
+			}
 			
 			Helper.print("Host waiting for client data...\n");
 			Helper.receive(socket, receivePacket);
-			Helper.printPacket(receivePacket);			
+			Helper.printPacket(receivePacket);
 		}
-		
 	}
+	
+	public int askType() {
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Type the digit number to choose which error you want to simulate");
+		System.out.println("0 = Error type 4 packet send to Client");
+		System.out.println("1 = Error type 4 packet send to Sever");
+		System.out.println("2 = Error type 5 packet send to Client");
+		System.out.println("3 = Error type 5 packet send to Sever");
+		String str = sc.next();
+		int number =Integer.parseInt(str);
+		while (number < 0 || number > 3) {//number is not 0,1,2,3
+			str = sc.next();
+		}
+		System.out.println("Will simulate the " + number + " type error.");
+		sc.close();
+		return number;
+	}
+	
+	public void simulate_wrong_port(int i) {
+		
+		DatagramSocket new_socket = Helper.newSocket();
+		
+		if (i == 1) {
+			Helper.print("simulate ERROR 5: Host sending to server...\n");
+			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), serverPort);
+			Helper.send(new_socket, sendPacket);
+			Helper.printPacket(sendPacket);
+		}
+		else if (i == 0) {
+			Helper.print("simulate ERROR 5: Host sending to Client...\n");
+			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), clientPort);
+			Helper.send(new_socket, sendPacket);
+			Helper.printPacket(sendPacket);
+		}
+
+	}
+	public void simulate_wrong_opcode(int i) {
+		
+		if (i == 1) {
+			Helper.print("simulate ERROR 4: Host sending to server...\n");
+			receivePacket.getData()[0] = 7;
+			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), serverPort);
+			Helper.send(socket, sendPacket);
+			Helper.printPacket(sendPacket);
+		}
+		else if (i == 0) {
+			Helper.print("simulate ERROR 4: Host sending to Client...\n");
+			receivePacket.getData()[0] = 7;
+			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), clientPort);
+			Helper.send(socket, sendPacket);
+			Helper.printPacket(sendPacket);
+		}
+	}
+	
 }
 
