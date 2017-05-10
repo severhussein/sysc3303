@@ -32,7 +32,7 @@ public class RequestManager implements Runnable {
 	}
 
 	public void run() {
-		System.out.println(type + "\n");
+		//System.out.println(type + "\n");
 		if (type == 1) {
 			byte readData[] = new byte[DATA_LENGTH], ack[] = new byte[4];
 			int i = 0, lastSize = 0, n;
@@ -128,7 +128,7 @@ public class RequestManager implements Runnable {
 			ack[1] = 4;
 			ack[2] = 0;
 			ack[3] = 0;
-
+			System.out.println("Writing a File...\n");
 			try {
 				send = new DatagramPacket(ack, ack.length, InetAddress.getLocalHost(), hostPort);
 				socket.send(send);

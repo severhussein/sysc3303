@@ -147,7 +147,8 @@ public class Client {
 
 				ack[2] = writeData[2];
 				ack[3] = writeData[3];
-				System.out.println("Sending ack...\n");
+				if(outputMode.equals("verbose"))
+					System.out.println("Sending ack...\n");
 				try {
 					sendPacket = new DatagramPacket(ack, ack.length, InetAddress.getLocalHost(),
 							receivePacket.getPort());
@@ -193,7 +194,6 @@ public class Client {
 		}
 
 		System.out.println("Client: Sending packet:");
-		System.out.println(outputMode);
 		if(outputMode.equals("verbose"))
 			Utils.printVerbose(sendPacket);
 
@@ -240,7 +240,7 @@ public class Client {
 			System.out.println("Filename: " + filename);
 			if (request.equals("1")) {
 				// read request
-				System.out.println("Read request");
+				//System.out.println("Read request");
 				// create a file
 				// read file put it in
 				byte[] data = new RequestPacket(RequestPacket.RequestType.REQUEST_READ, filename,
@@ -251,7 +251,7 @@ public class Client {
 
 			} else if(request.equals("2")) {
 				// write request
-				System.out.println("write request");
+				//System.out.println("write request");
 				byte[] data = new RequestPacket(RequestPacket.RequestType.REQUEST_WRTIE, filename,
 						RequestPacket.Mode.MODE_ASCII).generatePayloadArray();
 				c.sendRequest(data);

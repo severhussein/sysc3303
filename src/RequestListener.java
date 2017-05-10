@@ -88,7 +88,7 @@ public class RequestListener {
 				//System.out.println("INDEX J= "+j);
 			// otherwise, extract filename
 			filename = new String(datagram, 2, j - 2);
-			System.out.println(filename);
+			//System.out.println(filename);
 		}
 
 		if (req != Request.ERROR) { // check for mode
