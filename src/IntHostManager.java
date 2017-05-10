@@ -34,10 +34,11 @@ mode
 		
 		boolean server_port_needed = true;
 		
-		//create error on the 2nd pass of the while loop
-		for(int i = 0; ; i++) {
+		//create error on the 2nd pass of the file transfer
+		int i = 0;
+		while(true) {
 			
-			if (i == 1) {
+			if (i == 2) {
 				if (type == 0){
 					simulate_wrong_port(0);//0 is to client
 				} else if (type == 1) {
@@ -45,7 +46,7 @@ mode
 				}
 			}
 			
-			if (i == 1 && type == 3) {
+			if (i == 2 && type == 3) {
 				simulate_wrong_opcode(1);//1 is to server
 			} else {		
 				Helper.print("Host sending to server...\n");
@@ -54,13 +55,14 @@ mode
 				Helper.printPacket(sendPacket);
 			}
 			
+			i++;//first round of request msg was done, increase i here
+			
 			Helper.print("Host receiving from server...\n");
 			Helper.receive(socket, receivePacket);
 			Helper.printPacket(receivePacket);
 			if (server_port_needed) {server_port_needed = false; serverPort = receivePacket.getPort();}//get server port here!
-			
-			
-			if (i == 1 && type == 2) {
+
+			if (i == 2 && type == 2) {
 				simulate_wrong_opcode(0);//0 is to client
 			} else {	
 				Helper.print("Host sending to Client...\n");
@@ -77,17 +79,17 @@ mode
 	
 
 	
-	public void simulate_wrong_port(int i) {
+	public void simulate_wrong_port(int direction) {
 		
 		DatagramSocket new_socket = Helper.newSocket();
 		
-		if (i == 1) {
+		if (direction == 1) {
 			Helper.print("simulate ERROR 5: Host sending to server...\n");
 			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), serverPort);
 			Helper.send(new_socket, sendPacket);
 			Helper.printPacket(sendPacket);
 		}
-		else if (i == 0) {
+		else if (direction == 0) {
 			Helper.print("simulate ERROR 5: Host sending to Client...\n");
 			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), clientPort);
 			Helper.send(new_socket, sendPacket);
@@ -95,16 +97,16 @@ mode
 		}
 
 	}
-	public void simulate_wrong_opcode(int i) {
+	public void simulate_wrong_opcode(int direction) {
 		
-		if (i == 1) {
+		if (direction == 1) {
 			Helper.print("simulate ERROR 4: Host sending to server...\n");
 			receivePacket.getData()[0] = 7;
 			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), serverPort);
 			Helper.send(socket, sendPacket);
 			Helper.printPacket(sendPacket);
 		}
-		else if (i == 0) {
+		else if (direction == 0) {
 			Helper.print("simulate ERROR 4: Host sending to Client...\n");
 			receivePacket.getData()[0] = 7;
 			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), clientPort);
