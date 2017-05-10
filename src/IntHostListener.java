@@ -15,6 +15,7 @@ public class IntHostListener {
 
 	private DatagramSocket receiveSocket;
 	private DatagramPacket receivePacket;
+	public static int mode;
 
 	public IntHostListener() {
 		receiveSocket = Helper.newSocket(Helper.DEFAULT_HOST_PORT);
@@ -31,11 +32,29 @@ public class IntHostListener {
 	}	
 	
 	public static void main( String args[] ) {
+		mode = decideMode()
 		IntHostListener s = new IntHostListener();
 		while(true) {
 			s.receiveRequests();
 		}
 	}
-		
+	
+	
+	public int decideMode() {
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Type the digit number to choose which error you want to simulate");
+		System.out.println("0 = Error type 4 packet send to Client");
+		System.out.println("1 = Error type 4 packet send to Sever");
+		System.out.println("2 = Error type 5 packet send to Client");
+		System.out.println("3 = Error type 5 packet send to Sever");
+		String str = sc.next();
+		int number =Integer.parseInt(str);
+		while (number < 0 || number > 3) {//number is not 0,1,2,3
+			str = sc.next();
+		}
+		System.out.println("Will simulate the #" + number + " type error.");
+		sc.close();
+		return number;
+	}
 
 }	
