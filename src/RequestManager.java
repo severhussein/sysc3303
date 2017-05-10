@@ -180,5 +180,6 @@ public class RequestManager implements Runnable {
 					
 			}
 		}
+		socket.close();//Should close the socket after the thread is done (David)
 	}
 }
