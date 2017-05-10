@@ -17,11 +17,18 @@ as the reference points.
 
 A test file acronyms.txt is included for your convenience.
 
-Alternatively, user can choose to do a right click, then select "Run As" -> 
-"Java Application" on the source code file containing the main method instead.
+Alternatively, user can choose create their own launch configuration.
+The main method of the client is located in Client class.
+The main method of the error simulator is located in IntHostListener class.
+The main method of the server is located in RequestListener class.
 Be aware that eclipse default the working directory to the root of the project
-folder, user must manually modify the Run configuration just created to prevent
-client/server from accessing the same file.
+folder, user must explicitly modify the Run configuration just created to 
+prevent client/server from accessing the same file at the same time. 
+
+Refer to the link below for a guide on creating launch configuration and 
+changing the working directory.
+
+http://help.eclipse.org/mars/index.jsp?topic=%2Forg.eclipse.jdt.doc.user%2Ftasks%2Ftasks-java-local-configuration.htm
 
 Brief explanation of the source directory:
 
