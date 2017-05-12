@@ -47,8 +47,10 @@ public class Client {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		if(outputMode.equals("verbose"))
-			Utils.printVerbose(receivePacket);
+		if(outputMode.equals("verbose")){
+			System.out.println("Ack:");
+			Helper.printPacket(receivePacket);
+		}
 		// have not done any error checking on receivepacket ack blk#0
 
 		byte readData[] = new byte[MAX_DATA_LENGTH], ack[] = new byte[ACKNOWLEDGE_PACKAGE_SIZE];
@@ -83,15 +85,20 @@ public class Client {
 				} catch (IOException e) {
 					System.out.println("ERROR SENDING READ\n" + e.getMessage());
 				}
-				if(outputMode.equals("verbose"))
-					Utils.printVerbose(sendPacket);
+				if(outputMode.equals("verbose")){
+					System.out.println("Send:");
+					Helper.printPacket(sendPacket);
+				}
 
 				// receive the ack
 				receivePacket = new DatagramPacket(ack, ack.length);
 				try {
 					sendReceiveSocket.receive(receivePacket);
-					if(outputMode.equals("verbose"))
-						Utils.printVerbose(receivePacket);
+					if(outputMode.equals("verbose")){
+						System.out.println("Ack:");
+						Helper.printPacket(receivePacket);
+					}
+						
 				} catch (IOException e) {
 					System.out.println("RECEPTION ERROR AT MANAGER ACK\n" + e.getMessage());
 				}
@@ -135,8 +142,10 @@ public class Client {
 				System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
 			}
 			
-			if(outputMode.equals("verbose"))
-				Utils.printVerbose(sendPacket);
+			if(outputMode.equals("verbose")){
+				System.out.println("Reading:");
+				Helper.printPacket(receivePacket);
+			}
 			
 			if (writeData[1] == DATA) {
 				try {
@@ -153,8 +162,10 @@ public class Client {
 					sendPacket = new DatagramPacket(ack, ack.length, InetAddress.getLocalHost(),
 							receivePacket.getPort());
 					sendReceiveSocket.send(sendPacket);
-					if(outputMode.equals("verbose"))
-						Utils.printVerbose(sendPacket);
+					if(outputMode.equals("verbose")){
+						System.out.println("Sending Ack:");
+						Helper.printPacket(sendPacket);
+					}
 				} catch (IOException e) {
 					System.out.println("ERROR SENDING ACK\n" + e.getMessage());
 				}
@@ -186,16 +197,17 @@ public class Client {
 						payload.length,
 						InetAddress.getLocalHost(),
 						CommonConstants.HOST_LISTEN_PORT);
-			// InetAddress.getByName("192.168.1.1"),
-			// CommonConstants.HOST_LISTEN_PORT);
+
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 
 		System.out.println("Client: Sending packet:");
-		if(outputMode.equals("verbose"))
-			Utils.printVerbose(sendPacket);
+		if(outputMode.equals("verbose")){
+			System.out.println("Sending request:");
+			Helper.printPacket(sendPacket);
+		}
 
 		try {
 			sendReceiveSocket.send(sendPacket);
@@ -229,7 +241,7 @@ public class Client {
 		// query user for RRQ or WRQ or toggle between modes
 		for(;;)
 		{
-			System.out.println("Client: currently in " + c.getOutputMode() + " output mode");
+			System.out.println("Client: currently in:\n" + c.getOutputMode() + " output mode\n"+c.getOperationMode()+" operation mode");
 			String request = queryUserRequest(c);
 			
 			if(request.equals("5"))

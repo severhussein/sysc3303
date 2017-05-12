@@ -67,7 +67,7 @@ public class RequestManager implements Runnable {
 						send = new DatagramPacket(dataSend, dataSend.length, InetAddress.getLocalHost(), clientPort);
 						socket.send(send);
 						if(serverMode.equals(CommonConstants.VERBOSE))
-							Utils.printVerbose(send);
+							Helper.printPacket(send);
 					} catch (IOException e) {
 						System.out.println("ERROR SENDING READ\n" + e.getMessage());
 					}
@@ -76,7 +76,7 @@ public class RequestManager implements Runnable {
 					try {
 						socket.receive(received);
 						if(serverMode.equals("verbose"))
-							Utils.printVerbose(received);
+							Helper.printPacket(received);
 					} catch (IOException e) {
 						System.out.println("RECEPTION ERROR AT MANAGER ACK\n" + e.getMessage());
 					}
@@ -166,7 +166,7 @@ public class RequestManager implements Runnable {
 					send = new DatagramPacket(dataSend, dataSend.length, InetAddress.getLocalHost(), clientPort);
 					socket.send(send);
 					if(serverMode.equals("verbose"))
-						Utils.printVerbose(send);
+						Helper.printPacket(send);
 				} catch (IOException e) {
 					System.out.println("ERROR SENDING READ\n" + e.getMessage());
 				}
@@ -176,7 +176,7 @@ public class RequestManager implements Runnable {
 			byte writeData[] = new byte[CommonConstants.DATA_PACKET_SZ];
 			byte ack[] = CommonConstants.WRITE_RESPONSE_BYTES;
 			BufferedOutputStream out = null;
-
+			
 			try {
 				out = new BufferedOutputStream(new FileOutputStream(fileName));
 			} catch (IOException e) {
@@ -184,11 +184,15 @@ public class RequestManager implements Runnable {
 			}
 
 			System.out.println("Writing a File...\n");
+			//sending initial ack to a WRQ
 			try {
 				send = new DatagramPacket(ack, ack.length, InetAddress.getLocalHost(), clientPort);
 				socket.send(send);
-				if(serverMode.equals("verbose"))
-					Utils.printVerbose(send);
+				if(serverMode.equals("verbose")){
+					Helper.printPacket(send);
+					System.out.println("Ack Sent");
+				}
+
 			} catch (IOException e) {
 				System.out.println("ERROR SENDING ACK\n" + e.getMessage());
 			}
@@ -197,8 +201,10 @@ public class RequestManager implements Runnable {
 				received = new DatagramPacket(writeData, writeData.length);
 				try {
 					socket.receive(received);
-					if(serverMode.equals("verbose"))
-						Utils.printVerbose(received);
+					if(serverMode.equals("verbose")){
+						Helper.printPacket(received);
+						System.out.println("Ack sent");
+					}
 				} catch (IOException e) {
 					System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
 				}
@@ -210,7 +216,7 @@ public class RequestManager implements Runnable {
 					} catch (IOException e) {
 						System.out.println("ERROR WRITING TO FILE\n" + e.getMessage());
 					}
-
+					//change block#
 					ack[2] = writeData[2];
 					ack[3] = writeData[3];
 
@@ -221,7 +227,7 @@ public class RequestManager implements Runnable {
 								clientPort);
 						socket.send(send);
 						if(serverMode.equals("verbose"))
-							Utils.printVerbose(send);
+							Helper.printPacket(send);
 					} catch (IOException e) {
 						System.out.println("ERROR SENDING ACK\n" + e.getMessage());
 					}

@@ -2,6 +2,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.Arrays;
 import java.io.IOException;
 
 /**
@@ -93,13 +94,7 @@ public class Helper {
 	    System.out.println("Containing: " );
 	    
 	    // print the bytes
-	    System.out.print("Byte: ");
-	    for (int j=0;j<len;j++) {
-	    	System.out.print(receivePacket.getData()[j] + ", ");
-	       //System.out.print("byte " + j + " " + data[j]);
-	    }
-	    System.out.println();
-	    
+	    System.out.println("Bytes: "  + Arrays.toString(Arrays.copyOfRange(receivePacket.getData(),0,len)));
 	    // print the Strings
         String received = new String(receivePacket.getData(),0,len);
         System.out.println("String: " + received);

@@ -16,7 +16,7 @@ public class RequestListener {
 	public RequestListener() {
 		try {
 			receiveSock = new DatagramSocket(CommonConstants.SERVER_LISTEN_PORT);
-			receiveSock.setSoTimeout(120000);
+			//receiveSock.setSoTimeout(120000);
 		} catch (SocketException e) {
 			System.out.println(e.getMessage());
 		}
@@ -46,7 +46,7 @@ public class RequestListener {
 		}
 
 		if(serverMode.equals("verbose"))
-			Utils.printVerbose(received);
+			Helper.printPacket(received);
 		
 		packetLength = received.getLength();
 
