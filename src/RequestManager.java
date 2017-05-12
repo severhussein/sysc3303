@@ -12,17 +12,17 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class RequestManager implements Runnable {
-	public final int READ = 1, WRITE = 2, DATA = 3, ACKNOWLEDGE = 4, DATA_LENGTH = 512;
-
 	private DatagramSocket socket;
 	private DatagramPacket send, received;
 	private String fileName, serverMode;
-	private int hostPort, type;
+	private int clientPort, type;
+	private InetAddress clientAddress;
 
-	public RequestManager(int hostPort, String fileName, int type, String serverMode) {
+	public RequestManager(int clientPort, InetAddress ClientAddress, String fileName, int type, String serverMode) {
 		try {
 			socket = new DatagramSocket();
-			this.hostPort = hostPort;
+			this.clientPort = clientPort;
+			this.clientAddress = clientAddress;
 			this.fileName = fileName;
 			this.type = type;
 			this.serverMode = serverMode;
@@ -32,9 +32,9 @@ public class RequestManager implements Runnable {
 	}
 
 	public void run() {
-		//System.out.println(type + "\n");
-		if (type == 1) {
-			byte readData[] = new byte[DATA_LENGTH], ack[] = new byte[4];
+		if (type == CommonConstants.RRQ) {
+			byte readData[] = new byte[CommonConstants.DATA_PACKET_SZ];
+			byte ack[] = new byte[CommonConstants.ACK_PACKET_SZ];
 			int i = 0, lastSize = 0, n;
 			BufferedInputStream in = null;
 			try {
@@ -55,7 +55,7 @@ public class RequestManager implements Runnable {
 					readBlock[1] = (byte) i;
 					try {
 						buf.write(readBlock);
-						if (n < DATA_LENGTH)
+						if (n < CommonConstants.DATA_BLOCK_SZ)
 							readData = Utils.trimPacket(readData);
 						buf.write(readData);
 					} catch (IOException e) {
@@ -64,14 +64,14 @@ public class RequestManager implements Runnable {
 
 					byte dataSend[] = buf.toByteArray();
 					try {
-						send = new DatagramPacket(dataSend, dataSend.length, InetAddress.getLocalHost(), hostPort);
+						send = new DatagramPacket(dataSend, dataSend.length, InetAddress.getLocalHost(), clientPort);
 						socket.send(send);
-						if(serverMode.equals("verbose"))
+						if(serverMode.equals(CommonConstants.VERBOSE))
 							Utils.printVerbose(send);
 					} catch (IOException e) {
 						System.out.println("ERROR SENDING READ\n" + e.getMessage());
 					}
-					if(serverMode.equals("verbose")) System.out.println("Waiting for ack...\n");
+					if(serverMode.equals(CommonConstants.VERBOSE)) System.out.println("Waiting for ack...\n");
 					received = new DatagramPacket(ack, ack.length);
 					try {
 						socket.receive(received);
@@ -80,21 +80,78 @@ public class RequestManager implements Runnable {
 					} catch (IOException e) {
 						System.out.println("RECEPTION ERROR AT MANAGER ACK\n" + e.getMessage());
 					}
+
+					if(!received.getAddress().equals(clientAddress) || 
+					   !(received.getPort() == clientPort)) {
+						ByteArrayOutputStream error = new ByteArrayOutputStream();
+						error.write(0);
+						error.write(5);
+						error.write(0);
+						error.write(5);
+						try {
+							error.write("RECEIVED FROM UNEXPECTED TID".getBytes());
+						} catch(IOException e) {
+							System.out.println("ISSUE MAKING ERROR BYTE ARR\n" + e.getMessage());
+						}
+						error.write(0);
+
+						byte errBuf[] = error.toByteArray();
+
+						try {
+							send = new DatagramPacket(errBuf,
+									errBuf.length,
+									received.getAddress(),
+									received.getPort());
+							socket.send(send);
+						} catch(IOException e) {
+							System.out.println("ISSUE CREATING ERROR PACKET" + e.getMessage());
+						}
+
+						i -= 1;
+					}
 					// Check acknowledge packet, before continuing.
 					// Right now, does not throw exception nor
 					// requests re-transmission.
 					// Just prints to console.
 					int block = ((ack[2] & 0xFF) >> 8) | (ack[3] & 0xFF);
-					if (ack[1] != ACKNOWLEDGE && block != i) {
-						System.out.println("ACK BLOCK DOES NOT MATCH\n");
+					if (ack[1] != CommonConstants.ACK && block != i) {
+						buf = new ByteArrayOutputStream();
+						buf.write(0);
+						buf.write(5);
+						buf.write(0);
+						buf.write(4);
+						try {
+							if(ack[1] != CommonConstants.ACK) {
+								buf.write("PACKET OPCODE IS NOT ACK\n".getBytes());
+							}
+							else {
+								buf.write("PACKET BLOCK # MISMATCH\n".getBytes());
+							}
+						} catch(IOException e) {
+							System.out.println("ISSUE CREATING ERROR MSG\n" + e.getMessage());
+						}
+						buf.write(0);
+						
+						byte errBuf[] = buf.toByteArray();
+
+						try {
+							send = new DatagramPacket(errBuf,
+									errBuf.length,
+									InetAddress.getLocalHost(),
+									clientPort);
+							socket.send(send);
+						} catch(IOException e) {
+							System.out.println("ISSUE CREATING DATA ERROR PACKET\n" + e.getMessage());
+						}
+						return;
 					}
-					readData = new byte[DATA_LENGTH];
+					readData = new byte[CommonConstants.DATA_BLOCK_SZ];
 				}
 			} catch (IOException e) {
 				System.out.println("ERROR READING FILE\n" + e.getMessage());
 			}
-			if(serverMode.equals("verbose")) System.out.println("Size compare: " + lastSize + "\t" + DATA_LENGTH);
-			if (lastSize == DATA_LENGTH) {
+			if(serverMode.equals("verbose")) System.out.println("Last block sizee: " + lastSize);
+			if (lastSize == CommonConstants.DATA_BLOCK_SZ) {
 				i += 1;
 				ByteArrayOutputStream buf = new ByteArrayOutputStream();
 				buf.write(0);
@@ -106,7 +163,7 @@ public class RequestManager implements Runnable {
 				byte dataSend[] = buf.toByteArray();
 
 				try {
-					send = new DatagramPacket(dataSend, dataSend.length, InetAddress.getLocalHost(), hostPort);
+					send = new DatagramPacket(dataSend, dataSend.length, InetAddress.getLocalHost(), clientPort);
 					socket.send(send);
 					if(serverMode.equals("verbose"))
 						Utils.printVerbose(send);
@@ -114,23 +171,21 @@ public class RequestManager implements Runnable {
 					System.out.println("ERROR SENDING READ\n" + e.getMessage());
 				}
 			}
-		} else if (type == 2) {//write
+		} else if (type == CommonConstants.WRQ) {
 			boolean serve = true;
-			byte writeData[] = new byte[516], ack[] = new byte[4];
+			byte writeData[] = new byte[CommonConstants.DATA_PACKET_SZ];
+			byte ack[] = CommonConstants.WRITE_RESPONSE_BYTES;
 			BufferedOutputStream out = null;
+
 			try {
 				out = new BufferedOutputStream(new FileOutputStream(fileName));
 			} catch (IOException e) {
 				System.out.println("ERROR CREATING FILE\n" + e.getMessage());
 			}
 
-			ack[0] = 0;
-			ack[1] = 4;
-			ack[2] = 0;
-			ack[3] = 0;
 			System.out.println("Writing a File...\n");
 			try {
-				send = new DatagramPacket(ack, ack.length, InetAddress.getLocalHost(), hostPort);
+				send = new DatagramPacket(ack, ack.length, InetAddress.getLocalHost(), clientPort);
 				socket.send(send);
 				if(serverMode.equals("verbose"))
 					Utils.printVerbose(send);
@@ -148,7 +203,7 @@ public class RequestManager implements Runnable {
 					System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
 				}
 
-				if (writeData[1] == DATA) {
+				if (writeData[1] == CommonConstants.DATA) {
 
 					try {
 						out.write(writeData, 4, received.getLength() - 4);
@@ -160,7 +215,10 @@ public class RequestManager implements Runnable {
 					ack[3] = writeData[3];
 
 					try {
-						send = new DatagramPacket(ack, ack.length, InetAddress.getLocalHost(), hostPort);
+						send = new DatagramPacket(ack,
+								ack.length,
+								InetAddress.getLocalHost(),
+								clientPort);
 						socket.send(send);
 						if(serverMode.equals("verbose"))
 							Utils.printVerbose(send);
@@ -168,8 +226,39 @@ public class RequestManager implements Runnable {
 						System.out.println("ERROR SENDING ACK\n" + e.getMessage());
 					}
 				}
+				else {
+					ByteArrayOutputStream buf = new ByteArrayOutputStream();
+					buf.write(0);
+					buf.write(5);
+					buf.write(0);
+					buf.write(4);
+					try {
+						if(ack[1] != CommonConstants.ACK) {
+							buf.write("PACKET OPCODE IS NOT DATA\n".getBytes());
+						}
+						else {
+							buf.write("PACKET BLOCK # MISMATCH\n".getBytes());
+						}
+					} catch(IOException e) {
+						System.out.println("ISSUE CREATING ERROR MSG\n" + e.getMessage());
+					}
+					buf.write(0);
+					
+					byte errBuf[] = buf.toByteArray();
 
-				if (received.getLength() < DATA_LENGTH + 4){ // Length < 516, changed from <512, edited by David
+					try {
+						send = new DatagramPacket(errBuf,
+								errBuf.length,
+								InetAddress.getLocalHost(),
+								clientPort);
+						socket.send(send);
+					} catch(IOException e) {
+						System.out.println("ISSUE CREATING DATA ERROR PACKET\n" + e.getMessage());
+					}
+					return;
+				}
+
+				if (received.getLength() < CommonConstants.DATA_PACKET_SZ){ // Length < 516, changed from <512, edited by David
 					serve = false;
 					try{
 						out.close();
