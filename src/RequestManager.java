@@ -18,7 +18,7 @@ public class RequestManager implements Runnable {
 	private int clientPort, type;
 	private InetAddress clientAddress;
 
-	public RequestManager(int clientPort, InetAddress ClientAddress, String fileName, int type, String serverMode) {
+	public RequestManager(int clientPort, InetAddress clientAddress, String fileName, int type, String serverMode) {
 		try {
 			socket = new DatagramSocket();
 			this.clientPort = clientPort;
