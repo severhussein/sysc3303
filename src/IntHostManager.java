@@ -40,9 +40,9 @@ public class IntHostManager implements Runnable {
                       
 
                 if (i == 2 && type == 2) {
-                    simulate_wrong_port(1);//1 is to server
+                    simulate_wrong_port(serverPort);//1 is to server
                 } else if (i == 2 && type == 4) {
-                    simulate_wrong_opcode(1);//1 is to server
+                    simulate_wrong_opcode(serverPort);//1 is to server
                 } else {        
                      Helper.print("Host sending to server...\n");
                      sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), serverPort);
@@ -60,9 +60,9 @@ public class IntHostManager implements Runnable {
 
 
                 if (i == 2 && type == 1) {
-                    simulate_wrong_port(1);//1 is to server
+                    simulate_wrong_port(clientPort);//to client
                 } else if (i == 2 && type == 3) {
-                    simulate_wrong_opcode(1);//1 is to server
+                    simulate_wrong_opcode(clientPort);//to client
                 } else {  
                     Helper.print("Host sending to Client...\n");
                     sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), clientPort);
@@ -79,40 +79,23 @@ public class IntHostManager implements Runnable {
     
 
     
-    public void simulate_wrong_port(int direction) {
+    public void simulate_wrong_port(int port) {
         
         DatagramSocket new_socket = Helper.newSocket();
-        
-        if (direction == 1) {
-            Helper.print("simulate ERROR 5: Host sending to server...\n");
-            sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), serverPort);
+
+            Helper.print("simulate ERROR 5 to port: " + port + "\n");
+            sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), port);
             Helper.send(new_socket, sendPacket);
             Helper.printPacket(sendPacket);
-        }
-        else if (direction == 0) {
-            Helper.print("simulate ERROR 5: Host sending to Client...\n");
-            sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), clientPort);
-            Helper.send(new_socket, sendPacket);
-            Helper.printPacket(sendPacket);
-        }
 
     }
-    public void simulate_wrong_opcode(int direction) {
+    public void simulate_wrong_opcode(int port) {
         
-        if (direction == 1) {
-            Helper.print("simulate ERROR 4: Host sending to server...\n");
+            Helper.print("simulate ERROR 4 to port: " + port + "\n");
             receivePacket.getData()[0] = 7;
-            sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), serverPort);
+            sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), port);
             Helper.send(socket, sendPacket);
             Helper.printPacket(sendPacket);
-        }
-        else if (direction == 0) {
-            Helper.print("simulate ERROR 4: Host sending to Client...\n");
-            receivePacket.getData()[0] = 7;
-            sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), clientPort);
-            Helper.send(socket, sendPacket);
-            Helper.printPacket(sendPacket);
-        }
     }
     
 }
