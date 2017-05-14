@@ -32,7 +32,7 @@ public abstract class TftpRequestPacket extends TftpPacket {
 	private final TftpTransferMode mode;
 	private final String filename;
 
-	///make these final? constructor will have a lot of parameters...
+	/// make these final? constructor will have a lot of parameters...
 	private boolean has_blksize;
 	private boolean has_timeout;
 	private boolean has_tsize;
@@ -59,13 +59,12 @@ public abstract class TftpRequestPacket extends TftpPacket {
 	}
 
 	/**
-	 * Dissects the DatagramPacket into various fields
+	 * Dissects the Tftp Request into various fields, should not be used directly
 	 * 
 	 * @param packet
 	 *            The UDP datagram to be passed into this dissector
 	 * @throws IllegalArgumentException
-	 *             if packet passed in is not in proper request format defined
-	 *             in assignment 1
+	 *             if packet passed in is not in proper request format 
 	 */
 	TftpRequestPacket(TftpType type, DatagramPacket packet) throws IllegalArgumentException {
 		super(type);
@@ -140,46 +139,49 @@ public abstract class TftpRequestPacket extends TftpPacket {
 	}
 
 	/**
-	 * Generate the byte array to be packed in a DatagramPacket for this object
+	 * Generate the byte array to be packed in a DatagramPacket for this TFTP packet
 	 * 
 	 * @return an byte array ready to be used
-	 * @throws IOException
 	 */
-	public byte[] generatePayloadArray() throws IOException {
+	public byte[] generatePayloadArray() {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-		baos.write(getType().getOpcodeBytes());
-		baos.write(filename.getBytes());
-		baos.write((byte) 0);
-		baos.write(mode.getArray());
-		baos.write((byte) 0);
-		
-		/* TFTP OPTIONS */
-		if (has_blksize()) {
-			baos.write(OPTION_BLKSIZE_STRING.getBytes());
+		try {
+			baos.write(getType().getOpcodeBytes());
+			baos.write(filename.getBytes());
 			baos.write((byte) 0);
-			baos.write(Integer.toString(getBlksize()).getBytes());
+			baos.write(mode.getArray());
 			baos.write((byte) 0);
 
-		}
-		if (has_timeout()) {
-			baos.write(OPTION_TIMEOUT_STRING.getBytes());
-			baos.write((byte) 0);
-			baos.write(Short.toString(getTimeout()).getBytes());
-			baos.write((byte) 0);
-		}
-		if (has_Transfersize()) {
-			baos.write(OPTION_TSIZE_STRING.getBytes());
-			baos.write((byte) 0);
-			baos.write(Long.toString(getTransfersize()).getBytes());
-			baos.write((byte) 0);
+			/* TFTP OPTIONS */
+			if (has_blksize()) {
+				baos.write(OPTION_BLKSIZE_STRING.getBytes());
+				baos.write((byte) 0);
+				baos.write(Integer.toString(getBlksize()).getBytes());
+				baos.write((byte) 0);
 
-		}
-		if (has_windowsize()) {
-			baos.write(OPTION_WINDOWSIZE_STRING.getBytes());
-			baos.write((byte) 0);
-			baos.write(Integer.toString(getWindowsize()).getBytes());
-			baos.write((byte) 0);
+			}
+			if (has_timeout()) {
+				baos.write(OPTION_TIMEOUT_STRING.getBytes());
+				baos.write((byte) 0);
+				baos.write(Short.toString(getTimeout()).getBytes());
+				baos.write((byte) 0);
+			}
+			if (has_Transfersize()) {
+				baos.write(OPTION_TSIZE_STRING.getBytes());
+				baos.write((byte) 0);
+				baos.write(Long.toString(getTransfersize()).getBytes());
+				baos.write((byte) 0);
+
+			}
+			if (has_windowsize()) {
+				baos.write(OPTION_WINDOWSIZE_STRING.getBytes());
+				baos.write((byte) 0);
+				baos.write(Integer.toString(getWindowsize()).getBytes());
+				baos.write((byte) 0);
+			}
+		} catch (IOException e) {
+			throw new RuntimeException("ByteArrayOutputStream throws Exception, something really bad happening", e);
 		}
 
 		return baos.toByteArray();
@@ -198,7 +200,7 @@ public abstract class TftpRequestPacket extends TftpPacket {
 	public final String getFilename() {
 		return filename;
 	}
-	
+
 	public boolean has_blksize() {
 		return has_blksize;
 	}
@@ -215,7 +217,6 @@ public abstract class TftpRequestPacket extends TftpPacket {
 		return has_windowsize;
 	}
 
-
 	public int getBlksize() {
 		return blksize;
 	}
@@ -231,8 +232,7 @@ public abstract class TftpRequestPacket extends TftpPacket {
 	public int getWindowsize() {
 		return windowsize;
 	}
-	
-	
+
 	public void setBlksize(int blksize) {
 		this.blksize = blksize;
 		has_blksize = true;
@@ -252,7 +252,7 @@ public abstract class TftpRequestPacket extends TftpPacket {
 		this.windowsize = windowsize;
 		has_windowsize = true;
 	}
-	
+
 	@Override
 	public String toString() {
 		return ("Type: " + getType().name() + " Filename: " + filename + " Mode: " + mode.name());

@@ -2,6 +2,12 @@ package TftpPacketHelper;
 
 import java.net.DatagramPacket;
 
+/**
+ * TFTP Read Request
+ * 
+ * @author Yu-Kai Yang 100786472
+ *
+ */
 public class TftpReadRequestPacket extends TftpRequestPacket {
 
 	/**
@@ -9,7 +15,7 @@ public class TftpReadRequestPacket extends TftpRequestPacket {
 	 * 
 	 * @param filename filename in the request packet
 	 * @param mode transfer mode
-	 * @throws IllegalArgumentException
+	 * @throws IllegalArgumentException when input is invalid for tftp RRQ
 	 */
 	public TftpReadRequestPacket(String filename, TftpTransferMode mode) throws IllegalArgumentException {
 		super(TftpType.READ_REQUEST, filename, mode);

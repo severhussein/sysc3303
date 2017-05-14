@@ -4,19 +4,24 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 
+/**
+ * TFTP Error
+ * 
+ * @author Yu-Kai Yang 100786472
+ *
+ */
 public class TftpErrorPacket extends TftpPacket {
 
-	
 	public static final String[] errorString = { "Not defined, see error message (if any).", "File not found.",
 			"Access violation.", "Disk full or allocation exceeded.", "Illegal TFTP operation.", "Unknown transfer ID.",
 			"File already exists.", "No such user." };
-		
+
 	private final short errorCode;
 	private final String errorMsg;
 
-	TftpErrorPacket(short errorCode, String errMsg) {
+	public TftpErrorPacket(int errorCode, String errMsg) {
 		super(TftpType.ERROR);
-		this.errorCode = errorCode;
+		this.errorCode = (short) errorCode;
 		this.errorMsg = errMsg;
 	}
 
@@ -47,14 +52,19 @@ public class TftpErrorPacket extends TftpPacket {
 	}
 
 	@Override
-	public byte[] generatePayloadArray() throws IOException {
+	public byte[] generatePayloadArray() {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-		baos.write(getType().getOpcodeBytes());
-		baos.write((byte) (errorCode >> 8 & 0xff));
-		baos.write((byte) (errorCode & 0xff));
-		baos.write(errorMsg.getBytes());
-		
+		try {
+			baos.write(getType().getOpcodeBytes());
+			baos.write((byte) (errorCode >> 8 & 0xff));
+			baos.write((byte) (errorCode & 0xff));
+			baos.write(errorMsg.getBytes());
+			baos.write((byte) 0);
+		} catch (IOException e) {
+			throw new RuntimeException("ByteArrayOutputStream throws Exception, something really bad happening", e);
+		}
+
 		return baos.toByteArray();
 	}
 

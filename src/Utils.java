@@ -59,22 +59,20 @@ public class Utils {
 	}
 	
 	public static void printDatagramContentWiresharkStyle(DatagramPacket packet) {
-
 		int len = packet.getLength();
 		byte payload[] = packet.getData();
 		int i = 0, count = 1;
 		boolean printHex = true, printHeader = true;
 
 		System.out.println("   This packet contains:");
-		System.out.println("   Address: " + packet.getAddress());
-		System.out.println("   Port: " + packet.getPort());
+		System.out.println("   Address: " + packet.getAddress() + ":" + packet.getPort());
 		System.out.println("   Length: " + len);
 		System.out.print("   Content:");
 		while (i < len) {
 			if (printHex) {
 				if (printHeader) {
 					System.out.println();
-					System.out.format("%04x | ", i); //
+					System.out.format("    %04x | ", i); //
 					printHeader = false;
 				}
 				System.out.print(String.format("%02x ", payload[i]));

@@ -1,31 +1,61 @@
 package TftpPacketHelper;
 
-import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.InetAddress;
 
 /**
- * Helper class to encode/decode TFTP packet with support for RFC 1350, 2347, 2348, 2349, 7440
- * blksize works, other options not tested. 
+ * Helper class to encode/decode TFTP packet with support for RFC 1350, 2347,
+ * 2348, 2349, 7440 blksize works, other options not tested.
  * 
  * @author Yu-Kai Yang 100786472
  *
  */
 public abstract class TftpPacket {
+	/**
+	 * opcode for TFTP RRQ packet
+	 */
 	public static final int TFTP_RRQ = 1;
+	/**
+	 * opcode for TFTP WRQ packet
+	 */
 	public static final int TFTP_WRQ = 2;
+	/**
+	 * opcode for TFTP DATA packet
+	 */
 	public static final int TFTP_DATA = 3;
+	/**
+	 * opcode for TFTP ACK packet
+	 */
 	public static final int TFTP_ACK = 4;
+	/**
+	 * opcode for TFTP ERROR packet
+	 */
 	public static final int TFTP_ERROR = 5;
+	/**
+	 * opcode for TFTP OACK packet
+	 */
 	public static final int TFTP_OACK = 6;
-	
+
+	/**
+	 * TFTP block size Option string as defined in RFC2348
+	 */
 	public static final String OPTION_BLKSIZE_STRING = "blksize";
+	/**
+	 * TFTP timeout Option string as defined in RFC2349
+	 */
 	public static final String OPTION_TIMEOUT_STRING = "timeout";
+	/**
+	 * TFTP transfer size Option string as defined in RFC2349
+	 */
 	public static final String OPTION_TSIZE_STRING = "tsize";
+	/**
+	 * TFTP window size Option string as defined in RFC2349
+	 */
 	public static final String OPTION_WINDOWSIZE_STRING = "windowsize";
 
 	public enum TftpType {
-		READ_REQUEST(TFTP_RRQ), WRTIE_REQUEST(TFTP_WRQ), DATA(TFTP_DATA), ACK(TFTP_ACK), ERROR(
-				TFTP_ERROR), OACK(TFTP_OACK);
+		READ_REQUEST(TFTP_RRQ), WRTIE_REQUEST(TFTP_WRQ), DATA(TFTP_DATA), ACK(TFTP_ACK), ERROR(TFTP_ERROR), OACK(
+				TFTP_OACK);
 
 		private int opcode;
 
@@ -33,6 +63,9 @@ public abstract class TftpPacket {
 			this.opcode = opcode;
 		}
 
+		/**
+		 * @return opcode in two byte array ready to be packed in Datagram
+		 */
 		public byte[] getOpcodeBytes() {
 			byte[] opcodeArray = { 0, 0 };
 			opcodeArray[1] = (byte) opcode;
@@ -48,11 +81,13 @@ public abstract class TftpPacket {
 	}
 
 	/**
-	 * Use this method to decode TFTP packets
+	 * Use this method to decode packets
 	 * 
-	 * @param packet DatagramPacket to be decoded
+	 * @param packet
+	 *            DatagramPacket to be decoded
 	 * @return decoded TFTP packet
-	 * @throws IllegalArgumentException if something goes wrong while decoding
+	 * @throws IllegalArgumentException
+	 *             if this is not a TFTP packet or something is wrong
 	 */
 	public static TftpPacket decodeTftpPacket(DatagramPacket packet) throws IllegalArgumentException {
 		byte[] payload = packet.getData();
@@ -80,20 +115,34 @@ public abstract class TftpPacket {
 	}
 
 	/**
-	 * Generates a byte array to be packed in a DatagramPacket (or anywhere else)
+	 * Generates a byte array to be packed in a DatagramPacket (or anywhere
+	 * else)
 	 * 
-	 * @return Tftp packet in byte array form
-	 * @throws IOException
+	 * @return TFTP packet in byte array form
 	 */
-	public abstract byte[] generatePayloadArray() throws IOException;
+	public abstract byte[] generatePayloadArray();
+
+	/**
+	 * Generates a DatagramPacket for this TFTP packet with address
+	 * 
+	 * @param address
+	 *            address to be used in DatagramPacket construction
+	 * @param port
+	 *            port to be used in DatagramPacket construction
+	 * @return DatagramPacket to be send
+	 */
+	public DatagramPacket generateDatagram(InetAddress address, int port) {
+		byte[] payload = generatePayloadArray();
+
+		return new DatagramPacket(payload, payload.length, address, port);
+	}
 
 	/**
 	 * Generates a DatagramPacket for this TFTP packet
 	 * 
 	 * @return DatagramPacket to be send
-	 * @throws IOException
 	 */
-	public DatagramPacket generateDatagram() throws IOException {
+	public DatagramPacket generateDatagram() {
 		byte[] payload = generatePayloadArray();
 
 		return new DatagramPacket(payload, payload.length);

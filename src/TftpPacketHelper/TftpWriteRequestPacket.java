@@ -2,6 +2,12 @@ package TftpPacketHelper;
 
 import java.net.DatagramPacket;
 
+/**
+ * TFTP Write Request
+ * 
+ * @author Yu-Kai Yang 100786472
+ *
+ */
 public class TftpWriteRequestPacket extends TftpRequestPacket {
 
 	/**
@@ -9,7 +15,7 @@ public class TftpWriteRequestPacket extends TftpRequestPacket {
 	 * 
 	 * @param filename filename in the request packet
 	 * @param mode transfer mode
-	 * @throws IllegalArgumentException
+	 * @throws IllegalArgumentException when input is invalid for tftp WRQ
 	 */
 	public TftpWriteRequestPacket(String filename, TftpTransferMode mode) throws IllegalArgumentException {
 		super(TftpType.WRTIE_REQUEST, filename, mode);

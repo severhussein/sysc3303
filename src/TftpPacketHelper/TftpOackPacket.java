@@ -32,9 +32,10 @@ public class TftpOackPacket extends TftpPacket {
 	private int windowsize;
 
 	/**
-	 * Construct a TFTP OACK packet object. Use the public method to control options.
+	 * Construct a TFTP OACK packet object. Use the public method to control
+	 * options.
 	 */
-	TftpOackPacket(){
+	TftpOackPacket() {
 		super(TftpType.OACK);
 	}
 
@@ -115,35 +116,40 @@ public class TftpOackPacket extends TftpPacket {
 	}
 
 	@Override
-	public byte[] generatePayloadArray() throws IOException {
+	public byte[] generatePayloadArray() {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-		baos.write(getType().getOpcodeBytes());
+		try {
+			baos.write(getType().getOpcodeBytes());
 
-		/* TFTP OPTIONS */
-		if (has_blksize) {
-			baos.write(TftpPacket.OPTION_BLKSIZE_STRING.getBytes());
-			baos.write((byte) 0);
-			baos.write(Integer.toString(blksize).getBytes());
-			baos.write((byte) 0);
-		}
-		if (has_timeout) {
-			baos.write(TftpPacket.OPTION_TIMEOUT_STRING.getBytes());
-			baos.write((byte) 0);
-			baos.write(Short.toString(timeout).getBytes());
-			baos.write((byte) 0);
-		}
-		if (has_tsize) {
-			baos.write(TftpPacket.OPTION_TSIZE_STRING.getBytes());
-			baos.write((byte) 0);
-			baos.write(Long.toString(tsize).getBytes());
-			baos.write((byte) 0);
-		}
-		if (has_windowsize) {
-			baos.write(TftpPacket.OPTION_WINDOWSIZE_STRING.getBytes());
-			baos.write((byte) 0);
-			baos.write(Integer.toString(windowsize).getBytes());
-			baos.write((byte) 0);
+			/* TFTP OPTIONS */
+			if (has_blksize) {
+				baos.write(TftpPacket.OPTION_BLKSIZE_STRING.getBytes());
+				baos.write((byte) 0);
+				baos.write(Integer.toString(blksize).getBytes());
+				baos.write((byte) 0);
+			}
+			if (has_timeout) {
+				baos.write(TftpPacket.OPTION_TIMEOUT_STRING.getBytes());
+				baos.write((byte) 0);
+				baos.write(Short.toString(timeout).getBytes());
+				baos.write((byte) 0);
+			}
+			if (has_tsize) {
+				baos.write(TftpPacket.OPTION_TSIZE_STRING.getBytes());
+				baos.write((byte) 0);
+				baos.write(Long.toString(tsize).getBytes());
+				baos.write((byte) 0);
+			}
+			if (has_windowsize) {
+				baos.write(TftpPacket.OPTION_WINDOWSIZE_STRING.getBytes());
+				baos.write((byte) 0);
+				baos.write(Integer.toString(windowsize).getBytes());
+				baos.write((byte) 0);
+			}
+		} catch (IOException e) {
+			 throw new RuntimeException(
+				        "ByteArrayOutputStream throws Exception, something really bad happening", e);
 		}
 
 		return baos.toByteArray();

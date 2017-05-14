@@ -92,4 +92,8 @@ public class CommonConstants {
 	* System set-up option for direct client-server communication.
 	*/
 	public static final String NORM = "normal";
+	
+	public static final int TFTP_MAX_NUM_RETRIES = 5;
+	
+	public static final int TFTP_MAX_BLOCK_NUMBER = 65535;
 }

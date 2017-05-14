@@ -8,12 +8,13 @@ public class TftpAckPacket extends TftpPacket {
 
 	protected static final byte ACK_PACKET_SIZE = 4;
 
-	private final short blockNumber;
+	private final int blockNumber;
 
 	/**
 	 * Construct a TFTP ACK packet object.
 	 * 
-	 * @param blockNumber block number in the data packet.
+	 * @param blockNumber
+	 *            block number in the data packet.
 	 */
 	public TftpAckPacket(int blockNumber) {
 		super(TftpType.ACK);
@@ -29,36 +30,32 @@ public class TftpAckPacket extends TftpPacket {
 			throw new IllegalArgumentException("Malformed ack packet");
 		}
 
-		blockNumber = (short) ((payload[2] & 0xff) << 8 | payload[3] & 0xff);
+		blockNumber = (int) ((payload[2] & 0xff) << 8 | payload[3] & 0xff);
 	}
 
-	protected TftpAckPacket(TftpType type, DatagramPacket packet) {
-
-		super(type);
-
-		byte payload[] = packet.getData();
-
-		if (packet.getLength() != ACK_PACKET_SIZE) {
-			throw new IllegalArgumentException("Malformed ack packet");
-		}
-		blockNumber = (short) ((payload[2] & 0xff) << 8 | payload[3] & 0xff);
-		// TODO Auto-generated constructor stub
-	}
-
-	public byte[] generatePayloadArray() throws IOException {
+	public byte[] generatePayloadArray() {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-		baos.write(getType().getOpcodeBytes());
-		baos.write((byte) (blockNumber >> 8 & 0xff));
-		baos.write((byte) (blockNumber & 0xff));
+		try {
+			baos.write(getType().getOpcodeBytes());
+			baos.write((byte) (blockNumber >> 8 & 0xff));
+			baos.write((byte) (blockNumber & 0xff));
+		} catch (IOException e) {
+			throw new RuntimeException("ByteArrayOutputStream throws Exception, something really bad happening", e);
+		}
 
 		return baos.toByteArray();
 	}
 
-	public short getBlockNumber() {
+	/**
+	 * Retrieves the block number of this TFTP ack packet
+	 * 
+	 * @return block number
+	 */
+	public int getBlockNumber() {
 		return blockNumber;
 	}
-	
+
 	@Override
 	public String toString() {
 		return ("Type: " + getType().name() + " Block Number: " + getBlockNumber());
