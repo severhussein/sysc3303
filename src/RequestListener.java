@@ -99,7 +99,7 @@ public class RequestListener {
 			mode = new String(datagram, j + 1, k - j).trim();
 
 		}
-
+//TODO :check later RFC 2347
 		if (k != packetLength - 1)
 			req = CommonConstants.ERR; // other stuff at end of packet
 		// if(req==Request.ERROR) for debugging
