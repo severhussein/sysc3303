@@ -2,33 +2,31 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.nio.ByteBuffer;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
-
 import TftpPacketHelper.TftpErrorPacket;
 
 public class RequestManager implements Runnable {
 	private DatagramSocket socket;
 	private DatagramPacket send, received;
-	private String fileName, serverMode;
+	private String fileName;
 	private int clientPort, type;
 	private InetAddress clientAddress;
+	private boolean verbose;
 	
 
-	public RequestManager(int clientPort, InetAddress clientAddress, String fileName, int type, String serverMode) {
+	public RequestManager(int clientPort, InetAddress clientAddress, String fileName, int type, boolean verbose) {
 		try {
 			this.socket = new DatagramSocket();
 			this.clientPort = clientPort;
 			this.clientAddress = clientAddress;
 			this.fileName = fileName;
 			this.type = type;
-			this.serverMode = serverMode;
+			this.verbose = verbose;
 		} catch (SocketException e) {
 			System.out.println(e.getMessage());
 		}
@@ -67,16 +65,16 @@ public class RequestManager implements Runnable {
 					try {
 						send = new DatagramPacket(dataSend, dataSend.length, InetAddress.getLocalHost(), clientPort);
 						socket.send(send);
-						if(serverMode.equals(CommonConstants.VERBOSE))
+						if(verbose)
 							Utils.tryPrintTftpPacket(send);
 					} catch (IOException e) {
 						System.out.println("ERROR SENDING READ\n" + e.getMessage());
 					}
-					if(serverMode.equals(CommonConstants.VERBOSE)) System.out.println("Waiting for ack...\n");
+					if(verbose) System.out.println("Waiting for ack...\n");
 					received = new DatagramPacket(ackRRQ, ackRRQ.length);
 					try {
 						socket.receive(received);
-						if(serverMode.equals(CommonConstants.VERBOSE))
+						if(verbose)
 							Utils.tryPrintTftpPacket(received);
 					} catch (IOException e) {
 						System.out.println("RECEPTION ERROR AT MANAGER ACK\n" + e.getMessage());
@@ -160,7 +158,7 @@ public class RequestManager implements Runnable {
 			} catch (IOException e) {
 				System.out.println("ERROR READING FILE\n" + e.getMessage());
 			}
-			if(serverMode.equals(CommonConstants.VERBOSE)) System.out.println("Last block sizee: " + lastSize);
+			if(verbose) System.out.println("Last block sizee: " + lastSize);
 			if (lastSize == CommonConstants.DATA_BLOCK_SZ) {
 				i += 1;
 				ByteArrayOutputStream buf = new ByteArrayOutputStream();
@@ -175,7 +173,7 @@ public class RequestManager implements Runnable {
 				try {
 					send = new DatagramPacket(dataSend, dataSend.length, InetAddress.getLocalHost(), clientPort);
 					socket.send(send);
-					if(serverMode.equals(CommonConstants.VERBOSE))
+					if(verbose)
 						Utils.tryPrintTftpPacket(send);
 				} catch (IOException e) {
 					System.out.println("ERROR SENDING READ\n" + e.getMessage());
@@ -200,7 +198,7 @@ public class RequestManager implements Runnable {
 			try {
 				send = new DatagramPacket(ack, ack.length, InetAddress.getLocalHost(), clientPort);
 				socket.send(send);
-				if(serverMode.equals(CommonConstants.VERBOSE)){
+				if(verbose){
 					System.out.println("Initial Ack sent for WRQ:");
 					Utils.tryPrintTftpPacket(send);
 				}
@@ -215,7 +213,7 @@ public class RequestManager implements Runnable {
 				try {
 					//sending back ack0 for WRQ
 					socket.receive(received);
-					if(serverMode.equals(CommonConstants.VERBOSE)){
+					if(verbose){
 						Utils.tryPrintTftpPacket(received);
 					}
 				} catch (IOException e) {
@@ -232,7 +230,7 @@ public class RequestManager implements Runnable {
 					} catch (IOException e) {
 						System.out.println("Error sending the error.\n" + e.getMessage());
 					}
-					if(serverMode.equals(CommonConstants.VERBOSE)){
+					if(verbose){
 						System.out.println("Error sent for wrong TID:");
 						Utils.tryPrintTftpPacket(send);
 					}
@@ -261,7 +259,7 @@ public class RequestManager implements Runnable {
 								InetAddress.getLocalHost(),
 								clientPort);
 						socket.send(send);
-						if(serverMode.equals(CommonConstants.VERBOSE)){
+						if(verbose){
 							System.out.println("Sending Ack:");
 							Utils.tryPrintTftpPacket(send);
 						}

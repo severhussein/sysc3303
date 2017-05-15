@@ -5,17 +5,20 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.io.IOException;
 import java.io.ByteArrayOutputStream;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class RequestListener {
 	private DatagramSocket receiveSock;
+	private DatagramSocket sendSocket;;
 	private DatagramPacket send, received;
-	private String response, serverMode = CommonConstants.QUIET;
+	private String response;
+	private static Scanner sc = new Scanner(System.in);
+	private static boolean verbose = false;
 
 	public RequestListener() {
 		try {
 			receiveSock = new DatagramSocket(CommonConstants.SERVER_LISTEN_PORT);
+			sendSocket = new DatagramSocket();
 			// receiveSock.setSoTimeout(120000);
 		} catch (SocketException e) {
 			System.out.println(e.getMessage());
@@ -43,7 +46,7 @@ public class RequestListener {
 				System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
 		}
 
-		if (serverMode.equals(CommonConstants.VERBOSE))
+		if (verbose)
 			Utils.tryPrintTftpPacket(received);
 
 		packetLength = received.getLength();
@@ -99,7 +102,7 @@ public class RequestListener {
 			mode = new String(datagram, j + 1, k - j).trim();
 
 		}
-//TODO :check later RFC 2347
+		//No support for RFC2347, any trailing bytes after mode will be treated as error
 		if (k != packetLength - 1)
 			req = CommonConstants.ERR; // other stuff at end of packet
 		// if(req==Request.ERROR) for debugging
@@ -110,7 +113,7 @@ public class RequestListener {
 		// System.out.println(mode);
 
 		if (req == CommonConstants.RRQ || req == CommonConstants.WRQ) {
-			new Thread(new RequestManager(received.getPort(), received.getAddress(), filename, datagram[1], serverMode))
+			new Thread(new RequestManager(received.getPort(), received.getAddress(), filename, datagram[1], verbose))
 					.start();
 			System.out.println("\nSending Request and creating new thread\n");
 		} else { // it was invalid, just quit
@@ -130,6 +133,9 @@ public class RequestListener {
 
 			try {
 				send = new DatagramPacket(errBuf, errBuf.length, InetAddress.getLocalHost(), received.getPort());
+				if (verbose)
+					Utils.tryPrintTftpPacket(send);
+				sendSocket.send(send);
 			} catch (IOException e) {
 				System.out.println("ISSUE CREATING REQUEST ERROR PACKET\n" + e.getMessage());
 			}
@@ -138,11 +144,10 @@ public class RequestListener {
 	}
 
 	public String getOutputMode() {
-		return this.serverMode;
-	}
-
-	public void setOutputMode(String serverMode) {
-		this.serverMode = serverMode;
+		if (verbose)
+			return CommonConstants.VERBOSE;
+		else
+			return CommonConstants.QUIET;
 	}
 
 	public static void main(String args[]) {
@@ -160,9 +165,6 @@ public class RequestListener {
 	}
 
 	private static void queryServerMode(RequestListener s) {
-		// start a scanner
-		Scanner sc = new Scanner(System.in);
-
 		// ask user for input
 		System.out.println("Enter:\n1 Toggle mode\n2 Begin Server");
 		String request = sc.next();
@@ -176,22 +178,15 @@ public class RequestListener {
 			System.out.println("Enter:\n1 Toggle mode\n2 Begin Server");
 			request = sc.next();
 		}
-		// sc.close();
 		// return mode;
 	}
 
 	private static void toggleMode(RequestListener s) {
-		if (s.getOutputMode().equals(CommonConstants.VERBOSE))
-			s.setOutputMode(CommonConstants.QUIET);
-		else if (s.getOutputMode().equals(CommonConstants.QUIET))
-			s.setOutputMode(CommonConstants.VERBOSE);
-
+		verbose = !verbose;
 		System.out.println("Mode changed to: " + s.getOutputMode());
 	}
 
 	private static String queryServerShutDown() {
-		Scanner sc = new Scanner(System.in);
-
 		System.out.println("Enter:\n1 For Shutdown\n2 Continue:");
 		String response = sc.next();
 
@@ -200,14 +195,14 @@ public class RequestListener {
 			response = sc.next();
 		}
 
-		// sc.close();
-
 		return response;
 	}
 
 	private void shutDown() {
 		System.out.println("Server is exiting.");
 		receiveSock.close();
+		sendSocket.close();
+		sc.close();
 		System.exit(1);
 
 	}
