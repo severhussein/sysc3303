@@ -56,6 +56,7 @@ public class IntHostListener {
 		int number =Integer.parseInt(str);
 		while (number < 0 || number > 4) {//number is not 0,1,2,3
 			str = sc.next();
+			number =Integer.parseInt(str);
 		}
 		System.out.println("Will simulate the #" + number + " type error");
 		sc.close();
@@ -69,6 +70,7 @@ public class IntHostListener {
 		int number =Integer.parseInt(str);
 		while (number < 0) {
 			str = sc.next();
+			number =Integer.parseInt(str);
 		}
 		System.out.println("Will insert at the #" + number + " of packet");
 		sc.close();
