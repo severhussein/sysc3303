@@ -33,13 +33,15 @@ public class IntHostListener {
 		Utils.printDatagramContentWiresharkStyle(receivePacket);
 		
 		System.out.println("Creating new thread...\n");
-		new Thread(new IntHostManager(receivePacket, mode, 2)).start();
+		new Thread(new IntHostManager(receivePacket, mode, packetNum)).start();
 	}	
 	
 	public static void main( String args[] ) {
 		sc = new Scanner(System.in);
-	    mode = decideMode();
-		packetNum = decidePacketNum();
+	    	mode = decideMode();
+		if (mode != 0) {
+			packetNum = decidePacketNum();
+		}
 		sc.close();
 		
 		IntHostListener s = new IntHostListener();
