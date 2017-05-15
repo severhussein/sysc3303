@@ -175,7 +175,7 @@ public class RequestManager implements Runnable {
 		} else if (type == CommonConstants.WRQ) {
 			boolean serve = true;
 			byte writeData[] = new byte[CommonConstants.DATA_PACKET_SZ];
-			byte ack[] = CommonConstants.WRITE_RESPONSE_BYTES;;
+			byte ack[] = CommonConstants.WRITE_RESPONSE_BYTES;
 			BufferedOutputStream out = null;
 			
 			try {
