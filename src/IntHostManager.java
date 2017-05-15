@@ -18,9 +18,9 @@ public class IntHostManager implements Runnable {
 	private DatagramSocket socket;
 	private DatagramPacket sendPacket, receivePacket;
 	int clientPort, serverPort;
-	int mode, packetNum;
+	int mode, packetNum, errorSize;
 
-	public IntHostManager(DatagramPacket receivePacket, int mode, int packetNum) {
+	public IntHostManager(DatagramPacket receivePacket, int mode, int packetNum, int errorSize) {
 		socket = Helper.newSocket();
 		if (socket != null) {
 			this.serverPort = Helper.DEFAULT_SERVER_PORT;
@@ -28,6 +28,7 @@ public class IntHostManager implements Runnable {
 			this.receivePacket = receivePacket;
 			this.mode = mode;
 			this.packetNum = packetNum;
+			this.errorSize = errorSize;
 		}
 	}
 
@@ -120,7 +121,7 @@ public class IntHostManager implements Runnable {
 	public void simulate_wrong_size(int port) {
 
 		System.out.println("simulate wrong size packet to port: " + port + "\n");
-		sendPacket = new DatagramPacket(receivePacket.getData(), 1 , receivePacket.getAddress(),
+		sendPacket = new DatagramPacket(receivePacket.getData(), errorSize , receivePacket.getAddress(),
 				port);
 		Helper.send(socket, sendPacket);
 		Utils.printDatagramContentWiresharkStyle(sendPacket);

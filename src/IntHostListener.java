@@ -17,8 +17,7 @@ public class IntHostListener {
 	private DatagramSocket receiveSocket;
 	private DatagramPacket receivePacket;
 	
-	public static int mode;
-	public static int packetNum;
+	public static int mode, errorSize, packetNum = -1;
 	public static Scanner sc;
 
 	public IntHostListener() {
@@ -33,13 +32,16 @@ public class IntHostListener {
 		Utils.printDatagramContentWiresharkStyle(receivePacket);
 		
 		System.out.println("Creating new thread...\n");
-		new Thread(new IntHostManager(receivePacket, mode, packetNum)).start();
+		new Thread(new IntHostManager(receivePacket, mode, packetNum, errorSize)).start();
 	}	
 	
 	public static void main( String args[] ) {
 		sc = new Scanner(System.in);
 	    	mode = decideMode();
 		if (mode != 0) {
+			if (mode == 5 || mode == 6) {
+				errorSize = decideErrorSize();
+			}
 			packetNum = decidePacketNum();
 		}
 		sc.close();
@@ -93,6 +95,24 @@ public class IntHostListener {
  			 }
 		}
 		System.out.println("Will insert at the #" + number + " of packet");
+		return number;
+	}
+	
+	public static int decideErrorSize() {
+		//Scanner sc = new Scanner(System.in);
+		System.out.println("Type the size value, which the error packet would become");
+		String str = "";
+		int number = -1;
+		while (number < 0) {
+			str = sc.next();
+ 			 try {
+				 number = Integer.parseInt(str);
+ 			 } catch (NumberFormatException e) {
+				 number = -1;
+				 System.out.println("Input was not number, please try again");
+ 			 }
+		}
+		System.out.println("Got the size value: #" + number);
 		return number;
 	}
 }	
