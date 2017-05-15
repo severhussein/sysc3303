@@ -17,11 +17,11 @@ public class IntHostListener {
 	private DatagramSocket receiveSocket;
 	private DatagramPacket receivePacket;
 	
-	public static int mode, packetNum = -1;
+	public static int mode;
+	public static int packetNum;
+	public static Scanner sc;
 
 	public IntHostListener() {
-	    	mode = decideMode();
-		packetNum = decidePacketNum();
 		receiveSocket = Helper.newSocket(Helper.DEFAULT_HOST_PORT);
 	}
 
@@ -37,6 +37,11 @@ public class IntHostListener {
 	}	
 	
 	public static void main( String args[] ) {
+		sc = new Scanner(System.in);
+	    mode = decideMode();
+		packetNum = decidePacketNum();
+		sc.close();
+		
 		IntHostListener s = new IntHostListener();
 		while(true) {
 			s.receiveRequests();
@@ -44,8 +49,8 @@ public class IntHostListener {
 	}
 	
 	
-	public int decideMode() {
-		Scanner sc = new Scanner(System.in);
+	public static int decideMode() {
+		//Scanner sc = new Scanner(System.in);
 		System.out.println("Type the digit number to choose which error you want to simulate");
 		System.out.println("0 = No Error");
 		System.out.println("1 = Error type 5 packet send to Client");
@@ -59,12 +64,11 @@ public class IntHostListener {
 			number =Integer.parseInt(str);
 		}
 		System.out.println("Will simulate the #" + number + " type error");
-		sc.close();
 		return number;
 	}
 
-	public int decidePacketNum() {
-		Scanner sc = new Scanner(System.in);
+	public static int decidePacketNum() {
+		//Scanner sc = new Scanner(System.in);
 		System.out.println("Type the digit number to choose which packet you want to insert the error");
 		String str = sc.next();
 		int number =Integer.parseInt(str);
@@ -73,7 +77,6 @@ public class IntHostListener {
 			number =Integer.parseInt(str);
 		}
 		System.out.println("Will insert at the #" + number + " of packet");
-		sc.close();
 		return number;
 	}
 }	
