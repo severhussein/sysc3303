@@ -44,6 +44,10 @@ public class IntHostManager implements Runnable {
 			}
 			if (i == packetNum && mode == 4) {
 				simulate_wrong_opcode(serverPort);// 1 is to server
+			} else if (i == packetNum && mode == 6) {
+				simulate_wrong_size(serverPort);// 1 is to server
+			} else if (i == packetNum && mode == 8) {
+				simulate_wrong_blockNum(serverPort);// 1 is to server
 			} else {
 				System.out.println("\nHost sending to server...\n");
 				sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(),
@@ -67,6 +71,10 @@ public class IntHostManager implements Runnable {
 			}
 			if (i == packetNum && mode == 3) {
 				simulate_wrong_opcode(clientPort);// to client
+			} else if (i == packetNum && mode == 5) {
+				simulate_wrong_size(clientPort);// to client
+			} else if (i == packetNum && mode == 7) {
+				simulate_wrong_blockNum(clientPort);// to client
 			} else {
 				System.out.println("Host sending to Client...\n");
 				sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(),
@@ -90,7 +98,7 @@ public class IntHostManager implements Runnable {
 
 		DatagramSocket new_socket = Helper.newSocket();
 
-		System.out.println("simulate ERROR 5 to port: " + port + "\n");
+		System.out.println("simulate wrong port packet to port: " + port + "\n");
 		sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(),
 				port);
 		Helper.send(new_socket, sendPacket);
@@ -100,12 +108,33 @@ public class IntHostManager implements Runnable {
 
 	public void simulate_wrong_opcode(int port) {
 
-		System.out.println("simulate ERROR 4 to port: " + port + "\n");
-		receivePacket.getData()[0] = 7;
+		System.out.println("simulate wrong opcode to port: " + port + "\n");
+		receivePacket.getData()[0] = (byte) 255;
+		receivePacket.getData()[1] = (byte) 255;
 		sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(),
 				port);
 		Helper.send(socket, sendPacket);
 		Utils.printDatagramContentWiresharkStyle(sendPacket);
 	}
 
+	public void simulate_wrong_size(int port) {
+
+		System.out.println("simulate wrong size packet to port: " + port + "\n");
+		sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength() -1 , receivePacket.getAddress(),
+				port);
+		Helper.send(socket, sendPacket);
+		Utils.printDatagramContentWiresharkStyle(sendPacket);
+	}
+	
+	public void simulate_wrong_blockNum(int port) {
+
+		System.out.println("simulate wrong size packet to port: " + port + "\n");
+		receivePacket.getData()[2] = (byte) 255;
+		receivePacket.getData()[3] = (byte) 255;
+		sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength() , receivePacket.getAddress(),
+				port);
+		Helper.send(socket, sendPacket);
+		Utils.printDatagramContentWiresharkStyle(sendPacket);
+	}
+	
 }
