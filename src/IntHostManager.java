@@ -18,19 +18,20 @@ public class IntHostManager implements Runnable {
 	private DatagramSocket socket;
 	private DatagramPacket sendPacket, receivePacket;
 	int clientPort, serverPort;
+	int type, indexOfError;
 
-	public IntHostManager(DatagramPacket receivePacket) {
+	public IntHostManager(DatagramPacket receivePacket, int type, int indexOfError) {
 		socket = Helper.newSocket();
 		if (socket != null) {
 			this.serverPort = Helper.DEFAULT_SERVER_PORT;
 			this.clientPort = receivePacket.getPort();
 			this.receivePacket = receivePacket;
+			this.type = type;
+			this.indexOfError = indexOfError;
 		}
 	}
 
 	public void run() {
-		int type = IntHostListener.mode;// prompt user which error want to
-										// simulate
 
 		boolean server_port_needed = true;
 
@@ -38,9 +39,10 @@ public class IntHostManager implements Runnable {
 		int i = 0;
 		while (true) {
 
-			if (i == 2 && type == 2) {
+			if (i == indexOfError && type == 2) {
 				simulate_wrong_port(serverPort);// 1 is to server
-			} else if (i == 2 && type == 4) {
+			}
+			if (i == indexOfError && type == 4) {
 				simulate_wrong_opcode(serverPort);// 1 is to server
 			} else {
 				System.out.println("\nHost sending to server...\n");
@@ -60,9 +62,10 @@ public class IntHostManager implements Runnable {
 				serverPort = receivePacket.getPort();
 			} // get server port here!
 
-			if (i == 2 && type == 1) {
+			if (i == indexOfError && type == 1) {
 				simulate_wrong_port(clientPort);// to client
-			} else if (i == 2 && type == 3) {
+			}
+			if (i == indexOfError && type == 3) {
 				simulate_wrong_opcode(clientPort);// to client
 			} else {
 				System.out.println("Host sending to Client...\n");
