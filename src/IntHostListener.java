@@ -17,10 +17,11 @@ public class IntHostListener {
 	private DatagramSocket receiveSocket;
 	private DatagramPacket receivePacket;
 	
-	public static int mode = -1;
+	public static int mode, packetNum = -1;
 
 	public IntHostListener() {
-	    mode = decideMode();
+	    	mode = decideMode();
+		packetNum = decidePacketNum();
 		receiveSocket = Helper.newSocket(Helper.DEFAULT_HOST_PORT);
 	}
 
@@ -56,9 +57,21 @@ public class IntHostListener {
 		while (number < 0 || number > 4) {//number is not 0,1,2,3
 			str = sc.next();
 		}
-		System.out.println("Will simulate the #" + number + " type error.");
+		System.out.println("Will simulate the #" + number + " type error");
 		sc.close();
 		return number;
 	}
 
+	public int decidePacketNum() {
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Type the digit number to choose which packet you want to insert the error");
+		String str = sc.next();
+		int number =Integer.parseInt(str);
+		while (number < 0) {
+			str = sc.next();
+		}
+		System.out.println("Will insert at the #" + number + " of packet");
+		sc.close();
+		return number;
+	}
 }	
