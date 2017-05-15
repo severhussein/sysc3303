@@ -3,6 +3,7 @@ import java.util.Scanner;
 
 public class ServerScanner implements Runnable {
 	private DatagramSocket receiveSock;
+	public done = 0;
 
 	public ServerScanner(DatagramSocket receiveSock) {
 		this.receiveSock = receiveSock;
@@ -15,6 +16,7 @@ public class ServerScanner implements Runnable {
 			request = sc.next();
 		}
 		receiveSock.close();
+		done = 1;
 		System.out.println("<Server shutdown, do not accept any new request, not affect current transfer>");
 		sc.close();
 	}
