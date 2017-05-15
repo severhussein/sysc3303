@@ -103,12 +103,28 @@ public class Client {
 	 *            error msg to be printed in console if send goes wrong
 	 */
 	private void trySend(DatagramPacket packet, String errMsg) {
+		TftpPacket tftpPacket = null;
+		boolean isTftp = true;
+
+		System.out.println("Sending one packet...");
+
 		try {
-			sendReceiveSocket.send(packet);
-			if (verbose) {
-				System.out.println("Sent one packet...");
+			tftpPacket = TftpPacket.decodeTftpPacket(packet);
+		} catch (Exception e) {
+			isTftp = false;
+		}
+
+		if (verbose) {
+			if (isTftp && tftpPacket != null) {
+				System.out.println(tftpPacket);
+			} else {
 				Utils.printDatagramContentWiresharkStyle(packet);
 			}
+			System.out.println("");
+		}
+
+		try {
+			sendReceiveSocket.send(packet);
 		} catch (IOException e) {
 			// do we really want to quit when send fails?
 			if (errMsg.length() != 0)
@@ -123,16 +139,28 @@ public class Client {
 	 *            packet to be sent
 	 */
 	private void trySend(DatagramPacket packet) {
+		trySend(packet, "");
+	}
+
+	private void receiveAndMaybePrint(DatagramPacket packet) throws IOException {
+		TftpPacket tftpPacket = null;
+		boolean isTftp = true;
+
+		sendReceiveSocket.receive(packet);
 		try {
-			sendReceiveSocket.send(packet);
-			if (verbose) {
-				System.out.println("Sent one packet...");
+			tftpPacket = TftpPacket.decodeTftpPacket(packet);
+		} catch (Exception e) {
+			isTftp = false;
+		}
+		
+		if (verbose) {
+			System.out.println("Received one packet...");
+			if (isTftp && tftpPacket != null) {
+				System.out.println(tftpPacket);
+			} else {
 				Utils.printDatagramContentWiresharkStyle(packet);
 			}
-		} catch (IOException e) {
-			// do we really want to quit when send fails?
-			e.printStackTrace();
-			System.exit(1);
+			System.out.println("");
 		}
 	}
 
@@ -152,7 +180,7 @@ public class Client {
 		// wait for a packet to be returned back
 		try {
 			// Block until a datagram is received via sendReceiveSocket.
-			sendReceiveSocket.receive(receivePacket);
+			receiveAndMaybePrint(receivePacket);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -164,11 +192,6 @@ public class Client {
 			// not a TFTP packet, what to do?
 			// retry?
 			return;
-		}
-
-		if (verbose) {
-			System.out.println("Expecting Ack:");
-			Utils.printDatagramContentWiresharkStyle(receivePacket);
 		}
 
 		if (recvTftpPacket.getType() == TftpType.ACK) {
@@ -240,11 +263,7 @@ public class Client {
 			// iteration 4 stuff....
 			// while (retries > 0) {
 			try {
-				sendReceiveSocket.receive(receivePacket);
-				if (verbose) {
-					System.out.println("Received one packet...");
-					Utils.printDatagramContentWiresharkStyle(receivePacket);
-				}
+				receiveAndMaybePrint(receivePacket);
 				// break;
 				// } catch (SocketTimeoutException te) {
 				// if (vervose)
@@ -265,12 +284,12 @@ public class Client {
 						receivePacket.getPort()));
 				acked = false;
 				// retries--;
-				//for iteration 4
-				//continue;
+				// for iteration 4
+				// continue;
 				System.out.println("Will terminate this transfer.");
 				break;
 			}
-			
+
 			// if (retries == 0) {
 			// System.out.println("TIMED OUT\n" );
 			// break;
@@ -282,7 +301,10 @@ public class Client {
 				// not a TFTP packet, what to do?
 				trySend(new TftpErrorPacket(4, "not tftp").generateDatagram(receivePacket.getAddress(),
 						receivePacket.getPort()));
+				// re-transmission in iteration 4....
 				// retries--;
+				// continue;
+				in.close();
 				return;
 			}
 
@@ -346,11 +368,7 @@ public class Client {
 			// iteration 4
 			// while (retries > 0) {
 			try {
-				sendReceiveSocket.receive(receivePacket);
-				if (verbose) {
-					System.out.println("Reading:");
-					Utils.printDatagramContentWiresharkStyle(receivePacket);
-				}
+				receiveAndMaybePrint(receivePacket);
 				// break;
 				// } catch (SocketTimeoutException te) {
 				// if (vervose)
@@ -368,7 +386,6 @@ public class Client {
 			// break;
 			// }
 
-			
 			try {
 				// use the help to decode the packet, if no exception is thrown
 				// then is a TFTP packet
@@ -411,7 +428,7 @@ public class Client {
 					continue;
 				}
 
-				//System.out.println("block" + blockNumber);
+				// System.out.println("block" + blockNumber);
 				if (dataPacket.getBlockNumber() == blockNumber) {
 					// ok, we got correct block. write it to file system...
 					try {
@@ -530,8 +547,6 @@ public class Client {
 		else
 			return CommonConstants.NORM;
 	}
-
-	
 
 	private static void toggleOperation(Client c) {
 		testMode = !testMode;
