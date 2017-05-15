@@ -11,6 +11,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
+import TftpPacketHelper.TftpErrorPacket;
+
 public class RequestManager implements Runnable {
 	private DatagramSocket socket;
 	private DatagramPacket send, received;
@@ -147,6 +149,12 @@ public class RequestManager implements Runnable {
 						return;
 					}
 					readData = new byte[CommonConstants.DATA_BLOCK_SZ];
+					
+				}
+				if(i==0){
+					byte[] emptyData = {0,3,0,1};
+					DatagramPacket emptyPacket = new DatagramPacket(emptyData,emptyData.length,InetAddress.getLocalHost(),clientPort);
+					socket.send(emptyPacket);
 				}
 			} catch (IOException e) {
 				System.out.println("ERROR READING FILE\n" + e.getMessage());
@@ -175,8 +183,10 @@ public class RequestManager implements Runnable {
 		} else if (type == CommonConstants.WRQ) {
 			boolean serve = true;
 			byte writeData[] = new byte[CommonConstants.DATA_PACKET_SZ];
-			byte ack[] = CommonConstants.WRITE_RESPONSE_BYTES;
+			byte ack[] = {0,4,0,0}; //not immutable
 			BufferedOutputStream out = null;
+			
+			System.out.println("Beginning a new WRQ:");
 			
 			try {
 				out = new BufferedOutputStream(new FileOutputStream(fileName));
@@ -190,7 +200,7 @@ public class RequestManager implements Runnable {
 				send = new DatagramPacket(ack, ack.length, InetAddress.getLocalHost(), clientPort);
 				socket.send(send);
 				if(serverMode.equals(CommonConstants.VERBOSE)){
-					System.out.println("Initial Ack Sent for WRQ:");
+					System.out.println("Initial Ack sent for WRQ:");
 					Utils.printDatagramContentWiresharkStyle(send);
 				}
 
@@ -202,13 +212,35 @@ public class RequestManager implements Runnable {
 			while (serve) {
 				received = new DatagramPacket(writeData, writeData.length);
 				try {
+					//sending back ack0 for WRQ
 					socket.receive(received);
 					if(serverMode.equals(CommonConstants.VERBOSE)){
-						System.out.println("Sending Ack:");
 						Utils.printDatagramContentWiresharkStyle(received);
 					}
 				} catch (IOException e) {
 					System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
+				}
+				if (received.getPort() != clientPort) {
+					// receive a packet with wrong tid, notify the sender with error
+					// 5
+					
+					try {
+						send = new TftpErrorPacket(5, "Wrong Transfer ID").generateDatagram(received.getAddress(),
+								received.getPort());
+						socket.send(send);
+					} catch (IOException e) {
+						System.out.println("Error sending the error.\n" + e.getMessage());
+					}
+					if(serverMode.equals(CommonConstants.VERBOSE)){
+						System.out.println("Error sent for wrong TID:");
+						Utils.printDatagramContentWiresharkStyle(send);
+					}
+
+					// retries--;
+					//for iteration 4
+					//continue;
+					System.out.println("Will terminate this transfer.");
+					break;
 				}
 
 				if (writeData[1] == CommonConstants.DATA) {
@@ -228,8 +260,10 @@ public class RequestManager implements Runnable {
 								InetAddress.getLocalHost(),
 								clientPort);
 						socket.send(send);
-						if(serverMode.equals(CommonConstants.VERBOSE))
+						if(serverMode.equals(CommonConstants.VERBOSE)){
+							System.out.println("Sending Ack:");
 							Utils.printDatagramContentWiresharkStyle(send);
+						}
 					} catch (IOException e) {
 						System.out.println("ERROR SENDING ACK\n" + e.getMessage());
 					}

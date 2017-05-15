@@ -65,7 +65,7 @@ public class CommonConstants {
 	 * Response to read request as specified in assignment
 	 * It will probably better to move this into it's own class later on
 	 */
-	public static final byte[] READ_RESPONSE_BYTES = {0, 3, 0, 1};
+	//public static final byte[] READ_RESPONSE_BYTES = {0, 3, 0, 1};
 
 	/**
 	 * Response to write request as specified in assignment

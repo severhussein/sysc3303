@@ -167,7 +167,7 @@ public class Client {
 		}
 
 		if (verbose) {
-			System.out.println("Ack:");
+			System.out.println("Expecting Ack:");
 			Utils.printDatagramContentWiresharkStyle(receivePacket);
 		}
 
@@ -181,11 +181,13 @@ public class Client {
 				// error 04
 				trySend(new TftpErrorPacket(4, "not ack 0").generateDatagram(receivePacket.getAddress(),
 						receivePacket.getPort()));
+				return;
 			}
 		} else {
 			// not even an ack!
 			trySend(new TftpErrorPacket(4, "not tftp ack").generateDatagram(receivePacket.getAddress(),
 					receivePacket.getPort()));
+			return;
 		}
 
 		try {
@@ -250,11 +252,25 @@ public class Client {
 				// DATA\n");
 				// trySend(send, "");
 				// retries--;
+
 			} catch (IOException e) {
 				System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
 			}
 			// }
-
+			
+			if (receivePacket.getPort() != tid) {
+				// receive a packet with wrong tid, notify the sender with error
+				// 5
+				trySend(new TftpErrorPacket(5, "Wrong Transfer ID").generateDatagram(receivePacket.getAddress(),
+						receivePacket.getPort()));
+				acked = false;
+				// retries--;
+				//for iteration 4
+				//continue;
+				System.out.println("Will terminate this transfer.");
+				break;
+			}
+			
 			// if (retries == 0) {
 			// System.out.println("TIMED OUT\n" );
 			// break;
@@ -266,15 +282,8 @@ public class Client {
 				// not a TFTP packet, what to do?
 				trySend(new TftpErrorPacket(4, "not tftp").generateDatagram(receivePacket.getAddress(),
 						receivePacket.getPort()));
-				continue;
-			}
-
-			if (receivePacket.getPort() != tid) {
-				// receive a packet with wrong tid, notify the sender with error
-				// 5
-				trySend(new TftpErrorPacket(5, "").generateDatagram(receivePacket.getAddress(),
-						receivePacket.getPort()));
-				continue;
+				// retries--;
+				return;
 			}
 
 			// let's check if the packet we received is an ack
@@ -294,6 +303,7 @@ public class Client {
 					// }
 				else {
 					acked = false;
+					// retries--;
 				}
 			} else {
 				trySend(new TftpErrorPacket(4, "not ack").generateDatagram(destinationAddress, destinationPort));
@@ -401,7 +411,7 @@ public class Client {
 					continue;
 				}
 
-				System.out.println("block" + blockNumber);
+				//System.out.println("block" + blockNumber);
 				if (dataPacket.getBlockNumber() == blockNumber) {
 					// ok, we got correct block. write it to file system...
 					try {
