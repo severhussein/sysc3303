@@ -32,7 +32,7 @@ public class IntHostListener {
 		Utils.printDatagramContentWiresharkStyle(receivePacket);
 		
 		System.out.println("Creating new thread...\n");
-		new Thread(new IntHostManager(receivePacket)).start();
+		new Thread(new IntHostManager(receivePacket, mode, 2)).start();
 	}	
 	
 	public static void main( String args[] ) {
