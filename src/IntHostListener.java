@@ -49,9 +49,9 @@ public class IntHostListener {
 		System.out.println("Type the digit number to choose which error you want to simulate");
 		System.out.println("0 = No Error");
 		System.out.println("1 = Error type 5 packet send to Client");
-		System.out.println("2 = Error type 5 packet send to Sever");
+		System.out.println("2 = Error type 5 packet send to Server");
 		System.out.println("3 = Error type 4 packet send to Client");
-		System.out.println("4 = Error type 4 packet send to Sever");
+		System.out.println("4 = Error type 4 packet send to Server");
 		String str = sc.next();
 		int number =Integer.parseInt(str);
 		while (number < 0 || number > 4) {//number is not 0,1,2,3
