@@ -63,11 +63,16 @@ public class IntHostListener {
 		System.out.println("6 = send to Server, Packet Size is incorrect (size = 1, Error type 4)");
 		System.out.println("7 = send to Client, BlockNum is incorrect (Mess 2nd & 3rd byte, Error type 4)");
 		System.out.println("8 = send to Server, BlockNum is incorrect (Mess 2nd & 3rd byte, Error type 4)");
-		String str = sc.next();
-		int number =Integer.parseInt(str);
+		String str = "";
+		int number = -1;
 		while (number < 0 || number > 8) {//number is not 0,1,2,3
 			str = sc.next();
-			number =Integer.parseInt(str);
+ 			 try {
+				 number = Integer.parseInt(str);
+ 			 } catch (NumberFormatException e) {
+				 number = -1;
+				 System.out.println("Input was not number, please try again");
+ 			 }
 		}
 		System.out.println("Will simulate the #" + number + " type error");
 		return number;
@@ -76,11 +81,16 @@ public class IntHostListener {
 	public static int decidePacketNum() {
 		//Scanner sc = new Scanner(System.in);
 		System.out.println("Type the digit number to choose which packet you want to insert the error");
-		String str = sc.next();
-		int number =Integer.parseInt(str);
+		String str = "";
+		int number = -1;
 		while (number < 0) {
 			str = sc.next();
-			number =Integer.parseInt(str);
+ 			 try {
+				 number = Integer.parseInt(str);
+ 			 } catch (NumberFormatException e) {
+				 number = -1;
+				 System.out.println("Input was not number, please try again");
+ 			 }
 		}
 		System.out.println("Will insert at the #" + number + " of packet");
 		return number;
