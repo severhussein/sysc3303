@@ -43,7 +43,7 @@ public class IntHostManager implements Runnable {
 			} else if (i == 2 && type == 4) {
 				simulate_wrong_opcode(serverPort);// 1 is to server
 			} else {
-				Helper.print("Host sending to server...\n");
+				System.out.println("\nHost sending to server...\n");
 				sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(),
 						receivePacket.getAddress(), serverPort);
 				Helper.send(socket, sendPacket);
@@ -52,7 +52,7 @@ public class IntHostManager implements Runnable {
 
 			i++;// first round of request msg was done, increase i here
 
-			Helper.print("Host receiving from server...\n");
+			System.out.println("Host receiving from server...\n");
 			Helper.receive(socket, receivePacket);
 			Utils.printDatagramContentWiresharkStyle(receivePacket);
 			if (server_port_needed) {
@@ -65,14 +65,14 @@ public class IntHostManager implements Runnable {
 			} else if (i == 2 && type == 3) {
 				simulate_wrong_opcode(clientPort);// to client
 			} else {
-				Helper.print("Host sending to Client...\n");
+				System.out.println("Host sending to Client...\n");
 				sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(),
 						receivePacket.getAddress(), clientPort);
 				Helper.send(socket, sendPacket);
 				Utils.printDatagramContentWiresharkStyle(sendPacket);
 			}
 
-			Helper.print("Host waiting for client data...\n");
+			System.out.println("Host waiting for client data...\n");
 			// receiving and placing it into same receive packet as above, might
 			// have remnants from old data
 			// Helper.receive(socket, receivePacket);
@@ -87,7 +87,7 @@ public class IntHostManager implements Runnable {
 
 		DatagramSocket new_socket = Helper.newSocket();
 
-		Helper.print("simulate ERROR 5 to port: " + port + "\n");
+		System.out.println("simulate ERROR 5 to port: " + port + "\n");
 		sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(),
 				port);
 		Helper.send(new_socket, sendPacket);
@@ -97,7 +97,7 @@ public class IntHostManager implements Runnable {
 
 	public void simulate_wrong_opcode(int port) {
 
-		Helper.print("simulate ERROR 4 to port: " + port + "\n");
+		System.out.println("simulate ERROR 4 to port: " + port + "\n");
 		receivePacket.getData()[0] = 7;
 		sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(),
 				port);

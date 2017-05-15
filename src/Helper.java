@@ -76,10 +76,11 @@ public class Helper {
 	
 	//
 	//printing helper functions
-	//
-	public static void print(String str){
+	//not needed since this is used in intermediate host, where inthost is the error simulator,
+	//thus you always want to be printing statements (ie, no verbose mode in error simulator)
+	/*public static void print(String str){
 		if (VERB_MODE) System.out.println(str);
-	}
+	}*/
 	
 	/*public static void printPacket(DatagramPacket receivePacket){
 		if (!VERB_MODE) return;

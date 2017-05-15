@@ -26,12 +26,12 @@ public class IntHostListener {
 
 	
 	public void receiveRequests() {
-		Helper.print("Host waiting for requests...\n");
+		System.out.println("Host waiting for requests...\n");
 		receivePacket = Helper.newReceive(Helper.PACKAGE_SIZE);
 		Helper.receive(receiveSocket, receivePacket);
 		Utils.printDatagramContentWiresharkStyle(receivePacket);
 		
-		Helper.print("Creating new thread...\n");
+		System.out.println("Creating new thread...\n");
 		new Thread(new IntHostManager(receivePacket)).start();
 	}	
 	

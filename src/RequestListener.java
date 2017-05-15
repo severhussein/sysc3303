@@ -16,7 +16,7 @@ public class RequestListener {
 	public RequestListener() {
 		try {
 			receiveSock = new DatagramSocket(CommonConstants.SERVER_LISTEN_PORT);
-			//receiveSock.setSoTimeout(120000);
+			// receiveSock.setSoTimeout(120000);
 		} catch (SocketException e) {
 			System.out.println(e.getMessage());
 		}
@@ -28,26 +28,24 @@ public class RequestListener {
 
 		String filename = "", mode = "";
 		int packetLength, j = 0, k = 0;
-				
+
 		received = new DatagramPacket(datagram, datagram.length);
-		System.out.println("Server is waiting for request...\n");
+		System.out.println("Server Listener is waiting for request...\n");
 		try {
 			receiveSock.receive(received);
 		} catch (IOException e) {
-			if(e instanceof SocketTimeoutException)
-			{
+			if (e instanceof SocketTimeoutException) {
 				response = queryServerShutDown();
-				if(response.equals("1")){
+				if (response.equals("1")) {
 					shutDown();
-				}		
-			}
-			else
+				}
+			} else
 				System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
 		}
 
-		if(serverMode.equals(CommonConstants.VERBOSE))
+		if (serverMode.equals(CommonConstants.VERBOSE))
 			Utils.printDatagramContentWiresharkStyle(received);
-		
+
 		packetLength = received.getLength();
 
 		// String packet = new String(datagram, 0, packetLength);
@@ -78,11 +76,11 @@ public class RequestListener {
 				req = CommonConstants.ERR; // didn't find a 0 byte
 			if (j == 2)
 				req = CommonConstants.ERR; // filename is 0 bytes long
-			//if(req==Request.ERROR)
-				//System.out.println("INDEX J= "+j);
+			// if(req==Request.ERROR)
+			// System.out.println("INDEX J= "+j);
 			// otherwise, extract filename
 			filename = new String(datagram, 2, j - 2);
-			//System.out.println(filename);
+			// System.out.println(filename);
 		}
 
 		if (req != CommonConstants.ERR) { // check for mode
@@ -95,25 +93,27 @@ public class RequestListener {
 				req = CommonConstants.ERR; // didn't find a 0 byte
 			if (k == j + 1)
 				req = CommonConstants.ERR; // mode is 0 bytes long
-			//if(req==Request.ERROR)
-				//System.out.println("INDEX J= "+j+" INDEX K="+k);
-				
-			mode = new String(datagram, j+1, k - j).trim();
-			
+			// if(req==Request.ERROR)
+			// System.out.println("INDEX J= "+j+" INDEX K="+k);
+
+			mode = new String(datagram, j + 1, k - j).trim();
+
 		}
 
 		if (k != packetLength - 1)
 			req = CommonConstants.ERR; // other stuff at end of packet
-		//if(req==Request.ERROR) for debugging
-			//System.out.println("INDEX J= "+j+" INDEX K="+k);
+		// if(req==Request.ERROR) for debugging
+		// System.out.println("INDEX J= "+j+" INDEX K="+k);
 		if (!mode.equalsIgnoreCase("netascii") && !mode.equalsIgnoreCase("octet"))
 			req = CommonConstants.ERR;// mode is not correct
-		//if(req==Request.ERROR)
-			//System.out.println(mode);
+		// if(req==Request.ERROR)
+		// System.out.println(mode);
 
-		if (req == CommonConstants.RRQ || req == CommonConstants.WRQ)
-			new Thread(new RequestManager(received.getPort(), received.getAddress(), filename, datagram[1],serverMode)).start();
-		else { // it was invalid, just quit
+		if (req == CommonConstants.RRQ || req == CommonConstants.WRQ) {
+			new Thread(new RequestManager(received.getPort(), received.getAddress(), filename, datagram[1], serverMode))
+					.start();
+			System.out.println("\nSending Request and creating new thread\n");
+		} else { // it was invalid, just quit
 			ByteArrayOutputStream error = new ByteArrayOutputStream();
 			error.write(0);
 			error.write(5);
@@ -121,7 +121,7 @@ public class RequestListener {
 			error.write(4);
 			try {
 				error.write("READ/WRITE REQUEST INVALID FORMAT".getBytes());
-			} catch(IOException e) {
+			} catch (IOException e) {
 				System.out.println("ERROR CREATING ERROR BYTE ARRAY\n" + e.getMessage());
 			}
 			error.write(0);
@@ -129,26 +129,12 @@ public class RequestListener {
 			byte errBuf[] = error.toByteArray();
 
 			try {
-				send = new DatagramPacket(errBuf,
-						errBuf.length,
-						InetAddress.getLocalHost(),
-						received.getPort());
-			} catch(IOException e) {
+				send = new DatagramPacket(errBuf, errBuf.length, InetAddress.getLocalHost(), received.getPort());
+			} catch (IOException e) {
 				System.out.println("ISSUE CREATING REQUEST ERROR PACKET\n" + e.getMessage());
 			}
 		}
 
-		// alex's error handling
-		// String strArr[] = packet.split("\0");
-		// System.out.println(Arrays.toString(strArr) + "\n");
-		// if(datagram[1] == READ || datagram[1] == WRITE) {
-		// if(strArr.length != 3) throw new InvalidPacketException("Request is
-		// not in valid format.");
-		// else {
-		// new Thread(new RequestManager(received.getPort(),
-		// strArr[1].substring(1), datagram[1])).start();
-		// }
-		// }
 	}
 
 	public String getOutputMode() {
@@ -185,27 +171,31 @@ public class RequestListener {
 			// request to toggle mode
 			if (request.equals("1")) {
 				toggleMode(s);
-				//mode = toggleMode(mode);
+				// mode = toggleMode(mode);
 			}
 			System.out.println("Enter:\n1 Toggle mode\n2 Begin Server");
 			request = sc.next();
 		}
-		//sc.close();
-		//return mode;
+		// sc.close();
+		// return mode;
 	}
+
 	private static void toggleMode(RequestListener s) {
-		if(s.getOutputMode().equals(CommonConstants.VERBOSE)) s.setOutputMode(CommonConstants.QUIET);
-		else if(s.getOutputMode().equals(CommonConstants.QUIET)) s.setOutputMode(CommonConstants.VERBOSE);
+		if (s.getOutputMode().equals(CommonConstants.VERBOSE))
+			s.setOutputMode(CommonConstants.QUIET);
+		else if (s.getOutputMode().equals(CommonConstants.QUIET))
+			s.setOutputMode(CommonConstants.VERBOSE);
 
 		System.out.println("Mode changed to: " + s.getOutputMode());
 	}
-	private static String queryServerShutDown(){
+
+	private static String queryServerShutDown() {
 		Scanner sc = new Scanner(System.in);
-		
+
 		System.out.println("Enter:\n1 For Shutdown\n2 Continue:");
 		String response = sc.next();
-		
-		while(!response.equals("1") && !response.equals("2")){
+
+		while (!response.equals("1") && !response.equals("2")) {
 			System.out.println("Enter:\n1 For Shutdown\n2 Continue:");
 			response = sc.next();
 		}
@@ -214,11 +204,11 @@ public class RequestListener {
 
 		return response;
 	}
-	private void shutDown()
-	{
+
+	private void shutDown() {
 		System.out.println("Server is exiting.");
 		receiveSock.close();
 		System.exit(1);
-		
+
 	}
 }

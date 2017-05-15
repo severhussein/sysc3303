@@ -104,7 +104,6 @@ public class Utils {
 			count++;
 		}
 		System.out.println();
-		System.out.println();
 		
 	}
 

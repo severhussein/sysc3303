@@ -17,10 +17,11 @@ public class RequestManager implements Runnable {
 	private String fileName, serverMode;
 	private int clientPort, type;
 	private InetAddress clientAddress;
+	
 
 	public RequestManager(int clientPort, InetAddress clientAddress, String fileName, int type, String serverMode) {
 		try {
-			socket = new DatagramSocket();
+			this.socket = new DatagramSocket();
 			this.clientPort = clientPort;
 			this.clientAddress = clientAddress;
 			this.fileName = fileName;
@@ -34,7 +35,7 @@ public class RequestManager implements Runnable {
 	public void run() {
 		if (type == CommonConstants.RRQ) {
 			byte readData[] = new byte[CommonConstants.DATA_PACKET_SZ];
-			byte ack[] = new byte[CommonConstants.ACK_PACKET_SZ];
+			byte ackRRQ[] = new byte[CommonConstants.ACK_PACKET_SZ];
 			int i = 0, lastSize = 0, n;
 			BufferedInputStream in = null;
 			try {
@@ -72,7 +73,7 @@ public class RequestManager implements Runnable {
 						System.out.println("ERROR SENDING READ\n" + e.getMessage());
 					}
 					if(serverMode.equals(CommonConstants.VERBOSE)) System.out.println("Waiting for ack...\n");
-					received = new DatagramPacket(ack, ack.length);
+					received = new DatagramPacket(ackRRQ, ackRRQ.length);
 					try {
 						socket.receive(received);
 						if(serverMode.equals(CommonConstants.VERBOSE))
@@ -113,15 +114,15 @@ public class RequestManager implements Runnable {
 					// Right now, does not throw exception nor
 					// requests re-transmission.
 					// Just prints to console.
-					int block = ((ack[2] & 0xFF) >> 8) | (ack[3] & 0xFF);
-					if (ack[1] != CommonConstants.ACK && block != i) {
+					int block = ((ackRRQ[2] & 0xFF) >> 8) | (ackRRQ[3] & 0xFF);
+					if (ackRRQ[1] != CommonConstants.ACK && block != i) {
 						buf = new ByteArrayOutputStream();
 						buf.write(0);
 						buf.write(5);
 						buf.write(0);
 						buf.write(4);
 						try {
-							if(ack[1] != CommonConstants.ACK) {
+							if(ackRRQ[1] != CommonConstants.ACK) {
 								buf.write("PACKET OPCODE IS NOT ACK\n".getBytes());
 							}
 							else {
@@ -174,7 +175,7 @@ public class RequestManager implements Runnable {
 		} else if (type == CommonConstants.WRQ) {
 			boolean serve = true;
 			byte writeData[] = new byte[CommonConstants.DATA_PACKET_SZ];
-			byte ack[] = CommonConstants.WRITE_RESPONSE_BYTES;
+			byte ack[] = CommonConstants.WRITE_RESPONSE_BYTES;;
 			BufferedOutputStream out = null;
 			
 			try {
@@ -183,27 +184,28 @@ public class RequestManager implements Runnable {
 				System.out.println("ERROR CREATING FILE\n" + e.getMessage());
 			}
 
-			System.out.println("Writing a File...\n");
+			
 			//sending initial ack to a WRQ
 			try {
 				send = new DatagramPacket(ack, ack.length, InetAddress.getLocalHost(), clientPort);
 				socket.send(send);
 				if(serverMode.equals(CommonConstants.VERBOSE)){
+					System.out.println("Initial Ack Sent for WRQ:");
 					Utils.printDatagramContentWiresharkStyle(send);
-					System.out.println("Ack Sent");
 				}
 
 			} catch (IOException e) {
 				System.out.println("ERROR SENDING ACK\n" + e.getMessage());
 			}
-
+			
+			System.out.println("Writing a File...\n");
 			while (serve) {
 				received = new DatagramPacket(writeData, writeData.length);
 				try {
 					socket.receive(received);
 					if(serverMode.equals(CommonConstants.VERBOSE)){
+						System.out.println("Sending Ack:");
 						Utils.printDatagramContentWiresharkStyle(received);
-						System.out.println("Ack sent");
 					}
 				} catch (IOException e) {
 					System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
@@ -265,6 +267,7 @@ public class RequestManager implements Runnable {
 				}
 
 				if (received.getLength() < CommonConstants.DATA_PACKET_SZ){ // Length < 516, changed from <512, edited by David
+					System.out.println("Data <512 bytes, going to stop writing to file");
 					serve = false;
 					try{
 						out.close();
@@ -273,7 +276,7 @@ public class RequestManager implements Runnable {
 					}
 				}
 					
-			}
+			}//END WHILE
 		}
 		socket.close();//Should close the socket after the thread is done (David)
 	}
