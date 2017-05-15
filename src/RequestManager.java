@@ -67,7 +67,7 @@ public class RequestManager implements Runnable {
 						send = new DatagramPacket(dataSend, dataSend.length, InetAddress.getLocalHost(), clientPort);
 						socket.send(send);
 						if(serverMode.equals(CommonConstants.VERBOSE))
-							Helper.printPacket(send);
+							Utils.printDatagramContentWiresharkStyle(send);
 					} catch (IOException e) {
 						System.out.println("ERROR SENDING READ\n" + e.getMessage());
 					}
@@ -75,8 +75,8 @@ public class RequestManager implements Runnable {
 					received = new DatagramPacket(ack, ack.length);
 					try {
 						socket.receive(received);
-						if(serverMode.equals("verbose"))
-							Helper.printPacket(received);
+						if(serverMode.equals(CommonConstants.VERBOSE))
+							Utils.printDatagramContentWiresharkStyle(received);
 					} catch (IOException e) {
 						System.out.println("RECEPTION ERROR AT MANAGER ACK\n" + e.getMessage());
 					}
@@ -150,7 +150,7 @@ public class RequestManager implements Runnable {
 			} catch (IOException e) {
 				System.out.println("ERROR READING FILE\n" + e.getMessage());
 			}
-			if(serverMode.equals("verbose")) System.out.println("Last block sizee: " + lastSize);
+			if(serverMode.equals(CommonConstants.VERBOSE)) System.out.println("Last block sizee: " + lastSize);
 			if (lastSize == CommonConstants.DATA_BLOCK_SZ) {
 				i += 1;
 				ByteArrayOutputStream buf = new ByteArrayOutputStream();
@@ -165,8 +165,8 @@ public class RequestManager implements Runnable {
 				try {
 					send = new DatagramPacket(dataSend, dataSend.length, InetAddress.getLocalHost(), clientPort);
 					socket.send(send);
-					if(serverMode.equals("verbose"))
-						Helper.printPacket(send);
+					if(serverMode.equals(CommonConstants.VERBOSE))
+						Utils.printDatagramContentWiresharkStyle(send);
 				} catch (IOException e) {
 					System.out.println("ERROR SENDING READ\n" + e.getMessage());
 				}
@@ -188,8 +188,8 @@ public class RequestManager implements Runnable {
 			try {
 				send = new DatagramPacket(ack, ack.length, InetAddress.getLocalHost(), clientPort);
 				socket.send(send);
-				if(serverMode.equals("verbose")){
-					Helper.printPacket(send);
+				if(serverMode.equals(CommonConstants.VERBOSE)){
+					Utils.printDatagramContentWiresharkStyle(send);
 					System.out.println("Ack Sent");
 				}
 
@@ -201,8 +201,8 @@ public class RequestManager implements Runnable {
 				received = new DatagramPacket(writeData, writeData.length);
 				try {
 					socket.receive(received);
-					if(serverMode.equals("verbose")){
-						Helper.printPacket(received);
+					if(serverMode.equals(CommonConstants.VERBOSE)){
+						Utils.printDatagramContentWiresharkStyle(received);
 						System.out.println("Ack sent");
 					}
 				} catch (IOException e) {
@@ -226,8 +226,8 @@ public class RequestManager implements Runnable {
 								InetAddress.getLocalHost(),
 								clientPort);
 						socket.send(send);
-						if(serverMode.equals("verbose"))
-							Helper.printPacket(send);
+						if(serverMode.equals(CommonConstants.VERBOSE))
+							Utils.printDatagramContentWiresharkStyle(send);
 					} catch (IOException e) {
 						System.out.println("ERROR SENDING ACK\n" + e.getMessage());
 					}

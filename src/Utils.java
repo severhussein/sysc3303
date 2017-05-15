@@ -16,7 +16,7 @@ public class Utils {
 	 * 
 	 * @param packet DatagramPacket to be printed
 	 */
-	public static void printPacketContent(DatagramPacket packet) 
+	/*public static void printPacketContent(DatagramPacket packet) 
 	{
 		
 		int len = packet.getLength();
@@ -33,7 +33,7 @@ public class Utils {
 		System.out.println("   In raw bytes: "  + Arrays.toString(Arrays.copyOfRange(payload,0,len)));
 		String received = new String(packet.getData(),0,len);
         System.out.println("String: " + received);
-	}
+	}*/
 
 	public static byte[] trimPacket(byte[] buf) {
 		int i, consecNulls = 0;
@@ -99,10 +99,6 @@ public class Utils {
 			i++;
 			count++;
 		}
-		///////////////////////////////////////////////////////////////////DELETE LEATER
-		///////////////////////////////////////////////////////////////////
-		String received = new String(packet.getData(),0,len);
-        System.out.println("String: " + received);
 		System.out.println();
 		System.out.println();
 		

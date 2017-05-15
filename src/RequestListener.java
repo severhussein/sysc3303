@@ -46,7 +46,7 @@ public class RequestListener {
 		}
 
 		if(serverMode.equals(CommonConstants.VERBOSE))
-			Helper.printPacket(received);
+			Utils.printDatagramContentWiresharkStyle(received);
 		
 		packetLength = received.getLength();
 
@@ -59,7 +59,6 @@ public class RequestListener {
 		// If it's a read, send back DATA (03) block 1
 		// If it's a write, send back ACK (04) block 0
 		// Otherwise, ignore it
-		if(serverMode.equals(CommonConstants.VERBOSE)) Utils.printPacketContent(received);
 		if (datagram[0] != 0)
 			req = CommonConstants.ERR; // bad
 		else if (datagram[1] == 1)

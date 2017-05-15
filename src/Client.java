@@ -168,7 +168,7 @@ public class Client {
 
 		if (verbose) {
 			System.out.println("Ack:");
-			Helper.printPacket(receivePacket);
+			Utils.printDatagramContentWiresharkStyle(receivePacket);
 		}
 
 		if (recvTftpPacket.getType() == TftpType.ACK) {

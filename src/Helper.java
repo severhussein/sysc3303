@@ -81,7 +81,7 @@ public class Helper {
 		if (VERB_MODE) System.out.println(str);
 	}
 	
-	public static void printPacket(DatagramPacket receivePacket){
+	/*public static void printPacket(DatagramPacket receivePacket){
 		if (!VERB_MODE) return;
 
 	    // Process the received datagram.
@@ -101,5 +101,5 @@ public class Helper {
         
 	    System.out.println();
 	    System.out.println();
-	}
+	}*/
 }
