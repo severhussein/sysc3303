@@ -76,22 +76,22 @@ public class CommonConstants {
 	/**
 	* User interface option for dumping program activity logs.
 	*/
-	public static final String VERBOSE = "verbose";
+	public static final String VERBOSE = "Verbose";
 
 	/**
 	* User interface option for silent output.
 	*/
-	public static final String QUIET = "quiet";
+	public static final String QUIET = "Quiet";
 
 	/**
 	* System set-up option for enabling error simulator.
 	*/
-	public static final String TEST = "test";
+	public static final String TEST = "Test";
 
 	/**
 	* System set-up option for direct client-server communication.
 	*/
-	public static final String NORM = "normal";
+	public static final String NORM = "Normal";
 	
 	public static final int TFTP_MAX_NUM_RETRIES = 5;
 	

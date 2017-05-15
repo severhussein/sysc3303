@@ -42,6 +42,57 @@ public class Client {
 			System.exit(1);
 		}
 	}
+	public static void main(String args[]) throws IllegalArgumentException, IOException {
+		Client c = new Client();
+		byte[] data;
+		// assumption is to have it in quiet mode
+
+		// query user for RRQ or WRQ or toggle between modes
+		for (;;) {
+			System.out.println("Client: currently in:\n" + c.getOutputMode() + " output mode\n" + c.getOperationMode()
+					+ " operation mode");
+			String request = queryUserRequest(c);
+
+			if (request.equals("5"))
+				shutdown();
+
+			try {
+				//what is this used for?
+				//destinationAddress = InetAddress.getByName("192.168.217.128");
+				destinationAddress = InetAddress.getLocalHost();
+			} catch (UnknownHostException uhe) {
+				System.out.println("Failed to resolved host name");
+				continue;
+			}
+
+			String filename = queryFilename();
+			file = new File(filename);
+			System.out.println("Filename: " + filename);
+			if (request.equals("1")) {
+				if (file.exists()) {
+					// is it worth putting a warning here?
+					// System.out.println("Overwriting local file");
+				}
+
+				data = new TftpReadRequestPacket(filename, TftpTransferMode.MODE_OCTET).generatePayloadArray();
+
+				c.sendRequest(data);
+				c.readFromHost(filename);
+			} else if (request.equals("2")) {
+				if (!file.exists()) {
+					System.out.println("No such file");
+				} else if (file.isDirectory()) {
+					System.out.println("This is a directory");
+				} else {
+					// write request
+					// System.out.println("write request");
+					data = new TftpWriteRequestPacket(filename, TftpTransferMode.MODE_OCTET).generatePayloadArray();
+					c.sendRequest(data);
+					c.writeToHost(filename);
+				}
+			}
+		}
+	}
 
 	/**
 	 * Wrapped version of send to reduce duplicated code
@@ -465,62 +516,12 @@ public class Client {
 		// put it somewhere common
 		// or is it client only? if so don't
 		if (testMode)
-			return "TEST";
+			return CommonConstants.TEST;
 		else
-			return "NORMARL";
+			return CommonConstants.NORM;
 	}
 
-	public static void main(String args[]) throws IllegalArgumentException, IOException {
-		Client c = new Client();
-		byte[] data;
-		// assumption is to have it in quiet mode
-
-		// query user for RRQ or WRQ or toggle between modes
-		for (;;) {
-			System.out.println("Client: currently in:\n" + c.getOutputMode() + " output mode\n" + c.getOperationMode()
-					+ " operation mode");
-			String request = queryUserRequest(c);
-
-			if (request.equals("5"))
-				shutdown();
-
-			try {
-				destinationAddress = InetAddress.getByName("192.168.217.128");
-				// destinationAddress = InetAddress.getLocalHost();
-			} catch (UnknownHostException uhe) {
-				System.out.println("Failed to resolved host name");
-				continue;
-			}
-
-			String filename = queryFilename();
-			file = new File(filename);
-			System.out.println("Filename: " + filename);
-			if (request.equals("1")) {
-				if (file.exists()) {
-					// is it worth putting a warning here?
-					// System.out.println("Overwriting local file");
-				}
-
-				data = new TftpReadRequestPacket(filename, TftpTransferMode.MODE_OCTET).generatePayloadArray();
-
-				c.sendRequest(data);
-				c.readFromHost(filename);
-			} else if (request.equals("2")) {
-				if (!file.exists()) {
-					System.out.println("No such file");
-				} else if (file.isDirectory()) {
-					System.out.println("This is a directory");
-				} else {
-					// write request
-					// System.out.println("write request");
-					data = new TftpWriteRequestPacket(filename, TftpTransferMode.MODE_OCTET).generatePayloadArray();
-					c.sendRequest(data);
-					c.writeToHost(filename);
-				}
-			}
-		}
-
-	}
+	
 
 	private static void toggleOperation(Client c) {
 		testMode = !testMode;
@@ -534,6 +535,7 @@ public class Client {
 
 	private static void toggleMode(Client c) {
 		verbose = !verbose;
+		System.out.println("Output Mode changed to: " + c.getOutputMode());
 	}
 
 	private static String queryUserRequest(Client c) {

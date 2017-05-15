@@ -45,7 +45,7 @@ public class RequestListener {
 				System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
 		}
 
-		if(serverMode.equals("verbose"))
+		if(serverMode.equals(CommonConstants.VERBOSE))
 			Helper.printPacket(received);
 		
 		packetLength = received.getLength();
@@ -59,7 +59,7 @@ public class RequestListener {
 		// If it's a read, send back DATA (03) block 1
 		// If it's a write, send back ACK (04) block 0
 		// Otherwise, ignore it
-		if(serverMode.equals("verbose")) Utils.printPacketContent(received);
+		if(serverMode.equals(CommonConstants.VERBOSE)) Utils.printPacketContent(received);
 		if (datagram[0] != 0)
 			req = CommonConstants.ERR; // bad
 		else if (datagram[1] == 1)
@@ -195,15 +195,9 @@ public class RequestListener {
 		//return mode;
 	}
 	private static void toggleMode(RequestListener s) {
-		if(s.getOutputMode().equals("verbose")) s.setOutputMode("quiet");
-		else if(s.getOutputMode().equals("quiet")) s.setOutputMode("verbose");
-		/*if (mode.equals("verbose"))
-			mode = "quiet";
-		else
-			mode = "verbose";
+		if(s.getOutputMode().equals(CommonConstants.VERBOSE)) s.setOutputMode(CommonConstants.QUIET);
+		else if(s.getOutputMode().equals(CommonConstants.QUIET)) s.setOutputMode(CommonConstants.VERBOSE);
 
-		System.out.println("Mode changed to: " + mode);
-		return mode;*/
 		System.out.println("Mode changed to: " + s.getOutputMode());
 	}
 	private static String queryServerShutDown(){
