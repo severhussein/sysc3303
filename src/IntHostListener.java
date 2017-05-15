@@ -55,12 +55,12 @@ public class IntHostListener {
 		//Scanner sc = new Scanner(System.in);
 		System.out.println("Type the digit number to choose which error you want to simulate");
 		System.out.println("0 = No Error");
-		System.out.println("1 = send to Client, using incorrect port (Error type 5)");
-		System.out.println("2 = send to Server, using incorrect port (Error type 5)");
+		System.out.println("1 = send to Client, Port is incorrect (Error type 5)");
+		System.out.println("2 = send to Server, Port is incorrect (Error type 5)");
 		System.out.println("3 = send to Client, Opcode is incorrect (Mess 0th & 1st byte, Error type 4)");
 		System.out.println("4 = send to Server, Opcode is incorrect (Mess 0th & 1st byte, Error type 4)");
-		System.out.println("5 = send to Client, Packet Size is incorrect (size = size+1, Error type 4)");
-		System.out.println("6 = send to Server, Packet Size is incorrect (size = size+1, Error type 4)");
+		System.out.println("5 = send to Client, Packet Size is incorrect (size = 1, Error type 4)");
+		System.out.println("6 = send to Server, Packet Size is incorrect (size = 1, Error type 4)");
 		System.out.println("7 = send to Client, BlockNum is incorrect (Mess 2nd & 3rd byte, Error type 4)");
 		System.out.println("8 = send to Server, BlockNum is incorrect (Mess 2nd & 3rd byte, Error type 4)");
 		String str = sc.next();
