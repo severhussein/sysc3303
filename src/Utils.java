@@ -8,7 +8,9 @@ import java.util.Arrays;
  *
  */
 public class Utils {
-
+	private static final int BYTE_PER_LINE = 16;
+	private static final int BYTE_PER_GROUP = BYTE_PER_LINE / 2;
+	
 	private static String OS = System.getProperty("os.name").toLowerCase();
 
 	/**
@@ -48,55 +50,57 @@ public class Utils {
 	public static void printDatagramContentWiresharkStyle(DatagramPacket packet) {
 		int len = packet.getLength();
 		byte payload[] = packet.getData();
-		int i = 0, count = 1;
+		int idx = 0, count = 1;
 		boolean printHex = true, printHeader = true;
 
 		System.out.println("   This packet contains:");
 		System.out.println("   Address: " + packet.getAddress() + ":" + packet.getPort());
 		System.out.println("   Length: " + len);
 		System.out.print("   Content:");
-		while (i < len) {
+		while (idx < len) {
 			if (printHex) {
 				if (printHeader) {
 					System.out.println();
-					System.out.format("    %04x | ", i); //
+					System.out.format("    %04x | ", idx);
 					printHeader = false;
 				}
-				System.out.print(String.format("%02x ", payload[i]));
-				if (count == 16) {
+				System.out.print(String.format("%02x ", payload[idx]));
+				if (count == BYTE_PER_LINE) {
+					// reached max number per line, rewind index
 					printHex = false;
-					i -= 16;
+					idx -= BYTE_PER_LINE;
 					count = 0;
-					System.out.print("   ");
-				} else if (count == 8) {
-					System.out.print("   ");
-				} else if (i + 1 == payload.length) {
+					System.out.print("   ");//separator between hex and ascii
+				} else if (count == BYTE_PER_GROUP) {
+					System.out.print("   ");//separator between groups
+				} else if (idx + 1 == len) {
 					// end of payload, switch to hex and compensate the space between hex/ASCII
 					printHex = false;
-					i -= count;
-					for (int j = 1; j <= (16 - count); j++) {
-						System.out.print("   ");
+					idx -= count;
+					for (int j = 1; j <= (BYTE_PER_LINE - count); j++) {
+						System.out.print("   "); //2 space for hex, and 1 as separator
 					}
-					if (count <= 8) {
-						System.out.print("      ");
+					if (count <= BYTE_PER_GROUP) {
+						System.out.print("   ");//extra three to compensate the group separator
 					}
+					System.out.print("   ");//separator between hex and ascii
 					count = 1;
 				}
 			} else {
-				if (Character.isISOControl(payload[i])) {
-					System.out.print(".");//
+				if (Character.isISOControl(payload[idx])) {
+					System.out.print(".");//swap "non-printable"
 				} else {
-					System.out.print((char) payload[i]);
+					System.out.print((char) payload[idx]);
 				}
-				if (count == 16) {
+				if (count == BYTE_PER_LINE) {
 					printHex = true;
 					printHeader = true;
 					count = 0;
-				} else if (count == 8) {
-					System.out.print("   ");
+				} else if (count == BYTE_PER_GROUP) {
+					System.out.print("   ");//separator between groups
 				}
 			}
-			i++;
+			idx++;
 			count++;
 		}
 		System.out.println();
