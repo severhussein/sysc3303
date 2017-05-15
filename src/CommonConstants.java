@@ -62,18 +62,6 @@ public class CommonConstants {
 	public static final int ACK_PACKET_SZ = 4;
 
 	/**
-	 * Response to read request as specified in assignment
-	 * It will probably better to move this into it's own class later on
-	 */
-	//public static final byte[] READ_RESPONSE_BYTES = {0, 3, 0, 1};
-
-	/**
-	 * Response to write request as specified in assignment
-	 * It will probably better to move this into it's own class later on
-	 */
-	public static final byte[] WRITE_RESPONSE_BYTES = {0, 4, 0, 0};
-	
-	/**
 	* User interface option for dumping program activity logs.
 	*/
 	public static final String VERBOSE = "Verbose";
