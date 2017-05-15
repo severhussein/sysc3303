@@ -90,7 +90,7 @@ public abstract class TftpRequestPacket extends TftpPacket {
 			position++;
 		}
 		String modeStr = sb.toString().toLowerCase();
-		System.out.println("   This packet contains:" + modeStr);
+
 		if (modeStr.equals(MODE_ASCII_STRING)) {
 			mode = TftpTransferMode.MODE_ASCII;
 		} else if (modeStr.equals(MODE_OCTET_STRING)) {

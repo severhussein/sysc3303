@@ -36,7 +36,7 @@ public class RequestManager implements Runnable {
 
 	public void run() {
 		if (type == CommonConstants.RRQ) {
-			byte readData[] = new byte[CommonConstants.DATA_PACKET_SZ];
+			byte readData[] = new byte[CommonConstants.DATA_BLOCK_SZ];
 			byte ackRRQ[] = new byte[CommonConstants.ACK_PACKET_SZ];
 			int i = 0, lastSize = 0, n;
 			BufferedInputStream in = null;
@@ -58,9 +58,7 @@ public class RequestManager implements Runnable {
 					readBlock[1] = (byte) i;
 					try {
 						buf.write(readBlock);
-						if (n < CommonConstants.DATA_BLOCK_SZ)
-							readData = Utils.trimPacket(readData);
-						buf.write(readData);
+						buf.write(readData, 0, n);
 					} catch (IOException e) {
 						System.out.println("ERROR READING DATA INTO BYTE ARRAY\n" + e.getMessage());
 					}
@@ -70,7 +68,7 @@ public class RequestManager implements Runnable {
 						send = new DatagramPacket(dataSend, dataSend.length, InetAddress.getLocalHost(), clientPort);
 						socket.send(send);
 						if(serverMode.equals(CommonConstants.VERBOSE))
-							Utils.printDatagramContentWiresharkStyle(send);
+							Utils.tryPrintTftpPacket(send);
 					} catch (IOException e) {
 						System.out.println("ERROR SENDING READ\n" + e.getMessage());
 					}
@@ -79,7 +77,7 @@ public class RequestManager implements Runnable {
 					try {
 						socket.receive(received);
 						if(serverMode.equals(CommonConstants.VERBOSE))
-							Utils.printDatagramContentWiresharkStyle(received);
+							Utils.tryPrintTftpPacket(received);
 					} catch (IOException e) {
 						System.out.println("RECEPTION ERROR AT MANAGER ACK\n" + e.getMessage());
 					}
@@ -148,13 +146,16 @@ public class RequestManager implements Runnable {
 						}
 						return;
 					}
-					readData = new byte[CommonConstants.DATA_BLOCK_SZ];
-					
 				}
 				if(i==0){
 					byte[] emptyData = {0,3,0,1};
 					DatagramPacket emptyPacket = new DatagramPacket(emptyData,emptyData.length,InetAddress.getLocalHost(),clientPort);
 					socket.send(emptyPacket);
+				}
+				try {
+					in.close();
+				} catch (Exception e) {
+					System.out.println(e.getMessage());
 				}
 			} catch (IOException e) {
 				System.out.println("ERROR READING FILE\n" + e.getMessage());
@@ -175,7 +176,7 @@ public class RequestManager implements Runnable {
 					send = new DatagramPacket(dataSend, dataSend.length, InetAddress.getLocalHost(), clientPort);
 					socket.send(send);
 					if(serverMode.equals(CommonConstants.VERBOSE))
-						Utils.printDatagramContentWiresharkStyle(send);
+						Utils.tryPrintTftpPacket(send);
 				} catch (IOException e) {
 					System.out.println("ERROR SENDING READ\n" + e.getMessage());
 				}
@@ -201,7 +202,7 @@ public class RequestManager implements Runnable {
 				socket.send(send);
 				if(serverMode.equals(CommonConstants.VERBOSE)){
 					System.out.println("Initial Ack sent for WRQ:");
-					Utils.printDatagramContentWiresharkStyle(send);
+					Utils.tryPrintTftpPacket(send);
 				}
 
 			} catch (IOException e) {
@@ -215,7 +216,7 @@ public class RequestManager implements Runnable {
 					//sending back ack0 for WRQ
 					socket.receive(received);
 					if(serverMode.equals(CommonConstants.VERBOSE)){
-						Utils.printDatagramContentWiresharkStyle(received);
+						Utils.tryPrintTftpPacket(received);
 					}
 				} catch (IOException e) {
 					System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
@@ -233,7 +234,7 @@ public class RequestManager implements Runnable {
 					}
 					if(serverMode.equals(CommonConstants.VERBOSE)){
 						System.out.println("Error sent for wrong TID:");
-						Utils.printDatagramContentWiresharkStyle(send);
+						Utils.tryPrintTftpPacket(send);
 					}
 
 					// retries--;
@@ -262,7 +263,7 @@ public class RequestManager implements Runnable {
 						socket.send(send);
 						if(serverMode.equals(CommonConstants.VERBOSE)){
 							System.out.println("Sending Ack:");
-							Utils.printDatagramContentWiresharkStyle(send);
+							Utils.tryPrintTftpPacket(send);
 						}
 					} catch (IOException e) {
 						System.out.println("ERROR SENDING ACK\n" + e.getMessage());

@@ -44,7 +44,7 @@ public class RequestListener {
 		}
 
 		if (serverMode.equals(CommonConstants.VERBOSE))
-			Utils.printDatagramContentWiresharkStyle(received);
+			Utils.tryPrintTftpPacket(received);
 
 		packetLength = received.getLength();
 

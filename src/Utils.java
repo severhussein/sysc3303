@@ -1,6 +1,8 @@
 import java.net.DatagramPacket;
 import java.util.Arrays;
 
+import TftpPacketHelper.TftpPacket;
+
 /**
  * Utilities which may be handy
  * 
@@ -45,6 +47,30 @@ public class Utils {
 		}
 
 		return Arrays.copyOf(buf, i-1);
+	}
+
+	/**
+	 * Decode the packet with TFTP packet helper and print it If decoding fails
+	 * use printDatagramContentWiresharkStyle() instead
+	 * 
+	 * @param packet
+	 *            packet to be printed
+	 */
+	public static void tryPrintTftpPacket(DatagramPacket packet) {
+		TftpPacket tftpPacket = null;
+		boolean isTftp = true;
+
+		try {
+			tftpPacket = TftpPacket.decodeTftpPacket(packet);
+		} catch (Exception e) {
+			isTftp = false;
+		}
+
+		if (isTftp && tftpPacket != null) {
+			System.out.println(tftpPacket);
+		} else {
+			Utils.printDatagramContentWiresharkStyle(packet);
+		}
 	}
 	
 	public static void printDatagramContentWiresharkStyle(DatagramPacket packet) {

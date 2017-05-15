@@ -103,30 +103,15 @@ public class Client {
 	 *            error msg to be printed in console if send goes wrong
 	 */
 	private void trySend(DatagramPacket packet, String errMsg) {
-		TftpPacket tftpPacket = null;
-		boolean isTftp = true;
-
 		System.out.println("Sending one packet...");
 
-		try {
-			tftpPacket = TftpPacket.decodeTftpPacket(packet);
-		} catch (Exception e) {
-			isTftp = false;
-		}
-
 		if (verbose) {
-			if (isTftp && tftpPacket != null) {
-				System.out.println(tftpPacket);
-			} else {
-				Utils.printDatagramContentWiresharkStyle(packet);
-			}
-			System.out.println("");
+			Utils.tryPrintTftpPacket(packet);
 		}
 
 		try {
 			sendReceiveSocket.send(packet);
 		} catch (IOException e) {
-			// do we really want to quit when send fails?
 			if (errMsg.length() != 0)
 				System.out.println(errMsg + e.getMessage());
 		}
@@ -140,28 +125,6 @@ public class Client {
 	 */
 	private void trySend(DatagramPacket packet) {
 		trySend(packet, "");
-	}
-
-	private void receiveAndMaybePrint(DatagramPacket packet) throws IOException {
-		TftpPacket tftpPacket = null;
-		boolean isTftp = true;
-
-		sendReceiveSocket.receive(packet);
-		try {
-			tftpPacket = TftpPacket.decodeTftpPacket(packet);
-		} catch (Exception e) {
-			isTftp = false;
-		}
-		
-		if (verbose) {
-			System.out.println("Received one packet...");
-			if (isTftp && tftpPacket != null) {
-				System.out.println(tftpPacket);
-			} else {
-				Utils.printDatagramContentWiresharkStyle(packet);
-			}
-			System.out.println("");
-		}
 	}
 
 	private void writeToHost(String fileName) throws IOException {
@@ -180,10 +143,15 @@ public class Client {
 		// wait for a packet to be returned back
 		try {
 			// Block until a datagram is received via sendReceiveSocket.
-			receiveAndMaybePrint(receivePacket);
+			sendReceiveSocket.receive(receivePacket);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
+		}
+
+		if (verbose) {
+			System.out.println("Expecting Ack:");
+			Utils.printDatagramContentWiresharkStyle(receivePacket);
 		}
 
 		try {
@@ -263,7 +231,11 @@ public class Client {
 			// iteration 4 stuff....
 			// while (retries > 0) {
 			try {
-				receiveAndMaybePrint(receivePacket);
+				sendReceiveSocket.receive(receivePacket);
+				if (verbose) {
+					System.out.println("Received one packet...");
+					Utils.tryPrintTftpPacket(receivePacket);
+				}
 				// break;
 				// } catch (SocketTimeoutException te) {
 				// if (vervose)
@@ -368,7 +340,11 @@ public class Client {
 			// iteration 4
 			// while (retries > 0) {
 			try {
-				receiveAndMaybePrint(receivePacket);
+				sendReceiveSocket.receive(receivePacket);
+				if (verbose) {
+					System.out.println("\nReading:");
+					Utils.tryPrintTftpPacket(receivePacket);
+				}
 				// break;
 				// } catch (SocketTimeoutException te) {
 				// if (vervose)
@@ -515,6 +491,7 @@ public class Client {
 			// iteration 3...
 			// something bad happened.. disk dead? full? permission issue?
 		}
+		System.out.println();
 	}
 	/**
 	 * Send a UDP packet with data packed to the destination
@@ -529,7 +506,7 @@ public class Client {
 
 		System.out.println("Client: Sending request packet:");
 		trySend(sendPacket);
-		System.out.println("Client: Request packet sent.\n");
+		System.out.println("Client: Request packet sent.");
 	}
 
 	public String getOutputMode() {
