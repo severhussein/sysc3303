@@ -120,7 +120,7 @@ public class IntHostManager implements Runnable {
 	public void simulate_wrong_size(int port) {
 
 		System.out.println("simulate wrong size packet to port: " + port + "\n");
-		sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength() -1 , receivePacket.getAddress(),
+		sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength() + 1 , receivePacket.getAddress(),
 				port);
 		Helper.send(socket, sendPacket);
 		Utils.printDatagramContentWiresharkStyle(sendPacket);
