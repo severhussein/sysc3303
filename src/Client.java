@@ -276,7 +276,7 @@ public class Client {
 				System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
 			}
 			// }
-			
+
 			if (receivePacket.getPort() != tid) {
 				// receive a packet with wrong tid, notify the sender with error
 				// 5
@@ -302,10 +302,9 @@ public class Client {
 				trySend(new TftpErrorPacket(4, "not tftp").generateDatagram(receivePacket.getAddress(),
 						receivePacket.getPort()));
 				// re-transmission in iteration 4....
-				// retries--;
+ 				// retries--;
 				// continue;
-				in.close();
-				return;
+				finished = true;
 			}
 
 			// let's check if the packet we received is an ack
@@ -324,7 +323,8 @@ public class Client {
 					// is this possible?
 					// }
 				else {
-					acked = false;
+					finished = true;
+					trySend(new TftpErrorPacket(4, "PACKET BLOCK # MISMATCH").generateDatagram(destinationAddress, tid));
 					// retries--;
 				}
 			} else {
@@ -386,6 +386,7 @@ public class Client {
 			// break;
 			// }
 
+			
 			try {
 				// use the help to decode the packet, if no exception is thrown
 				// then is a TFTP packet
@@ -428,7 +429,7 @@ public class Client {
 					continue;
 				}
 
-				// System.out.println("block" + blockNumber);
+				//System.out.println("block" + blockNumber);
 				if (dataPacket.getBlockNumber() == blockNumber) {
 					// ok, we got correct block. write it to file system...
 					try {
@@ -461,11 +462,15 @@ public class Client {
 						// it hits 65535! wrap it back to zero
 						blockNumber = 0;
 					}
-				} else if (dataPacket.getBlockNumber() == blockNumber - 1) {
-					// got same DATA again, previous one lost in transmission?
-					sendPacket = new TftpAckPacket(blockNumber).generateDatagram(destinationAddress, tid);
-					trySend(sendPacket, "ERROR RESENDING ACK");
-				} else if (dataPacket.getDataLength() > CommonConstants.DATA_BLOCK_SZ) {
+				} 
+				/*
+//				else if (dataPacket.getBlockNumber() == blockNumber - 1) {
+//					 got same DATA again, previous one lost in transmission?
+//					sendPacket = new TftpAckPacket(blockNumber).generateDatagram(destinationAddress, tid);
+//					trySend(sendPacket, "ERROR RESENDING ACK");
+ * */
+
+				 else if (dataPacket.getDataLength() > CommonConstants.DATA_BLOCK_SZ) {
 					// well.. we had specified the underlying buffer as a byte
 					// 512 + 4 array , will it reach here?
 					// the payload should have been truncated to 512 so don't
@@ -511,7 +516,6 @@ public class Client {
 			// something bad happened.. disk dead? full? permission issue?
 		}
 	}
-
 	/**
 	 * Send a UDP packet with data packed to the destination
 	 * 
