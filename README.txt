@@ -51,26 +51,24 @@ General->Existing Project, you may choose Git->Projects From Git and select Clon
 and eclipse will automatically download the repository.
 
 Brief explanation of the source directory:
-
-TftpPacketHelper\
-	A directory containing TFTP help classes which may be used in the future
-Client.java
-	Contains the implementation of the client component
-CommonConstants.java
-	Contains the constants used in the components
-Helper.java
-	Contains helper methods
-IntHostListener.java
-	Contains the implementation of the rest of packet forwarding mechanism
-IntHostManager.java
-	Contains the implementation the the error simulator
-InvalidPacketException.java
-	Custom exception to indicate the reception of an invalid packet
-RequestListener.java
-	Contains the main method and thread spawner of the server
-RequestManager.java
-	Contains the implementation of TFTP client/server interaction 
-RequestPacket.java
-	Helper class for decoding/encoding TFTP request packet
-Utils.java
-	Contains helper methods
+src	
+|   Client.java				Contains the implementation of the client component
+|   CommonConstants.java		Contains the constants used in the three components
+|   Helper.java				Handy helper methods
+|   IntHostListener.java		Implementation of packet forwarding and error injection
+|   IntHostManager.java			main method of error simulator and UI
+|   InvalidPacketException.java		Custom exception to indicate the reception of an invalid packet
+|   RequestListener.java		main method, thread spawner and UI of the server
+|   RequestManager.java			Implementation of the rest of TFTP client/server interaction 
+|   ServerScanner.java			Scans server for shutdown command
+|   Utils.java				Contains helper methods to printing packet contents
+|
+\---TftpPacketHelper			A directory containing TFTP help classes which encodes/decodes TFTP packets       
+        TftpAckPacket.java
+        TftpDataPacket.java
+        TftpErrorPacket.java
+        TftpOackPacket.java
+        TftpPacket.java
+        TftpReadRequestPacket.java
+        TftpRequestPacket.java
+        TftpWriteRequestPacket.java
