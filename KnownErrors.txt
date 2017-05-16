@@ -1,7 +1,0 @@
-1. During the pre-demo, the TA asked to rename the file after a write to the server. However the file was still in "use" and could not be renamed.
-Thus, there's an error that the server is keeping the file open.
-
-2. During the pre-demo, two identical files were written to server, command "fc" in command prompt showed that the files were not the same, ie writing identical files
-doesn't work.
-
-3. Need the verbose print statements to follow the guidelines as per project.
