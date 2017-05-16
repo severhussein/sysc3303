@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.Scanner;
 
 public class RequestListener {
+	public static boolean shutdown = false;
 	private DatagramSocket receiveSock;
 	private DatagramSocket sendSocket;;
 	private DatagramPacket send, received;
@@ -42,8 +43,10 @@ public class RequestListener {
 				if (response.equals("1")) {
 					shutDown();
 				}
-			} else
-				System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
+			} else if(e instanceof SocketException) {
+				return;
+			}
+			else System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
 		}
 
 		if (verbose)
@@ -136,11 +139,16 @@ public class RequestListener {
 				if (verbose)
 					Utils.tryPrintTftpPacket(send);
 				sendSocket.send(send);
-			} catch (IOException e) {
-				System.out.println("ISSUE CREATING REQUEST ERROR PACKET\n" + e.getMessage());
+			} catch (IOException | IllegalArgumentException e) {
+				if(e instanceof IllegalArgumentException) return;
+				else System.out.println("ISSUE CREATING REQUEST ERROR PACKET\n" + e.getMessage());
 			}
 		}
 
+	}
+
+	public DatagramSocket getSocket() {
+		return this.receiveSock;
 	}
 
 	public String getOutputMode() {
@@ -154,8 +162,9 @@ public class RequestListener {
 		RequestListener s = new RequestListener();
 		System.out.println("Server: currently in " + s.getOutputMode() + " mode");
 		queryServerMode(s);
+		new Thread(new ServerScanner(s.getSocket())).start();
 
-		while (true) {
+		while (!shutdown) {
 			try {
 				s.receiveRequests();
 			} catch (InvalidPacketException e) {
