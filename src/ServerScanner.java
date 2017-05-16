@@ -15,9 +15,8 @@ public class ServerScanner implements Runnable {
 		while (!request.equals("shutdown")) {
 			request = sc.next();
 		}
+		RequestListener.shutdown = true;
 		receiveSock.close();
-		done = true;
-		System.out.println("<Server shutdown, do not accept any new request, not affect current transfer>");
 		sc.close();
 	}
 }
