@@ -1,0 +1,60 @@
+*************************************************************************************
+***************************** Iteration 1 *******************************************
+*************************************************************************************
+Alex:
+For this iteration, I, Alexander, implemented the server side and intermediate host multi-threading.
+In addition, I wrote the handler methods for the server to service client requests depending on
+the opcode sent. Methods include reading local files and packing them into datagrams to send over
+virtual tftp connection, receiving datagrams and writing to a buffer output stream, and handling
+acknowledgement packet. I also integrated and tested file transfer for the 3 main modules, Client,
+Intermediate Host, and Server. Lastly, implemented option to operate system in normal or test mode.
+
+David:
+I made a slightly improved version of Host, with an optimization in the multi-thread behavior, delay 
+between each new request should be lower. And made the code really cleaned up.
+
+Yu-Kai:
+-TFTP request packet class
+-TFTP decoding/encoding packet helper class  implementing RFC 1350, 2347, 2348, 2349, 7440 for fure use
+-General debugging via wireshark and program trace
+-Overall Eclipse project setup in GitHub
+
+Sever:
+-Implemented the client side implementation
+-Implemented the user-interface
+-Implemented quiet-verbose mode
+-Integrated the Professor's error handling (Assignment1-Server.java) into the Server the side RequestListener.java
+(besides that, no other code was used from the Professor)
+-Tested and debugged Project before submission
+-Wrote DetailedSetup.txt
+-Compiled and submitted all required documents and ensured accuracy of requirements
+
+As a team we metup over the weekend to work on this Iteration, we got a good grasp of what was to be done and who was to work
+specific sections. We all tested and debugged once we had a runnable version.
+
+*************************************************************************************
+***************************** Iteration 2 *******************************************
+*************************************************************************************
+
+Sever:
+-Testing and debugging errors that occurred from the error simulator
+-Writing code to fix errors
+-Commenting parts of code
+-Cleaning up the project code to minimize redundancy 
+-Writing code to clean up user interface experience
+
+Alex:
+Implemented error packet creation and sending for error message
+types 4 and 5 on server side. Made changes to server UI and added
+functionality to shutdown at any point after start up.
+
+David:
+Implemented methods to modify packets on error simulator as packets
+are transferred between client and host. Created simple UI to choose
+error type that should be created and at which packet number.
+
+Yu-Kai:
+- Maintenance and bug fix for TftpPacketHelper package
+- Implementation of several features required for iteration on the client side
+- General debugging on client/server via packet capture and program trace
+- Performance improvement via Java method hotspot analysis 
