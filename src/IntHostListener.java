@@ -61,8 +61,8 @@ public class IntHostListener {
 		System.out.println("2 = send to Server, Port is incorrect (Error type 5)");
 		System.out.println("3 = send to Client, Opcode is incorrect (Mess 0th & 1st byte, Error type 4)");
 		System.out.println("4 = send to Server, Opcode is incorrect (Mess 0th & 1st byte, Error type 4)");
-		System.out.println("5 = send to Client, Packet Size is incorrect (size = 1, Error type 4)");
-		System.out.println("6 = send to Server, Packet Size is incorrect (size = 1, Error type 4)");
+		System.out.println("5 = send to Client, Packet Size is incorrect (size modified, Error type 4)");
+		System.out.println("6 = send to Server, Packet Size is incorrect (size modified, Error type 4)");
 		System.out.println("7 = send to Client, BlockNum is incorrect (Mess 2nd & 3rd byte, Error type 4)");
 		System.out.println("8 = send to Server, BlockNum is incorrect (Mess 2nd & 3rd byte, Error type 4)");
 		String str = "";
@@ -76,7 +76,7 @@ public class IntHostListener {
 				 System.out.println("Input was not number, please try again");
  			 }
 		}
-		System.out.println("Will simulate the #" + number + " type error");
+		System.out.println("Will simulate the #" + number + " option of error");
 		return number;
 	}
 
@@ -100,7 +100,7 @@ public class IntHostListener {
 	
 	public static int decideErrorSize() {
 		//Scanner sc = new Scanner(System.in);
-		System.out.println("Type the size value, which the error packet would become");
+		System.out.println("Type the size value, which the error packet would become that size");
 		String str = "";
 		int number = -1;
 		while (number < 0) {
@@ -112,7 +112,7 @@ public class IntHostListener {
 				 System.out.println("Input was not number, please try again");
  			 }
 		}
-		System.out.println("Got the size value: #" + number);
+		System.out.println("size set to value: " + number);
 		return number;
 	}
 }	
