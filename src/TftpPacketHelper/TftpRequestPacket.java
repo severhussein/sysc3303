@@ -33,10 +33,10 @@ public abstract class TftpRequestPacket extends TftpPacket {
 	private final String filename;
 
 	/// make these final? constructor will have a lot of parameters...
-	private boolean has_blksize;
-	private boolean has_timeout;
-	private boolean has_tsize;
-	private boolean has_windowsize;
+	private boolean has_blksize = false;
+	private boolean has_timeout = false;
+	private boolean has_tsize = false;
+	private boolean has_windowsize = false;
 
 	private int blksize;
 	private short timeout;
@@ -44,17 +44,12 @@ public abstract class TftpRequestPacket extends TftpPacket {
 	private int windowsize;
 
 	TftpRequestPacket(TftpType type, String filename, TftpTransferMode mode) throws IllegalArgumentException {
-
 		super(type);
 		this.filename = filename;
 		this.mode = mode;
 
-		// is this worth it? UDP can't be more than 65535
-		// different ip stack may have different kind of support
-		// or just let underlying class throw exception?
-		// filesystem probably won't permit long filename anyway
-		if (filename.length() > 64000) {
-			throw new IllegalArgumentException("Filename too long");
+		if (filename.length() == 0) {
+			throw new IllegalArgumentException("Empty Filename");
 		}
 	}
 
@@ -70,24 +65,27 @@ public abstract class TftpRequestPacket extends TftpPacket {
 		super(type);
 
 		byte[] payload = packet.getData();
-		int position = 2;
+		int idx = 2;
 		int len = packet.getLength();
 		StringBuilder sb = new StringBuilder();
 
-		while (position < len && payload[position] != 0) {
-			sb.append((char) payload[position]);
-			position++;
+		while (idx < len && payload[idx] != 0) {
+			sb.append((char) payload[idx]);
+			idx++;
 		}
-		if (position == len) {
+		if (idx+1 == len) {
 			throw new IllegalArgumentException("Reached end of packet after getting filename");
 		}
 		filename = sb.toString();
-		position++;
+		if (filename.length() == 0) {
+			throw new IllegalArgumentException("Empty filename");
+		}
+		idx++;
 		sb = new StringBuilder();
 
-		while (position < len && payload[position] != 0) {
-			sb.append((char) payload[position]);
-			position++;
+		while (idx < len && payload[idx] != 0) {
+			sb.append((char) payload[idx]);
+			idx++;
 		}
 		String modeStr = sb.toString().toLowerCase();
 
@@ -98,43 +96,59 @@ public abstract class TftpRequestPacket extends TftpPacket {
 		} else {
 			throw new IllegalArgumentException("Neither ascii nor octet mode");
 		}
-		position++;
 
-		// we probably have a tftp option....
-		while (position < len) {
-			sb = new StringBuilder();
-			while (position < len && payload[position] != 0) {
-				sb.append((char) payload[position]);
-				position++;
-			}
-			String option = sb.toString().toLowerCase();
-			position++;
-			// now parse the value, they are all in ascii
-			sb = new StringBuilder();
-			while (position < len && payload[position] != 0) {
-				sb.append((char) payload[position]);
-				position++;
-			}
-			String optValueStr = sb.toString().toLowerCase();
-			position++;
-			int optValue = Integer.parseInt(optValueStr);
-			if (option.equals(OPTION_BLKSIZE_STRING)) {
-				has_blksize = true;
-				blksize = optValue;
-
-			} else if (option.equals(OPTION_TIMEOUT_STRING)) {
-				has_timeout = true;
-				timeout = (short) optValue;
-
-			} else if (option.equals(OPTION_TSIZE_STRING)) {
-				has_tsize = true;
-				tsize = optValue;
-
-			} else if (option.equals(OPTION_WINDOWSIZE_STRING)) {
-				has_windowsize = true;
-				windowsize = optValue;
-			}
+		if (idx+1 == len) {
+			//System.out.println("No options, return");
+			return;
+		} else {
+			//System.out.println("Trailing bytes");
+			throw new IllegalArgumentException("Trailing bytes after mode");
 		}
+		
+		//no plan to support TFTP options, comment it out for now
+		
+//		idx++;
+//		// we probably have a tftp option....
+//		while (idx < len) {
+//			sb = new StringBuilder();
+//			while (idx < len && payload[idx] != 0) {
+//				System.out.println("idx" + idx);
+//				sb.append((char) payload[idx]);
+//				idx++;
+//			}
+//			String option = sb.toString().toLowerCase();
+//			if (option.length() == 0) {
+//				throw new IllegalArgumentException("Empty option");
+//			}
+//			idx++;
+//			//System.out.println("option:" + option);
+//			// now parse the value, they are all in ascii
+//			sb = new StringBuilder();
+//			while (idx < len && payload[idx] != 0) {
+//				sb.append((char) payload[idx]);
+//				idx++;
+//			}
+//			String optValueStr = sb.toString().toLowerCase();
+//			if (optValueStr.length() == 0) {
+//				throw new IllegalArgumentException("Empty option value");
+//			}
+//			//System.out.println("optValueStr:" + optValueStr);
+//			idx++;
+//
+//			if (option.equals(OPTION_BLKSIZE_STRING)) {
+//				has_blksize = true;
+//				blksize = Integer.parseInt(optValueStr);
+//			} else if (option.equals(OPTION_TIMEOUT_STRING)) {
+//				has_timeout = true;
+//				timeout = (short) Integer.parseInt(optValueStr);
+//			} else if (option.equals(OPTION_TSIZE_STRING)) {
+//				has_tsize = true;
+//				tsize = Integer.parseInt(optValueStr);
+//			} else if (option.equals(OPTION_WINDOWSIZE_STRING)) {
+//				has_windowsize = true;
+//				windowsize = Integer.parseInt(optValueStr);
+//			}
+//		}
 
 	}
 

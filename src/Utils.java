@@ -79,18 +79,19 @@ public class Utils {
 					System.out.print("   ");//separator between hex and ascii
 				} else if (count == BYTE_PER_GROUP) {
 					System.out.print("   ");//separator between groups
-				} else if (idx + 1 == len) {
+				} 
+				if (idx + 1 == len) {
 					// end of payload, switch to hex and compensate the space between hex/ASCII
 					printHex = false;
 					idx -= count;
 					for (int j = 1; j <= (BYTE_PER_LINE - count); j++) {
 						System.out.print("   "); //2 space for hex, and 1 as separator
 					}
-					if (count <= BYTE_PER_GROUP) {
+					if (count < BYTE_PER_GROUP) {
 						System.out.print("   ");//extra three to compensate the group separator
 					}
 					System.out.print("   ");//separator between hex and ascii
-					count = 1;
+					count = 0;
 				}
 			} else {
 				if (Character.isISOControl(payload[idx])) {
