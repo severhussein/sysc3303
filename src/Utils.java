@@ -29,7 +29,10 @@ public class Utils {
 		}
 
 		if (isTftp && tftpPacket != null) {
-			System.out.println(tftpPacket);
+			System.out.println("   This packet contains:");
+			System.out.println("   Address: " + packet.getAddress() + ":" + packet.getPort());
+			System.out.println("   Length: " + packet.getLength());			
+			System.out.println("   TFTP " + tftpPacket);
 		} else {
 			Utils.printDatagramContentWiresharkStyle(packet);
 		}

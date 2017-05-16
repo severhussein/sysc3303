@@ -132,7 +132,7 @@ public class RequestListener {
 			byte errBuf[] = error.toByteArray();
 
 			try {
-				send = new DatagramPacket(errBuf, errBuf.length, InetAddress.getLocalHost(), received.getPort());
+				send = new DatagramPacket(errBuf, errBuf.length, received.getAddress(), received.getPort());
 				if (verbose)
 					Utils.tryPrintTftpPacket(send);
 				sendSocket.send(send);

@@ -54,14 +54,14 @@ public class IntHostManager implements Runnable {
 				sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(),
 						receivePacket.getAddress(), serverPort);
 				Helper.send(socket, sendPacket);
-				Utils.printDatagramContentWiresharkStyle(sendPacket);
+				Utils.tryPrintTftpPacket(sendPacket);
 			}
 
 			i++;// first round of request msg was done, increase i here
 
 			System.out.println("Host receiving from server...\n");
 			Helper.receive(socket, receivePacket);
-			Utils.printDatagramContentWiresharkStyle(receivePacket);
+			Utils.tryPrintTftpPacket(receivePacket);
 			if (server_port_needed) {
 				server_port_needed = false;
 				serverPort = receivePacket.getPort();
@@ -81,7 +81,7 @@ public class IntHostManager implements Runnable {
 				sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(),
 						receivePacket.getAddress(), clientPort);
 				Helper.send(socket, sendPacket);
-				Utils.printDatagramContentWiresharkStyle(sendPacket);
+				Utils.tryPrintTftpPacket(sendPacket);
 			}
 
 			System.out.println("Host waiting for client data...\n");
@@ -91,7 +91,7 @@ public class IntHostManager implements Runnable {
 
 			receivePacket = Helper.newReceive();
 			Helper.receive(socket, receivePacket);
-			Utils.printDatagramContentWiresharkStyle(receivePacket);
+			Utils.tryPrintTftpPacket(receivePacket);
 		}
 	}
 
@@ -103,7 +103,7 @@ public class IntHostManager implements Runnable {
 		sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(),
 				port);
 		Helper.send(new_socket, sendPacket);
-		Utils.printDatagramContentWiresharkStyle(sendPacket);
+		Utils.tryPrintTftpPacket(sendPacket);
 
 	}
 
@@ -115,7 +115,7 @@ public class IntHostManager implements Runnable {
 		sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(),
 				port);
 		Helper.send(socket, sendPacket);
-		Utils.printDatagramContentWiresharkStyle(sendPacket);
+		Utils.tryPrintTftpPacket(sendPacket);
 	}
 
 	public void simulate_wrong_size(int port) {
@@ -124,7 +124,7 @@ public class IntHostManager implements Runnable {
 		sendPacket = new DatagramPacket(receivePacket.getData(), errorSize , receivePacket.getAddress(),
 				port);
 		Helper.send(socket, sendPacket);
-		Utils.printDatagramContentWiresharkStyle(sendPacket);
+		Utils.tryPrintTftpPacket(sendPacket);
 	}
 	
 	public void simulate_wrong_blockNum(int port) {
@@ -135,7 +135,7 @@ public class IntHostManager implements Runnable {
 		sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength() , receivePacket.getAddress(),
 				port);
 		Helper.send(socket, sendPacket);
-		Utils.printDatagramContentWiresharkStyle(sendPacket);
+		Utils.tryPrintTftpPacket(sendPacket);
 	}
 	
 }

@@ -29,7 +29,7 @@ public class IntHostListener {
 		System.out.println("Host waiting for requests...\n");
 		receivePacket = Helper.newReceive(Helper.PACKAGE_SIZE);
 		Helper.receive(receiveSocket, receivePacket);
-		Utils.printDatagramContentWiresharkStyle(receivePacket);
+		Utils.tryPrintTftpPacket(receivePacket);
 		
 		System.out.println("Creating new thread...\n");
 		new Thread(new IntHostManager(receivePacket, mode, packetNum, errorSize)).start();

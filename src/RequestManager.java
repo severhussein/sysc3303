@@ -63,7 +63,7 @@ public class RequestManager implements Runnable {
 
 					byte dataSend[] = buf.toByteArray();
 					try {
-						send = new DatagramPacket(dataSend, dataSend.length, InetAddress.getLocalHost(), clientPort);
+						send = new DatagramPacket(dataSend, dataSend.length, clientAddress, clientPort);
 						socket.send(send);
 						if(verbose)
 							Utils.tryPrintTftpPacket(send);
@@ -136,7 +136,7 @@ public class RequestManager implements Runnable {
 						try {
 							send = new DatagramPacket(errBuf,
 									errBuf.length,
-									InetAddress.getLocalHost(),
+									clientAddress,
 									clientPort);
 							socket.send(send);
 						} catch(IOException e) {
@@ -147,7 +147,7 @@ public class RequestManager implements Runnable {
 				}
 				if(i==0){
 					byte[] emptyData = {0,3,0,1};
-					DatagramPacket emptyPacket = new DatagramPacket(emptyData,emptyData.length,InetAddress.getLocalHost(),clientPort);
+					DatagramPacket emptyPacket = new DatagramPacket(emptyData,emptyData.length,clientAddress,clientPort);
 					socket.send(emptyPacket);
 				}
 				try {
@@ -171,7 +171,7 @@ public class RequestManager implements Runnable {
 				byte dataSend[] = buf.toByteArray();
 
 				try {
-					send = new DatagramPacket(dataSend, dataSend.length, InetAddress.getLocalHost(), clientPort);
+					send = new DatagramPacket(dataSend, dataSend.length, clientAddress, clientPort);
 					socket.send(send);
 					if(verbose)
 						Utils.tryPrintTftpPacket(send);
@@ -184,9 +184,7 @@ public class RequestManager implements Runnable {
 			byte writeData[] = new byte[CommonConstants.DATA_PACKET_SZ];
 			byte ack[] = {0,4,0,0}; //not immutable
 			BufferedOutputStream out = null;
-			
-			System.out.println("Beginning a new WRQ:");
-			
+		
 			try {
 				out = new BufferedOutputStream(new FileOutputStream(fileName));
 			} catch (IOException e) {
@@ -196,7 +194,7 @@ public class RequestManager implements Runnable {
 			
 			//sending initial ack to a WRQ
 			try {
-				send = new DatagramPacket(ack, ack.length, InetAddress.getLocalHost(), clientPort);
+				send = new DatagramPacket(ack, ack.length, clientAddress, clientPort);
 				socket.send(send);
 				if(verbose){
 					System.out.println("Initial Ack sent for WRQ:");
@@ -256,7 +254,7 @@ public class RequestManager implements Runnable {
 					try {
 						send = new DatagramPacket(ack,
 								ack.length,
-								InetAddress.getLocalHost(),
+								clientAddress,
 								clientPort);
 						socket.send(send);
 						if(verbose){
@@ -290,7 +288,7 @@ public class RequestManager implements Runnable {
 					try {
 						send = new DatagramPacket(errBuf,
 								errBuf.length,
-								InetAddress.getLocalHost(),
+								clientAddress,
 								clientPort);
 						socket.send(send);
 					} catch(IOException e) {
@@ -300,7 +298,9 @@ public class RequestManager implements Runnable {
 				}
 
 				if (received.getLength() < CommonConstants.DATA_PACKET_SZ){ // Length < 516, changed from <512, edited by David
-					System.out.println("Data <512 bytes, going to stop writing to file");
+					if (verbose) {
+						System.out.println("Data <512 bytes, going to stop writing to file");
+					}
 					serve = false;
 					try{
 						out.close();

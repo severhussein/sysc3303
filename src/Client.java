@@ -26,7 +26,7 @@ public class Client {
 	private static InetAddress destinationAddress;
 	private static int destinationPort = (testMode) ? CommonConstants.HOST_LISTEN_PORT
 			: CommonConstants.SERVER_LISTEN_PORT; // FIX ME, this is ugly
-	private int tid = 0;
+	private int tid;
 	// private int retries;
 
 	private DatagramPacket sendPacket, receivePacket;
@@ -103,9 +103,8 @@ public class Client {
 	 *            error msg to be printed in console if send goes wrong
 	 */
 	private void trySend(DatagramPacket packet, String errMsg) {
-		System.out.println("Sending one packet...");
-
 		if (verbose) {
+			System.out.println("\nSending...");
 			Utils.tryPrintTftpPacket(packet);
 		}
 
@@ -139,7 +138,8 @@ public class Client {
 		TftpPacket recvTftpPacket;
 		boolean finished = false;
 		boolean acked = true;
-
+		boolean success = false;
+		
 		// wait for a packet to be returned back
 		try {
 			// Block until a datagram is received via sendReceiveSocket.
@@ -150,7 +150,7 @@ public class Client {
 		}
 
 		if (verbose) {
-			System.out.println("Expecting Ack:");
+			System.out.println("Expecting special Ack:");
 			Utils.printDatagramContentWiresharkStyle(receivePacket);
 		}
 
@@ -220,6 +220,7 @@ public class Client {
 				}
 				// take a note that we reached end of this
 				finished = true;
+				success = true;
 			}
 			sendPacket = new TftpDataPacket(blockNumber, fileReadBuffer, byteRead).generateDatagram(destinationAddress,
 					tid);
@@ -231,9 +232,11 @@ public class Client {
 			// iteration 4 stuff....
 			// while (retries > 0) {
 			try {
+				if (verbose) {
+					System.out.println("\nReceiving...");
+				}
 				sendReceiveSocket.receive(receivePacket);
 				if (verbose) {
-					System.out.println("Received one packet...");
 					Utils.tryPrintTftpPacket(receivePacket);
 				}
 				// break;
@@ -307,12 +310,15 @@ public class Client {
 
 		try {
 			in.close();
+			if (success) {
+				System.out.println("File transfer successfully completed");
+			}
 		} catch (IOException e) {
 			// seriously there is nothing you can do here if something is
 			// wrong
 			e.printStackTrace();
 		} // Apache commons-io's closeQuietly would be handy..
-
+		System.out.println();
 	}
 
 	private void readFromHost(String fileName) throws IOException {
@@ -321,6 +327,7 @@ public class Client {
 		int blockNumber = 1;
 		BufferedOutputStream out = null;
 		TftpPacket recvTftpPacket;
+		boolean success = false;
 
 		try {
 			out = new BufferedOutputStream(new FileOutputStream(fileName));
@@ -340,9 +347,11 @@ public class Client {
 			// iteration 4
 			// while (retries > 0) {
 			try {
+				if (verbose) {
+					System.out.println("\nReceiving...");
+				}
 				sendReceiveSocket.receive(receivePacket);
 				if (verbose) {
-					System.out.println("\nReading:");
 					Utils.tryPrintTftpPacket(receivePacket);
 				}
 				// break;
@@ -438,6 +447,13 @@ public class Client {
 						// it hits 65535! wrap it back to zero
 						blockNumber = 0;
 					}
+					
+					if (receivePacket.getLength() < CommonConstants.DATA_PACKET_SZ) {
+						// received data packet has a length smaller than block size,
+						// end of file
+						endOfFile = true;
+						success = true;
+					}
 				} 
 				/*
 //				else if (dataPacket.getBlockNumber() == blockNumber - 1) {
@@ -476,17 +492,14 @@ public class Client {
 						receivePacket.getPort()));
 				endOfFile = true;
 			}
-
-			if (receivePacket.getLength() < CommonConstants.DATA_PACKET_SZ) {
-				// received data packet has a length smaller than block size,
-				// end of file
-				endOfFile = true;
-			}
 		}
 
 		try {
 			// don't forget to close the FileOutput Stream
 			out.close();
+			if (success) {
+				System.out.println("File transfer successfully completed");
+			}
 		} catch (IOException e) {
 			// iteration 3...
 			// something bad happened.. disk dead? full? permission issue?
@@ -504,9 +517,8 @@ public class Client {
 	public void sendRequest(byte[] payload) {
 		sendPacket = new DatagramPacket(payload, payload.length, destinationAddress, destinationPort);
 
-		System.out.println("Client: Sending request packet:");
+		System.out.println("\nStarting the transfer...");
 		trySend(sendPacket);
-		System.out.println("Client: Request packet sent.");
 	}
 
 	public String getOutputMode() {
