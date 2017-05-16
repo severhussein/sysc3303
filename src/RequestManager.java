@@ -142,6 +142,12 @@ public class RequestManager implements Runnable {
 						} catch(IOException e) {
 							System.out.println("ISSUE CREATING DATA ERROR PACKET\n" + e.getMessage());
 						}
+						try {
+							in.close();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 						return;
 					}
 				}
@@ -293,6 +299,12 @@ public class RequestManager implements Runnable {
 						socket.send(send);
 					} catch(IOException e) {
 						System.out.println("ISSUE CREATING DATA ERROR PACKET\n" + e.getMessage());
+					}
+					try {
+						out.close();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
 					return;
 				}

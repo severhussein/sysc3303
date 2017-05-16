@@ -138,7 +138,6 @@ public class Client {
 		TftpPacket recvTftpPacket;
 		boolean finished = false;
 		boolean acked = true;
-		boolean success = false;
 		
 		// wait for a packet to be returned back
 		try {
@@ -220,7 +219,6 @@ public class Client {
 				}
 				// take a note that we reached end of this
 				finished = true;
-				success = true;
 			}
 			sendPacket = new TftpDataPacket(blockNumber, fileReadBuffer, byteRead).generateDatagram(destinationAddress,
 					tid);
@@ -310,9 +308,6 @@ public class Client {
 
 		try {
 			in.close();
-			if (success) {
-				System.out.println("File transfer successfully completed");
-			}
 		} catch (IOException e) {
 			// seriously there is nothing you can do here if something is
 			// wrong
@@ -327,7 +322,6 @@ public class Client {
 		int blockNumber = 1;
 		BufferedOutputStream out = null;
 		TftpPacket recvTftpPacket;
-		boolean success = false;
 
 		try {
 			out = new BufferedOutputStream(new FileOutputStream(fileName));
@@ -452,7 +446,6 @@ public class Client {
 						// received data packet has a length smaller than block size,
 						// end of file
 						endOfFile = true;
-						success = true;
 					}
 				} 
 				/*
@@ -497,9 +490,6 @@ public class Client {
 		try {
 			// don't forget to close the FileOutput Stream
 			out.close();
-			if (success) {
-				System.out.println("File transfer successfully completed");
-			}
 		} catch (IOException e) {
 			// iteration 3...
 			// something bad happened.. disk dead? full? permission issue?
