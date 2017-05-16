@@ -60,7 +60,8 @@ public class IntHostManager implements Runnable {
 			i++;// first round of request msg was done, increase i here
 
 			System.out.println("Host receiving from server...\n");
-			Helper.receive(socket, receivePacket);
+			receivePacket = Helper.newReceive();
+			Helper.receive(socket, receivePacket);//form a new packet
 			Utils.tryPrintTftpPacket(receivePacket);
 			if (server_port_needed) {
 				server_port_needed = false;
