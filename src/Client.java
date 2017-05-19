@@ -80,7 +80,7 @@ public class Client {
 				c.readFromHost(filename);
 			} else if (request.equals("2")) {
 				if (!file.exists()) {
-					System.out.println("No such file");
+					System.out.println("\n'" + filename + "' could not be found.\n");
 				} else if (file.isDirectory()) {
 					System.out.println("This is a directory");
 				} else {
