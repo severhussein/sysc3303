@@ -38,6 +38,35 @@ public class RequestManager implements Runnable {
 			byte ackRRQ[] = new byte[CommonConstants.ACK_PACKET_SZ];
 			int i = 0, lastSize = 0, n;
 			BufferedInputStream in = null;
+			
+			File check = new File(fileName);
+			if(!check.isFile()) {
+				ByteArrayOutputStream error = new ByteArrayOutputStream();
+				error.write(0);
+				error.write(5);
+				error.write(0);
+				error.write(1);
+				try {
+					error.write((fileName + " could not be found or is not a file.").getBytes());
+				} catch (IOException e) {
+					System.out.println("ISSUE MAKING ERROR TYPE 1\n" + e.getMessage());
+				}
+				error.write(0);
+				
+				byte errBuf[] = error.toByteArray();
+				
+				DatagramPacket send = new DatagramPacket(errBuf,
+										errBuf.length,
+										clientAddress,
+										clientPort);
+				try {
+					socket.send(send);
+				} catch (IOException e) {
+					System.out.println("ISSUE SENDING ERROR TYPE 1\n" + e.getMessage());
+				}
+				return;
+			}
+			
 			try {
 				in = new BufferedInputStream(new FileInputStream(fileName));
 			} catch (IOException e) {
