@@ -2,11 +2,13 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.nio.file.Files;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import TftpPacketHelper.TftpErrorPacket;
 
@@ -66,7 +68,16 @@ public class RequestManager implements Runnable {
 				}
 				return;
 			}
-			
+			if (!Files.isReadable(check.toPath()) || !check.canRead()) {
+				try {
+					socket.send(new TftpErrorPacket(2, "Unable to read the file due to insufficient permission")
+							.generateDatagram(clientAddress, clientPort));
+				} catch (IOException e) {
+					System.out.println("ISSUE SENDING ERROR TYPE 2\n" + e.getMessage());
+				}
+				return;
+			}
+
 			try {
 				in = new BufferedInputStream(new FileInputStream(fileName));
 			} catch (IOException e) {
@@ -184,6 +195,14 @@ public class RequestManager implements Runnable {
 					byte[] emptyData = {0,3,0,1};
 					DatagramPacket emptyPacket = new DatagramPacket(emptyData,emptyData.length,clientAddress,clientPort);
 					socket.send(emptyPacket);
+					//FIXME : kludge to receive ack, else ICMP 3.3 would be bounced back to client
+					try {
+						socket.receive(received);
+						if(verbose)
+							Utils.tryPrintTftpPacket(received);
+					} catch (IOException e) {
+						System.out.println("RECEPTION ERROR AT MANAGER ACK\n" + e.getMessage());
+					}
 				}
 				try {
 					in.close();
@@ -219,7 +238,38 @@ public class RequestManager implements Runnable {
 			byte writeData[] = new byte[CommonConstants.DATA_PACKET_SZ];
 			byte ack[] = {0,4,0,0}; //not immutable
 			BufferedOutputStream out = null;
-		
+			File check = new File(fileName);
+
+			if (check.exists()) {
+				if (check.isDirectory()) {
+					try {
+						socket.send(new TftpErrorPacket(0, "This is a directory").generateDatagram(clientAddress,
+								clientPort));
+					} catch (IOException e) {
+						System.out.println("ISSUE SENDING ERROR TYPE 0\n" + e.getMessage());
+					}
+					return;
+				} else if (!Files.isWritable(check.toPath())) {
+					try {
+						socket.send(new TftpErrorPacket(2, "Unable to write the file due to insufficient permission")
+								.generateDatagram(clientAddress, clientPort));
+					} catch (IOException e) {
+						System.out.println("ISSUE SENDING ERROR TYPE 2\n" + e.getMessage());
+					}
+					return;
+				}
+			} else if (check.canWrite()) {
+				// canWrite and friends does not work on Windows, method from
+				// Files class above will do the job instead
+				try {
+					socket.send(new TftpErrorPacket(2, "Unable to write the file due to insufficient permission")
+							.generateDatagram(clientAddress, clientPort));
+				} catch (IOException e) {
+					System.out.println("ISSUE SENDING ERROR TYPE 2\n" + e.getMessage());
+				}
+				return;
+			}
+
 			try {
 				out = new BufferedOutputStream(new FileOutputStream(fileName));
 			} catch (IOException e) {
