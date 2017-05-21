@@ -7,6 +7,7 @@
  */
 import java.io.*;
 import java.net.*;
+import java.nio.file.Files;
 import java.util.Scanner;
 
 import TftpPacketHelper.TftpAckPacket;
@@ -42,6 +43,7 @@ public class Client {
 			System.exit(1);
 		}
 	}
+
 	public static void main(String args[]) throws IllegalArgumentException, IOException {
 		Client c = new Client();
 		byte[] data;
@@ -57,7 +59,7 @@ public class Client {
 				shutdown();
 
 			try {
-				//what is this used for?
+				// code for quick testing on server located on another machine
 				//destinationAddress = InetAddress.getByName("192.168.217.128");
 				destinationAddress = InetAddress.getLocalHost();
 			} catch (UnknownHostException uhe) {
@@ -69,21 +71,14 @@ public class Client {
 			file = new File(filename);
 			System.out.println("Filename: " + filename);
 			if (request.equals("1")) {
-				if (file.exists()) {
-					// is it worth putting a warning here?
-					// System.out.println("Overwriting local file");
+				if (checkFile(file, false)) {
+					data = new TftpReadRequestPacket(filename, TftpTransferMode.MODE_OCTET).generatePayloadArray();
+					c.sendRequest(data);
+					c.readFromHost(filename);
 				}
 
-				data = new TftpReadRequestPacket(filename, TftpTransferMode.MODE_OCTET).generatePayloadArray();
-
-				c.sendRequest(data);
-				c.readFromHost(filename);
 			} else if (request.equals("2")) {
-				if (!file.exists()) {
-					System.out.println("No such file");
-				} else if (file.isDirectory()) {
-					System.out.println("This is a directory");
-				} else {
+				if (checkFile(file, true)) {
 					// write request
 					// System.out.println("write request");
 					data = new TftpWriteRequestPacket(filename, TftpTransferMode.MODE_OCTET).generatePayloadArray();
@@ -94,6 +89,56 @@ public class Client {
 		}
 	}
 
+	/**
+	 * Check the provides file object to see if it can be used For WRQ, set read
+	 * to true because we are reading from client/write to host For RRQ, set
+	 * read to false because we are writing to client/read from host
+	 * 
+	 * @param file
+	 *            file to be checked
+	 * @param read
+	 *            true if this is a read operation, false if write
+	 * @return true if this file is usable
+	 */
+	private static boolean checkFile(File file, boolean read) {
+		if (read) {
+			System.out.println(file.toPath());
+			if (!file.exists()) {
+				System.out.println("No such file");
+				return false;
+			} else if (file.isDirectory()) {
+				System.out.println("This is a directory");
+				return false;
+			} else if (!Files.isReadable(file.toPath())) {
+				System.out.println("Unable to read the file from local machine due to insufficient permission");
+				return false;
+			} else if (!file.canRead()) {
+				// canRead and friends does not work on Windows, method from
+				// Files class above will do the job instead
+				System.out.println("Unable to read the file from local machine due to insufficient permission");
+				return false;
+			}
+		} else {
+			System.out.println(file.toPath());
+			if (file.exists()) {
+				if (file.isDirectory()) {
+					System.out.println("This is a directory");
+					return false;
+				} else if (!Files.isWritable(file.toPath())) {
+					System.out.println("Unable to write the file to local machine due to insufficient permission");
+					return false;
+				}
+			} else if (!file.canWrite()) {
+				// canWrite and friends does not work on Windows, method from
+				// Files class above will do the job instead
+				System.out.println("Unable to write the file to local machine due to insufficient permission");
+				return false;
+			}
+		}
+
+		return true;
+	}
+	
 	/**
 	 * Wrapped version of send to reduce duplicated code
 	 * 
@@ -126,7 +171,7 @@ public class Client {
 		trySend(packet, "");
 	}
 
-	private void writeToHost(String fileName) throws IOException {
+	private void writeToHost(String fileName) {
 		// BEFORE WRITING TO HOST, MAKE SURE TO RECEIVE ACKNOWLEDGE BLK#0
 		// Construct a DatagramPacket for receiving packets
 		byte receiveBuffer[] = new byte[CommonConstants.ACK_PACKET_SZ];
@@ -138,7 +183,7 @@ public class Client {
 		TftpPacket recvTftpPacket;
 		boolean finished = false;
 		boolean acked = true;
-		
+
 		// wait for a packet to be returned back
 		try {
 			// Block until a datagram is received via sendReceiveSocket.
@@ -181,18 +226,11 @@ public class Client {
 		}
 
 		try {
-			// open a FileInputStream for the file first
-			// if this fails no point to continue
 			in = new BufferedInputStream(new FileInputStream(file));
-		} catch (FileNotFoundException e) {
-			// we checked the File before, so we should not reach here
-			System.out.println("THIS IS A DIRECTORY\n" + e.getMessage());
-			return;
-		} catch (SecurityException se) {
-			// permission issue?
-			// // iteration 3
-			// trySend(new TftpErrorPacket(2,
-			// "").generateDatagram(clientAddress, clientPort), "");
+		} catch (Exception e) {
+			// File was checked in main loop, we could only reach here when something very bad happened
+			trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(destinationAddress,
+					destinationPort));
 			return;
 		}
 
@@ -275,7 +313,7 @@ public class Client {
 				trySend(new TftpErrorPacket(4, "not tftp").generateDatagram(receivePacket.getAddress(),
 						receivePacket.getPort()));
 				// re-transmission in iteration 4....
- 				// retries--;
+				// retries--;
 				// continue;
 				finished = true;
 			}
@@ -297,7 +335,8 @@ public class Client {
 					// }
 				else {
 					finished = true;
-					trySend(new TftpErrorPacket(4, "PACKET BLOCK # MISMATCH").generateDatagram(destinationAddress, tid));
+					trySend(new TftpErrorPacket(4, "PACKET BLOCK # MISMATCH").generateDatagram(destinationAddress,
+							tid));
 					// retries--;
 				}
 			} else {
@@ -309,14 +348,13 @@ public class Client {
 		try {
 			in.close();
 		} catch (IOException e) {
-			// seriously there is nothing you can do here if something is
-			// wrong
-			e.printStackTrace();
-		} // Apache commons-io's closeQuietly would be handy..
+			// Failed to close input stream for reading, this is not expected
+			System.out.println(e.getMessage());
+		}
 		System.out.println();
 	}
 
-	private void readFromHost(String fileName) throws IOException {
+	private void readFromHost(String fileName) {
 		boolean endOfFile = false;
 		byte[] writeData = new byte[CommonConstants.DATA_PACKET_SZ];
 		int blockNumber = 1;
@@ -325,12 +363,10 @@ public class Client {
 
 		try {
 			out = new BufferedOutputStream(new FileOutputStream(fileName));
-		} catch (FileNotFoundException e) {
-			System.out.println("THERE EXIST A DIRECTORY WITH THIS NAME, NOT FILE\n" + e.getMessage());
-			return;
-		} catch (SecurityException e) {
-			// should client fire an ERROR packet to server in iteration 3?
-			System.out.println("ERROR CREATING FILE\n" + e.getMessage());
+		} catch (Exception e) {
+			// File was checked in main loop, we could only reach here when something very bad happend
+			trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(destinationAddress,
+					destinationPort));
 			return;
 		}
 
@@ -365,7 +401,6 @@ public class Client {
 			// break;
 			// }
 
-			
 			try {
 				// use the help to decode the packet, if no exception is thrown
 				// then is a TFTP packet
@@ -408,29 +443,21 @@ public class Client {
 					continue;
 				}
 
-				//System.out.println("block" + blockNumber);
+				// System.out.println("block" + blockNumber);
 				if (dataPacket.getBlockNumber() == blockNumber) {
 					// ok, we got correct block. write it to file system...
 					try {
 						out.write(dataPacket.getData());
 					} catch (IOException e) {
-						// iteration 3...
-						// can't tell from Exception unless you do parsing
-						// but the error msg differs between OS
-						// so why don't we check the disk size instead?
-						// or maybe one of the NIO library call can have this
-						// kind of exception?
-
-						// does client need to send error to server ?
-
-						// if (file.getUsableSpace() <
-						// CommonConstants.DATA_BLOCK_SZ) {
-						// trySend(new TftpErrorPacket(3, "Invalid
-						// response").generateDatagram(clientAddress,
-						// clientPort), "ISSUE CREATING DATA ERROR PACKET\n");
-						// serve = false;
-						// }else
-						System.out.println("ERROR WRITING TO FILE\n" + e.getMessage());
+						// parsing the error message is generally a bad idea as message may differ from os
+						if (file.getUsableSpace() < dataPacket.getDataLength()) {
+							trySend(new TftpErrorPacket(3, "Disk full").generateDatagram(destinationAddress, tid));
+						} else {
+							// if io error not due to space, send the message as a custom error
+							trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(destinationAddress, tid));
+							System.out.println("ERROR WRITING TO FILE\n" + e.getMessage());
+						}
+						endOfFile = true;
 					}
 					// generate an ack packet with the help and sent it tp
 					// server
@@ -441,10 +468,20 @@ public class Client {
 						// it hits 65535! wrap it back to zero
 						blockNumber = 0;
 					}
-					
+
 					if (receivePacket.getLength() < CommonConstants.DATA_PACKET_SZ) {
-						// received data packet has a length smaller than block size,
 						// end of file
+						// do a flush so that error can be detected and sent before sending last ack
+						try {
+							out.flush();
+						} catch (IOException e) {
+							if (file.getUsableSpace() < CommonConstants.DATA_BLOCK_SZ) {
+								trySend(new TftpErrorPacket(3, "Disk full").generateDatagram(destinationAddress, tid));
+							} else {
+								trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(destinationAddress, tid));
+								System.out.println("ERROR WRITING TO FILE\n" + e.getMessage());
+							}
+						}
 						endOfFile = true;
 					}
 				} 
@@ -466,8 +503,7 @@ public class Client {
 				} else {
 					// if we are here then the block number is really off
 					// I guess we should terminate the connection now?
-					trySend(new TftpErrorPacket(4, "PACKET BLOCK # MISMATCH").generateDatagram(destinationAddress, tid),
-							"");
+					trySend(new TftpErrorPacket(4, "PACKET BLOCK # MISMATCH").generateDatagram(destinationAddress, tid));
 					endOfFile = true;
 				}
 			} else if (recvTftpPacket.getType() == TftpType.ERROR) {
@@ -488,14 +524,16 @@ public class Client {
 		}
 
 		try {
-			// don't forget to close the FileOutput Stream
 			out.close();
 		} catch (IOException e) {
-			// iteration 3...
-			// something bad happened.. disk dead? full? permission issue?
+			// Failed to close output stream, this can happen due to various reason
+			// at this point there is no point of sending error to server
+			// either it was errored before, or last ack had already been sent
+			System.out.println(e.getMessage());
 		}
 		System.out.println();
 	}
+
 	/**
 	 * Send a UDP packet with data packed to the destination
 	 * 
