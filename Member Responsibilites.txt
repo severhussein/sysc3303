@@ -9,9 +9,15 @@ virtual tftp connection, receiving datagrams and writing to a buffer output stre
 acknowledgement packet. I also integrated and tested file transfer for the 3 main modules, Client,
 Intermediate Host, and Server. Lastly, implemented option to operate system in normal or test mode.
 
-David:
-I made a slightly improved version of Host, with an optimization in the multi-thread behavior, delay 
-between each new request should be lower. And made the code really cleaned up.
+David (Dawei):
+For iteration 1, I implemented the host side, and draw all UCM diagrams.
+Improved host with an optimization in the multi-thread behavior, delay between each new request should be lower. And cleaned up the code by Implemented a Helper class.
+- Implemented the host side
+    Files: IntHostListener.java, IntHostManager.java, Helper.java
+- Draw the UCM diagrams for Client, Server and Host
+  Read every members' code and draw flow charts in order to create correct UCM diagram.
+    Files: Host 1.jpg, Host 2.jpg, client read.jpg, client write.jpg, server read.jpg, server write.jpg
+- Tested project in both Eclipse and blueJ, and fixed few minor bugs in client and server.
 
 Yu-Kai:
 -TFTP request packet class
@@ -49,9 +55,9 @@ types 4 and 5 on server side. Made changes to server UI and added
 functionality to shutdown at any point after start up.
 
 David:
-Implemented methods to modify packets on error simulator as packets
-are transferred between client and host. Created simple UI to choose
-error type that should be created and at which packet number.
+-Implemented the error simulator which create error socket port or packet data based on different error types.
+-Implemented an UI for the host side, prompt the user to choose between different error types, and at which packet number.
+-Draw UCM diagram for error simulator.
 
 Yu-Kai:
 - Maintenance and bug fix for TftpPacketHelper package
