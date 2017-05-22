@@ -68,7 +68,7 @@ public class RequestManager implements Runnable {
 				}
 				return;
 			}
-			if (!Files.isReadable(check.toPath()) || !check.canRead()) {
+			if (!Files.isReadable(check.toPath())) {
 				try {
 					socket.send(new TftpErrorPacket(2, "Unable to read the file due to insufficient permission")
 							.generateDatagram(clientAddress, clientPort));
@@ -258,16 +258,6 @@ public class RequestManager implements Runnable {
 					}
 					return;
 				}
-			} else if (check.canWrite()) {
-				// canWrite and friends does not work on Windows, method from
-				// Files class above will do the job instead
-				try {
-					socket.send(new TftpErrorPacket(2, "Unable to write the file due to insufficient permission")
-							.generateDatagram(clientAddress, clientPort));
-				} catch (IOException e) {
-					System.out.println("ISSUE SENDING ERROR TYPE 2\n" + e.getMessage());
-				}
-				return;
 			}
 
 			try {

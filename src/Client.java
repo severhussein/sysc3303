@@ -112,11 +112,6 @@ public class Client {
 			} else if (!Files.isReadable(file.toPath())) {
 				System.out.println("Unable to read the file from local machine due to insufficient permission");
 				return false;
-			} else if (!file.canRead()) {
-				// canRead and friends does not work on Windows, method from
-				// Files class above will do the job instead
-				System.out.println("Unable to read the file from local machine due to insufficient permission");
-				return false;
 			}
 		} else {
 			System.out.println(file.toPath());
@@ -128,11 +123,6 @@ public class Client {
 					System.out.println("Unable to write the file to local machine due to insufficient permission");
 					return false;
 				}
-			} else if (!file.canWrite()) {
-				// canWrite and friends does not work on Windows, method from
-				// Files class above will do the job instead
-				System.out.println("Unable to write the file to local machine due to insufficient permission");
-				return false;
 			}
 		}
 
