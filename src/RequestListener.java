@@ -171,6 +171,7 @@ public class RequestListener {
 				System.out.println("PACKET FORMAT ERROR\n" + e.getMessage());
 			}
 		}
+		System.out.println("Server shutting down.");
 	}
 
 	private static void queryServerMode(RequestListener s) {
@@ -183,6 +184,14 @@ public class RequestListener {
 			if (request.equals("1")) {
 				toggleMode(s);
 				// mode = toggleMode(mode);
+			}
+			else if(request.equals("shutdown"))
+			{
+				shutdown = true;
+				//DO PROPER THINGS TO SHUTDOWN LIKE CLOSE SOCKETS
+				//PRINT STATEMENT 
+				//system.exit(1);
+				
 			}
 			System.out.println("Enter:\n1 Toggle mode\n2 Begin Server");
 			request = sc.next();

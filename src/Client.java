@@ -350,7 +350,7 @@ public class Client {
 		int blockNumber = 1;
 		BufferedOutputStream out = null;
 		TftpPacket recvTftpPacket;
-
+		try{
 		try {
 			out = new BufferedOutputStream(new FileOutputStream(fileName));
 		} catch (Exception e) {
@@ -376,7 +376,7 @@ public class Client {
 				}
 				// break;
 				// } catch (SocketTimeoutException te) {
-				// if (vervose)
+				// if (verbose)
 				// System.out.println("Timed out on receiving DATA, resend
 				// ACK\n");
 				// trySend(send, "");
@@ -482,7 +482,10 @@ public class Client {
 //					trySend(sendPacket, "ERROR RESENDING ACK");
  * */
 
-				 else if (dataPacket.getDataLength() > CommonConstants.DATA_BLOCK_SZ) {
+				 
+				else if (dataPacket.getDataLength() > CommonConstants.DATA_BLOCK_SZ) {
+				//WHY IS THIS COMMENTED OUT?
+					
 					// well.. we had specified the underlying buffer as a byte
 					// 512 + 4 array , will it reach here?
 					// the payload should have been truncated to 512 so don't
@@ -522,6 +525,11 @@ public class Client {
 			System.out.println(e.getMessage());
 		}
 		System.out.println();
+		}catch(OutOfMemoryError e)
+		{
+			System.out.println("OUT OF MEMORY, EXITING");
+			System.exit(1);
+		}
 	}
 
 	/**
