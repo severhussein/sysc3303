@@ -77,3 +77,7 @@ Alex:
 Sever:
 -Implemented Error code 3 on client and server side
 -Tested/debugged error code 3 on client and server side
+
+Yu-Kai:
+- Implemented Error code 2 on client and server side
+- General debugging on client/server via packet capture and program trace
