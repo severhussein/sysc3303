@@ -73,3 +73,7 @@ Alex:
 -Implemented error code 1 one both client and server side.
 -Edited interface for client side when the specified file could not be found.
 -Edited error message from server when specified file could not be found.
+
+Sever:
+-Implemented Error code 3 on client and server side
+-Testing error code 3 on client and server side
