@@ -76,4 +76,4 @@ Alex:
 
 Sever:
 -Implemented Error code 3 on client and server side
--Testing error code 3 on client and server side
+-Tested/debugged error code 3 on client and server side
