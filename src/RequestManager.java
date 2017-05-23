@@ -10,7 +10,15 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+
 import TftpPacketHelper.TftpErrorPacket;
+import TftpPacketHelper.TftpAckPacket;
+import TftpPacketHelper.TftpDataPacket;
+import TftpPacketHelper.TftpPacket;
+import TftpPacketHelper.TftpPacket.TftpType;
+import TftpPacketHelper.TftpReadRequestPacket;
+import TftpPacketHelper.TftpRequestPacket.TftpTransferMode;
+import TftpPacketHelper.TftpWriteRequestPacket;
 
 public class RequestManager implements Runnable {
 	private DatagramSocket socket;
@@ -261,7 +269,8 @@ public class RequestManager implements Runnable {
 			}
 
 			try {
-				out = new BufferedOutputStream(new FileOutputStream(fileName));
+				FileOutputStream outFile = new FileOutputStream(fileName);
+				out = new BufferedOutputStream(outFile);
 			} catch (IOException e) {
 				System.out.println("ERROR CREATING FILE\n" + e.getMessage());
 			}
@@ -284,7 +293,8 @@ public class RequestManager implements Runnable {
 			while (serve) {
 				received = new DatagramPacket(writeData, writeData.length);
 				try {
-					//sending back ack0 for WRQ
+					//sending back ack0 for WRQ............WHAT?
+					//What does that comment mean, why we sending it back when it's receiving
 					socket.receive(received);
 					if(verbose){
 						Utils.tryPrintTftpPacket(received);
@@ -320,7 +330,27 @@ public class RequestManager implements Runnable {
 					try {
 						out.write(writeData, 4, received.getLength() - 4);
 					} catch (IOException e) {
+						if (check.getUsableSpace() < received.getLength()) {
+							trySend(new TftpErrorPacket(3, "Disk full").generateDatagram(clientAddress, clientPort));
+
+							try {
+								Files.delete(check.toPath());
+								out.close();
+							} catch (IOException e1) {
+								e1.printStackTrace();
+							}
+							// NEED TO CLOSE SOCKET...and terminate connection
+							this.socket.close(); 
+							return;
+
+						}
+						else {
+						// if io error not due to space, send the message as
+						// a custom error
+						trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(clientAddress, clientPort));
 						System.out.println("ERROR WRITING TO FILE\n" + e.getMessage());
+						}
+
 					}
 					//change block#
 					ack[2] = writeData[2];
@@ -394,4 +424,37 @@ public class RequestManager implements Runnable {
 		}
 		socket.close();//Should close the socket after the thread is done (David)
 	}
+	
+	/**
+	 * Wrapped version of send to reduce duplicated code
+	 * 
+	 * @param packet
+	 *            packet to be sent
+	 * @param errMsg
+	 *            error msg to be printed in console if send goes wrong
+	 */
+	private void trySend(DatagramPacket packet, String errMsg) {
+		if (verbose) {
+			System.out.println("\nSending...");
+			Utils.tryPrintTftpPacket(packet);
+		}
+
+		try {
+			socket.send(packet);
+		} catch (IOException e) {
+			if (errMsg.length() != 0)
+				System.out.println(errMsg + e.getMessage());
+		}
+	}
+
+	/**
+	 * Wrapped version of send to reduce duplicated code
+	 * 
+	 * @param packet
+	 *            packet to be sent
+	 */
+	private void trySend(DatagramPacket packet) {
+		trySend(packet, "");
+	}
 }
+

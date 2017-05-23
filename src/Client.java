@@ -66,7 +66,7 @@ public class Client {
 				System.out.println("Failed to resolved host name");
 				continue;
 			}
-
+			
 			String filename = queryFilename();
 			file = new File(filename);
 			System.out.println("Filename: " + filename);
@@ -86,6 +86,7 @@ public class Client {
 					c.writeToHost(filename);
 				}
 			}
+
 		}
 	}
 
@@ -350,7 +351,6 @@ public class Client {
 		int blockNumber = 1;
 		BufferedOutputStream out = null;
 		TftpPacket recvTftpPacket;
-		try{
 		try {
 			out = new BufferedOutputStream(new FileOutputStream(fileName));
 		} catch (Exception e) {
@@ -439,11 +439,25 @@ public class Client {
 					try {
 						out.write(dataPacket.getData());
 					} catch (IOException e) {
-						// parsing the error message is generally a bad idea as message may differ from os
+						// parsing the error message is generally a bad idea as
+						// message may differ from os
 						if (file.getUsableSpace() < dataPacket.getDataLength()) {
 							trySend(new TftpErrorPacket(3, "Disk full").generateDatagram(destinationAddress, tid));
+
+							try {
+								Files.delete(file.toPath());
+								out.close();
+							} catch (IOException e1) {
+								e1.printStackTrace();
+							}
+							// NEED TO CLOSE SOCKET...
+							// sendReceiveSocket.close(); dont think i can do
+							// this, on new transfer will have no socket
+							return;
+
 						} else {
-							// if io error not due to space, send the message as a custom error
+							// if io error not due to space, send the message as
+							// a custom error
 							trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(destinationAddress, tid));
 							System.out.println("ERROR WRITING TO FILE\n" + e.getMessage());
 						}
@@ -467,6 +481,16 @@ public class Client {
 						} catch (IOException e) {
 							if (file.getUsableSpace() < CommonConstants.DATA_BLOCK_SZ) {
 								trySend(new TftpErrorPacket(3, "Disk full").generateDatagram(destinationAddress, tid));
+								
+								try {
+									Files.delete(file.toPath());
+									out.close();
+								} catch (IOException e1) {
+									e1.printStackTrace();
+								}
+								//NEED TO CLOSE SOCKET...
+								//sendReceiveSocket.close(); dont think i can do this, on new transfer will have no socket
+								return;
 							} else {
 								trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(destinationAddress, tid));
 								System.out.println("ERROR WRITING TO FILE\n" + e.getMessage());
@@ -515,7 +539,6 @@ public class Client {
 				endOfFile = true;
 			}
 		}
-
 		try {
 			out.close();
 		} catch (IOException e) {
@@ -525,11 +548,6 @@ public class Client {
 			System.out.println(e.getMessage());
 		}
 		System.out.println();
-		}catch(OutOfMemoryError e)
-		{
-			System.out.println("OUT OF MEMORY, EXITING");
-			System.exit(1);
-		}
 	}
 
 	/**
