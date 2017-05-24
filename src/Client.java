@@ -28,7 +28,7 @@ public class Client {
 	private static int destinationPort = (testMode) ? CommonConstants.HOST_LISTEN_PORT
 			: CommonConstants.SERVER_LISTEN_PORT; // FIX ME, this is ugly
 	private int tid;
-	// private int retries;
+	private int retries;
 
 	private DatagramPacket sendPacket, receivePacket;
 	private static DatagramSocket sendReceiveSocket;
@@ -60,13 +60,14 @@ public class Client {
 
 			try {
 				// code for quick testing on server located on another machine
-				//destinationAddress = InetAddress.getByName("192.168.217.128");
+				// destinationAddress =
+				// InetAddress.getByName("192.168.217.128");
 				destinationAddress = InetAddress.getLocalHost();
 			} catch (UnknownHostException uhe) {
 				System.out.println("Failed to resolved host name");
 				continue;
 			}
-			
+
 			String filename = queryFilename();
 			file = new File(filename);
 			System.out.println("Filename: " + filename);
@@ -129,7 +130,7 @@ public class Client {
 
 		return true;
 	}
-	
+
 	/**
 	 * Wrapped version of send to reduce duplicated code
 	 * 
@@ -219,9 +220,9 @@ public class Client {
 		try {
 			in = new BufferedInputStream(new FileInputStream(file));
 		} catch (Exception e) {
-			// File was checked in main loop, we could only reach here when something very bad happened
-			trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(destinationAddress,
-					destinationPort));
+			// File was checked in main loop, we could only reach here when
+			// something very bad happened
+			trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(destinationAddress, destinationPort));
 			return;
 		}
 
@@ -253,60 +254,52 @@ public class Client {
 					tid);
 			trySend(sendPacket, "ERROR SENDING DATA");
 
-			// retries = CommonConstants.TFTP_MAX_NUM_RETRIES; // reset
-			sendPacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+			retries = CommonConstants.TFTP_MAX_NUM_RETRIES; // reset
 
-			// iteration 4 stuff....
-			// while (retries > 0) {
-			try {
-				if (verbose) {
-					System.out.println("\nReceiving...");
-				}
-				sendReceiveSocket.receive(receivePacket);
-				if (verbose) {
-					Utils.tryPrintTftpPacket(receivePacket);
-				}
-				// break;
-				// } catch (SocketTimeoutException te) {
-				// if (vervose)
-				// System.out.println("Timed out on receving ACK, resend
-				// DATA\n");
-				// trySend(send, "");
-				// retries--;
+			while (retries > 0) {
+				try {
+					if (verbose) {
+						System.out.println("\nReceiving...");
+					}
+					sendReceiveSocket.receive(receivePacket);
+					if (verbose) {
+						Utils.tryPrintTftpPacket(receivePacket);
+					}
+					break;
+				} catch (SocketTimeoutException te) {
+					if (verbose)
+						System.out.println("Timed out on receiving ACK, resend DATA\n");
+					trySend(sendPacket, "");
+					retries--;
 
-			} catch (IOException e) {
-				System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
+				} catch (IOException e) {
+					System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
+				}
 			}
-			// }
 
 			if (receivePacket.getPort() != tid) {
-				// receive a packet with wrong tid, notify the sender with error
-				// 5
+				// received a packet with wrong tid, notify the sender with
+				// error 5
 				trySend(new TftpErrorPacket(5, "Wrong Transfer ID").generateDatagram(receivePacket.getAddress(),
 						receivePacket.getPort()));
 				acked = false;
-				// retries--;
-				// for iteration 4
-				// continue;
-				System.out.println("Will terminate this transfer.");
-				break;
+				retries--;
+				continue;
 			}
 
-			// if (retries == 0) {
-			// System.out.println("TIMED OUT\n" );
-			// break;
-			// }
+			if (retries == 0) {
+				System.out.println("TIMED OUT\n");
+				break;
+			}
 
 			try {
 				recvTftpPacket = TftpPacket.decodeTftpPacket(receivePacket);
 			} catch (IllegalArgumentException ile) {
-				// not a TFTP packet, what to do?
+				// not a TFTP packet, try again
 				trySend(new TftpErrorPacket(4, "not tftp").generateDatagram(receivePacket.getAddress(),
 						receivePacket.getPort()));
-				// re-transmission in iteration 4....
-				// retries--;
-				// continue;
-				finished = true;
+				retries--;
+				continue;
 			}
 
 			// let's check if the packet we received is an ack
@@ -328,7 +321,7 @@ public class Client {
 					finished = true;
 					trySend(new TftpErrorPacket(4, "PACKET BLOCK # MISMATCH").generateDatagram(destinationAddress,
 							tid));
-					// retries--;
+					retries--;
 				}
 			} else {
 				trySend(new TftpErrorPacket(4, "not ack").generateDatagram(destinationAddress, destinationPort));
@@ -348,48 +341,46 @@ public class Client {
 	private void readFromHost(String fileName) {
 		boolean endOfFile = false;
 		byte[] writeData = new byte[CommonConstants.DATA_PACKET_SZ];
+		receivePacket = new DatagramPacket(writeData, writeData.length);
 		int blockNumber = 1;
 		BufferedOutputStream out = null;
 		TftpPacket recvTftpPacket;
 		try {
 			out = new BufferedOutputStream(new FileOutputStream(fileName));
 		} catch (Exception e) {
-			// File was checked in main loop, we could only reach here when something very bad happend
-			trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(destinationAddress,
-					destinationPort));
+			// File was checked in main loop, we could only reach here when
+			// something very bad happend
+			trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(destinationAddress, destinationPort));
 			return;
 		}
 
 		while (!endOfFile) {
-			// retries = CommonConstants.TFTP_MAX_NUM_RETRIES; // reset
-			receivePacket = new DatagramPacket(writeData, writeData.length);
-
-			// iteration 4
-			// while (retries > 0) {
-			try {
-				if (verbose) {
-					System.out.println("\nReceiving...");
+			retries = CommonConstants.TFTP_MAX_NUM_RETRIES; // reset
+			
+			while (retries > 0) {
+				try {
+					if (verbose) {
+						System.out.println("\nReceiving...");
+					}
+					sendReceiveSocket.receive(receivePacket);
+					if (verbose) {
+						Utils.tryPrintTftpPacket(receivePacket);
+					}
+					break;
+				} catch (SocketTimeoutException te) {
+					if (verbose)
+						System.out.println("Timed out on receiving DATA, resend ACK\n");
+					trySend(sendPacket, "");
+					retries--;
+				} catch (IOException e) {
+					System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
 				}
-				sendReceiveSocket.receive(receivePacket);
-				if (verbose) {
-					Utils.tryPrintTftpPacket(receivePacket);
-				}
-				// break;
-				// } catch (SocketTimeoutException te) {
-				// if (verbose)
-				// System.out.println("Timed out on receiving DATA, resend
-				// ACK\n");
-				// trySend(send, "");
-				// retries--;
-			} catch (IOException e) {
-				System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
 			}
-			// }
 
-			// if (retries == 0) {
-			// System.out.println("TIMED OUT\n" );
-			// break;
-			// }
+			if (retries == 0) {
+				System.out.println("TIMED OUT\n");
+				break;
+			}
 
 			try {
 				// use the help to decode the packet, if no exception is thrown
@@ -408,6 +399,7 @@ public class Client {
 				// is indeed wrong
 				trySend(new TftpErrorPacket(4, "not tftp").generateDatagram(receivePacket.getAddress(),
 						receivePacket.getPort()));
+				retries--;
 				continue;
 			}
 
@@ -430,6 +422,7 @@ public class Client {
 					// connection
 					trySend(new TftpErrorPacket(5, "").generateDatagram(receivePacket.getAddress(),
 							receivePacket.getPort()));
+					retries--;
 					continue;
 				}
 
@@ -475,41 +468,44 @@ public class Client {
 
 					if (receivePacket.getLength() < CommonConstants.DATA_PACKET_SZ) {
 						// end of file
-						// do a flush so that error can be detected and sent before sending last ack
+						// do a flush so that error can be detected and sent
+						// before sending last ack
 						try {
 							out.flush();
 						} catch (IOException e) {
 							if (file.getUsableSpace() < CommonConstants.DATA_BLOCK_SZ) {
 								trySend(new TftpErrorPacket(3, "Disk full").generateDatagram(destinationAddress, tid));
-								
+
 								try {
 									Files.delete(file.toPath());
 									out.close();
 								} catch (IOException e1) {
 									e1.printStackTrace();
 								}
-								//NEED TO CLOSE SOCKET...
-								//sendReceiveSocket.close(); dont think i can do this, on new transfer will have no socket
+								// NEED TO CLOSE SOCKET...
+								// sendReceiveSocket.close(); dont think i can
+								// do this, on new transfer will have no socket
 								return;
 							} else {
-								trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(destinationAddress, tid));
+								trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(destinationAddress,
+										tid));
 								System.out.println("ERROR WRITING TO FILE\n" + e.getMessage());
 							}
 						}
 						endOfFile = true;
 					}
-				} 
+				}
 				/*
-//				else if (dataPacket.getBlockNumber() == blockNumber - 1) {
-//					 got same DATA again, previous one lost in transmission?
-//					sendPacket = new TftpAckPacket(blockNumber).generateDatagram(destinationAddress, tid);
-//					trySend(sendPacket, "ERROR RESENDING ACK");
- * */
+				 * // else if (dataPacket.getBlockNumber() == blockNumber - 1) {
+				 * // got same DATA again, previous one lost in transmission? //
+				 * sendPacket = new TftpAckPacket(blockNumber).generateDatagram(
+				 * destinationAddress, tid); // trySend(sendPacket,
+				 * "ERROR RESENDING ACK");
+				 */
 
-				 
 				else if (dataPacket.getDataLength() > CommonConstants.DATA_BLOCK_SZ) {
-				//WHY IS THIS COMMENTED OUT?
-					
+					// WHY IS THIS COMMENTED OUT?
+
 					// well.. we had specified the underlying buffer as a byte
 					// 512 + 4 array , will it reach here?
 					// the payload should have been truncated to 512 so don't
@@ -520,7 +516,8 @@ public class Client {
 				} else {
 					// if we are here then the block number is really off
 					// I guess we should terminate the connection now?
-					trySend(new TftpErrorPacket(4, "PACKET BLOCK # MISMATCH").generateDatagram(destinationAddress, tid));
+					trySend(new TftpErrorPacket(4, "PACKET BLOCK # MISMATCH").generateDatagram(destinationAddress,
+							tid));
 					endOfFile = true;
 				}
 			} else if (recvTftpPacket.getType() == TftpType.ERROR) {
@@ -542,7 +539,8 @@ public class Client {
 		try {
 			out.close();
 		} catch (IOException e) {
-			// Failed to close output stream, this can happen due to various reason
+			// Failed to close output stream, this can happen due to various
+			// reason
 			// at this point there is no point of sending error to server
 			// either it was errored before, or last ack had already been sent
 			System.out.println(e.getMessage());
