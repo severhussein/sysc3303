@@ -107,7 +107,6 @@ https://technet.microsoft.com/en-us/library/cc754344(v=ws.11).aspx
 -To generate TFTP error code 3 on both server and client, change the "Working Directory" mentioned in the setup section to a device with limited space. An external storage like USB flash disk is suggested.
 -Run the client to write a file larger than the space available of the working directory of the server. A TFTP error code 3 is expected from the server when the storage device runs out of space. 
 -Run the client to read a file larger than the space available of the working directory of the client. A TFTP error code 3 is expected from the client when the storage device runs out of space. 
--When TFTP error code 3 occurs, the side writing the file to the disk will remove the unfinished file.
 
 *TFTP error code 6 “File already exists.”
 -TFTP error code is not implemented because this implementation allows overwriting existing files.
