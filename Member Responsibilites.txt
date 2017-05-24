@@ -83,5 +83,6 @@ Yu-Kai:
 - General debugging on client/server via packet capture and program trace
 
 David (Dawei):
-- Went through both client and server side codes to new error types handling diagrams in all cases.
+- Went through both client and server side codes and draw flow chart to analysis and verify error handling.
+- Draw new error types sequence diagrams in all cases.
 - Tested all cases and verified diagrams matching observed behaviors.
