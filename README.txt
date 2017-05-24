@@ -108,7 +108,7 @@ https://technet.microsoft.com/en-us/library/cc754344(v=ws.11).aspx
 -Run the client to write a file larger than the space available of the working directory of the server. A TFTP error code 3 is expected from the server when the storage device runs out of space. 
 -Run the client to read a file larger than the space available of the working directory of the client. A TFTP error code 3 is expected from the client when the storage device runs out of space. 
 
-*TFTP error code 6 “File already exists.”
+*TFTP error code 6 "File already exists."
 -TFTP error code is not implemented because this implementation allows overwriting existing files.
 
 *TFTP error code 0 
