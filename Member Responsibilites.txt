@@ -84,5 +84,5 @@ Yu-Kai:
 
 David (Dawei):
 - Went through both client and server side codes and draw flow chart to analysis and verify error handling.
-- Draw new error types sequence diagrams in all cases.
-- Tested all cases and verified diagrams matching observed behaviors.
+- Draw error types sequence diagrams in all 4 new cases.
+- Tested all 4 new cases and verified diagrams matching observed behaviors.
