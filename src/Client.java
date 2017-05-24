@@ -198,6 +198,8 @@ public class Client {
 			return;
 		}
 
+		retries = CommonConstants.TFTP_MAX_NUM_RETRIES; // reset
+		
 		if (recvTftpPacket.getType() == TftpType.ACK) {
 			TftpAckPacket ackPacket = (TftpAckPacket) recvTftpPacket;
 			if (ackPacket.getBlockNumber() == 0) {
@@ -253,8 +255,6 @@ public class Client {
 			sendPacket = new TftpDataPacket(blockNumber, fileReadBuffer, byteRead).generateDatagram(destinationAddress,
 					tid);
 			trySend(sendPacket, "ERROR SENDING DATA");
-
-			retries = CommonConstants.TFTP_MAX_NUM_RETRIES; // reset
 
 			while (retries > 0) {
 				try {
@@ -313,6 +313,7 @@ public class Client {
 						blockNumber = 0;
 					}
 					acked = true;
+					retries = CommonConstants.TFTP_MAX_NUM_RETRIES; // reset
 				} // else if (ackPacket.getBlockNumber() > blockNumber)
 					// {
 					// is this possible?
@@ -354,9 +355,9 @@ public class Client {
 			return;
 		}
 
+		retries = CommonConstants.TFTP_MAX_NUM_RETRIES; // reset
+		
 		while (!endOfFile) {
-			retries = CommonConstants.TFTP_MAX_NUM_RETRIES; // reset
-			
 			while (retries > 0) {
 				try {
 					if (verbose) {
@@ -429,6 +430,7 @@ public class Client {
 				// System.out.println("block" + blockNumber);
 				if (dataPacket.getBlockNumber() == blockNumber) {
 					// ok, we got correct block. write it to file system...
+					retries = CommonConstants.TFTP_MAX_NUM_RETRIES; // reset
 					try {
 						out.write(dataPacket.getData());
 					} catch (IOException e) {
