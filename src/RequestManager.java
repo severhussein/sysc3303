@@ -366,10 +366,8 @@ public class RequestManager implements Runnable {
 							} catch (IOException e1) {
 								e1.printStackTrace();
 							}
-							// NEED TO CLOSE SOCKET...???
-							//sendReceiveSocket.close(); 
-							//dont think i can do
-							// this, on new transfer will have no socket
+
+							socket.close();
 							return;
 //							try {
 //								Files.delete(check.toPath());
