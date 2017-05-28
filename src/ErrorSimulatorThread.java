@@ -32,7 +32,7 @@ public class ErrorSimulatorThread implements Runnable {
 				
 		
 		//////////////////"Sending to server..."//////////////////////////////////////
-		simulateError(serverPort);
+		if (userChoice[0] > 0) simulateError(serverPort);
 		
 		if (!skipNormalPacketSend) {
 			System.out.print("Sending to server...");
@@ -287,6 +287,7 @@ public class ErrorSimulatorThread implements Runnable {
 			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), port);
 			ErrorSimulatorHelper.send(socket, sendPacket);
 		}
+		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
 	}
 	
 	public void simulateDelayed(int port, int value) {
@@ -296,6 +297,7 @@ public class ErrorSimulatorThread implements Runnable {
         try {
             Thread.sleep(value);
         } catch (InterruptedException e) {}
+        userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
 	}
 	
 	public void simulateLost(int port, int value) {
@@ -307,9 +309,10 @@ public class ErrorSimulatorThread implements Runnable {
 			
 			receivePacket = ErrorSimulatorHelper.newReceive();
 			ErrorSimulatorHelper.receive(socket, receivePacket);
+			
 		}
 
-		
+		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
 		//skipNormalPacketSend = false;
 	}
 
@@ -328,6 +331,8 @@ public class ErrorSimulatorThread implements Runnable {
 		//System.out.print("    |port "+ port);
 		//System.out.print("    |Opcode "+ getOpcode());
 		//System.out.println("    |BLK#"+ getBlockNum());
+		
+		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
 
 	}
 	
@@ -386,6 +391,7 @@ public class ErrorSimulatorThread implements Runnable {
 		sendPacket = new DatagramPacket(receivePacket.getData(), len, receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
 		skipNormalPacketSend = true;
+		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
 	}
 	
 	/*
@@ -422,6 +428,7 @@ public class ErrorSimulatorThread implements Runnable {
 		sendPacket = new DatagramPacket(receivePacket.getData(), len, receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
 		skipNormalPacketSend = true;
+		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
 	}
 	
 	/*
@@ -451,6 +458,7 @@ public class ErrorSimulatorThread implements Runnable {
 		sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(),	port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
 		skipNormalPacketSend = true;
+		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
 	}
 	
 	/*
@@ -492,6 +500,7 @@ public class ErrorSimulatorThread implements Runnable {
 		sendPacket = new DatagramPacket(receivePacket.getData(), len, receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
 		skipNormalPacketSend = true;
+		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
 	}
 	
 	public void simulateIncorrectSize(int port, int errorSize) {
@@ -502,6 +511,7 @@ public class ErrorSimulatorThread implements Runnable {
 		sendPacket = new DatagramPacket(receivePacket.getData(), errorSize , receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
 		skipNormalPacketSend = true;
+		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
 	}
 }
 
