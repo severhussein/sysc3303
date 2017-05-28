@@ -120,9 +120,12 @@ public class RequestManager implements Runnable {
 						System.out.println("ERROR SENDING READ\n" + e.getMessage());
 					}
 					if(verbose) System.out.println("Waiting for ack...\n");
+					
 					//don't know if we're actually going to receive an ack so store in temp buffer
 					received = new DatagramPacket(tempBuffer, tempBuffer.length);
 					TftpPacket recvTftpPacket;
+					
+					//should receive an ack from client
 					try {
 						socket.receive(received);
 						if(verbose)
@@ -130,6 +133,8 @@ public class RequestManager implements Runnable {
 					} catch (IOException e) {
 						System.out.println("RECEPTION ERROR AT MANAGER ACK\n" + e.getMessage());
 					}
+					
+					//decode and see what type of packet we just received
 					try {
 						recvTftpPacket = TftpPacket.decodeTftpPacket(received);
 					} catch (IllegalArgumentException ile) {
@@ -141,12 +146,16 @@ public class RequestManager implements Runnable {
 					if(recvTftpPacket.getType() == TftpType.ACK)
 					{
 						received.setLength(ackRRQ.length);
+						//FIXME im not sure if this is the best way initialize ackRRQ
 						ackRRQ = tempBuffer.clone();
 					}
 					else if(recvTftpPacket.getType() == TftpType.ERROR)
 					{
+						TftpErrorPacket errorPacket = (TftpErrorPacket) recvTftpPacket;
+						if(errorPacket.getErrorCode()!= 5)
+							return;
+						
 						//should not return on error type 5 though
-						return;
 					}
 
 					if(!received.getAddress().equals(clientAddress) || 
@@ -366,7 +375,10 @@ public class RequestManager implements Runnable {
 							} catch (IOException e1) {
 								e1.printStackTrace();
 							}
-
+							// NEED TO CLOSE SOCKET...???
+							//sendReceiveSocket.close(); 
+							//dont think i can do
+							// this, on new transfer will have no socket
 							socket.close();
 							return;
 //							try {

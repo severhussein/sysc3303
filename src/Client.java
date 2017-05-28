@@ -167,9 +167,14 @@ public class Client {
 	private void writeToHost(String fileName) {
 		// BEFORE WRITING TO HOST, MAKE SURE TO RECEIVE ACKNOWLEDGE BLK#0
 		// Construct a DatagramPacket for receiving packets
+		
+		//FIXME should initialize length to something from commonconstants
+		byte tempBuffer[] = new byte[1000];//don't know what we'll receive, error or ack
 		byte receiveBuffer[] = new byte[CommonConstants.ACK_PACKET_SZ];
 		byte fileReadBuffer[] = new byte[CommonConstants.DATA_BLOCK_SZ];
-		receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+		//receivepacket now receives up to 1000 bytes since we don't know if we'll receive
+		//an error or ack
+		receivePacket = new DatagramPacket(tempBuffer, tempBuffer.length);
 
 		int blockNumber = 1, byteRead = 0;
 		BufferedInputStream in;
@@ -187,8 +192,8 @@ public class Client {
 		}
 
 		if (verbose) {
-			System.out.println("Expecting special Ack:");
-			Utils.printDatagramContentWiresharkStyle(receivePacket);
+			System.out.println("Expecting special Ack block 0:");
+			Utils.tryPrintTftpPacket(receivePacket);
 		}
 
 		try {
@@ -202,6 +207,13 @@ public class Client {
 		retries = CommonConstants.TFTP_MAX_NUM_RETRIES; // reset
 		
 		if (recvTftpPacket.getType() == TftpType.ACK) {
+			//change packet length to ack length = 4bytes
+//			receivePacket.setLength(receiveBuffer.length);
+//			//FIXME im not sure if this is the best way initialize receiveBuffer
+//			receiveBuffer = tempBuffer.clone();
+			//doing this will change the packet length to 4 if it receives an ack once
+			//need to re initialize each loop not constantly use old one
+			
 			TftpAckPacket ackPacket = (TftpAckPacket) recvTftpPacket;
 			if (ackPacket.getBlockNumber() == 0) {
 				// we got the special ack 0 from server, take note of the tid
@@ -213,7 +225,16 @@ public class Client {
 						receivePacket.getPort()));
 				return;
 			}
-		} else {
+		}else if(recvTftpPacket.getType()== TftpType.ERROR )
+		{
+			//should execute this code if we received an error packet when we were expecting ack0
+			TftpErrorPacket errorPacket = (TftpErrorPacket) recvTftpPacket;
+			if(errorPacket.getErrorCode()!= 5)
+				return;
+			
+			//should not return on error type 5 though
+		}
+		else {
 			// not even an ack!
 			trySend(new TftpErrorPacket(4, "not tftp ack").generateDatagram(receivePacket.getAddress(),
 					receivePacket.getPort()));
@@ -327,11 +348,12 @@ public class Client {
 				}
 			}else if(recvTftpPacket.getType()== TftpType.ERROR )//and not error code 5
 			{
-				//if we receive an error, print and return
-				//how will we know if we it's error code 5, because we don't
-				//return, we continue on that one
-				//Utils.tryPrintTftpPacket(receivePacket);
-				return;
+				//received an error packet
+				TftpErrorPacket errorPacket = (TftpErrorPacket) recvTftpPacket;
+				if(errorPacket.getErrorCode()!= 5)
+					return;
+				
+				//should not return on error type 5 though
 			}
 			else {
 				trySend(new TftpErrorPacket(4, "not ack").generateDatagram(destinationAddress, destinationPort));
