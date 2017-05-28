@@ -20,8 +20,8 @@ import TftpPacketHelper.TftpRequestPacket.TftpTransferMode;
 import TftpPacketHelper.TftpWriteRequestPacket;
 
 public class Client {
-	private static boolean testMode = false;
-	private static boolean verbose = false;
+	private static boolean testMode = true;
+	private static boolean verbose = true;
 	private static Scanner sc = new Scanner(System.in);
 	private static File file;
 	private static InetAddress destinationAddress;
@@ -52,7 +52,7 @@ public class Client {
 
 		// query user for RRQ or WRQ or toggle between modes
 		for (;;) {
-			System.out.println("Client: currently in:\n" + c.getOutputMode() + " output mode\n" + c.getOperationMode()
+			System.out.println("Client: currently in: " + c.getOutputMode() + " output mode and " + c.getOperationMode()
 					+ " operation mode");
 			String request = queryUserRequest(c);
 

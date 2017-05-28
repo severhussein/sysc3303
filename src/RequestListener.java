@@ -14,7 +14,7 @@ public class RequestListener {
 	private DatagramPacket send, received;
 	private String response;
 	private static Scanner sc = new Scanner(System.in);
-	private static boolean verbose = false;
+	private static boolean verbose = true;
 
 	public RequestListener() {
 		try {

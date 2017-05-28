@@ -12,8 +12,6 @@ public class ErrorSimulatorThread implements Runnable {
 	private DatagramPacket sendPacket, receivePacket;
 	private int clientPort, serverPort;
 	private int[] userChoice;
-
-	boolean skipNormalPacketSend;
 	
 	public ErrorSimulatorThread(DatagramPacket receivePacket, int[] userChoice) {
 			this.receivePacket = receivePacket;
@@ -22,19 +20,16 @@ public class ErrorSimulatorThread implements Runnable {
 
 	public void run() {
 		
-		this.serverPort = -1;
+		this.serverPort = 69;
 		this.clientPort = receivePacket.getPort();
 		socket = ErrorSimulatorHelper.newSocket();
 
 		boolean serverPortUpdated = false;
-		//int block = 0;
-		skipNormalPacketSend = false;
 				
 		
 		//////////////////"Sending to server..."//////////////////////////////////////
-		simulateError(serverPort);
 		
-		if (!skipNormalPacketSend) {
+		if (!simulateError(serverPort)) {
 			System.out.print("Sending to server...");
 			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), ErrorSimulator.DEFAULT_SERVER_PORT);
 			ErrorSimulatorHelper.send(socket, sendPacket);
@@ -44,7 +39,6 @@ public class ErrorSimulatorThread implements Runnable {
 			System.out.println("    |BLK#"+ getBlockNum());
 			//clean printing//Utils.tryPrintTftpPacket(sendPacket);
 		}
-		skipNormalPacketSend = false;
 		//round++;// first round of request msg was done, increase i here
 		//////////////////"Sending to server..."//////////////////////////////////////
 		
@@ -67,12 +61,10 @@ public class ErrorSimulatorThread implements Runnable {
 			System.out.println("    |BLK#"+ getBlockNum());
 			//////////////////"Received"//////////////////////////////////////
 			
-			if (receivedPort == clientPort && serverPortUpdated ) {
+			if (serverPortUpdated &&(receivedPort == clientPort)) {
 				
 				//////////////////"Sending to server..."//////////////////////////////////////
-				if (userChoice[0] > 0) simulateError(serverPort);
-				
-				if (!skipNormalPacketSend) {
+				if (!simulateError(serverPort)) {
 					System.out.print("Sending to server...");
 					sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), serverPort);
 					ErrorSimulatorHelper.send(socket, sendPacket);
@@ -82,20 +74,17 @@ public class ErrorSimulatorThread implements Runnable {
 					System.out.println("    |BLK#"+ getBlockNum());
 					//clean printing//Utils.tryPrintTftpPacket(sendPacket);
 				}
-				skipNormalPacketSend = false;
-				//round++;// first round of request msg was done, increase i here
 				//////////////////"Sending to server..."//////////////////////////////////////
 			} else if ( (!serverPortUpdated && (receivedPort != clientPort))
 					 || (serverPortUpdated && (receivedPort == serverPort)) ) {
+				
 				if (!serverPortUpdated) {
 					serverPort = receivePacket.getPort();
 					serverPortUpdated = true;
 				} // get server port here!
 				
 				//////////////////"Sending to Client...\n"//////////////////////////////////////
-				if (userChoice[0] > 0) simulateError(clientPort);
-				
-				if (!skipNormalPacketSend) {
+				if (!simulateError(clientPort)) {
 					System.out.print("Sending to Client...");
 					sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), clientPort);
 					ErrorSimulatorHelper.send(socket, sendPacket);
@@ -105,12 +94,11 @@ public class ErrorSimulatorThread implements Runnable {
 					System.out.println("    |BLK#"+ getBlockNum());
 					//clean printing//Utils.tryPrintTftpPacket(sendPacket);
 				}
-				skipNormalPacketSend = false;
 				//////////////////"Sending to Client...\n"//////////////////////////////////////
-			} else if (receivedPort == clientPort && !serverPortUpdated ) {
+			} else if (!serverPortUpdated && receivedPort == clientPort) {
 				System.out.println("Order incorrect, receive packet from client when server port not set");
-			} else {
-				System.out.println("unknown");
+			} else {//remaining case is: serverPortUpdated && (port is neither client nor server)
+				System.out.println("unknown port received");
 			}
 
 
@@ -122,8 +110,8 @@ public class ErrorSimulatorThread implements Runnable {
 
 	
 	
-	public void simulateError(int port){
-		
+	public boolean simulateError(int port){
+			
 		int mainBranchIndex = 0;
 		//"<Choose Error Type> (Network Issue or Invalid Data)",
         //"1     Invalid Data",
@@ -137,13 +125,13 @@ public class ErrorSimulatorThread implements Runnable {
 	    	int blockIndex = 4;
 	    	
 	    	//check OpCode
-	    	if (receivePacket.getData()[0] != (byte) 0) return;
-	    	if (receivePacket.getData()[1] != (byte) userChoice[packetIndex]) return;
+	    	if (receivePacket.getData()[0] != (byte) 0) return false;
+	    	if (receivePacket.getData()[1] != (byte) userChoice[packetIndex]) return false;
 	    	
 	    	//check block number
 	    	if (receivePacket.getData()[1] == (byte)3 || receivePacket.getData()[1] == (byte)4) {
-		    	if (receivePacket.getData()[2] != intToByte(userChoice[blockIndex])[0]) return;
-		    	if (receivePacket.getData()[3] != intToByte(userChoice[blockIndex])[1]) return;
+		    	if (receivePacket.getData()[2] != intToByte(userChoice[blockIndex])[0]) return false;
+		    	if (receivePacket.getData()[3] != intToByte(userChoice[blockIndex])[1]) return false;
 	    	}
 	    	
 					//"<Choose Network Issue Type>",
@@ -151,17 +139,14 @@ public class ErrorSimulatorThread implements Runnable {
 		            //"2     Delayed",
 		            //"3     Lost"
 		    if (userChoice[typeIndex] == 1) {
-		    	simulateDuplicate(port, userChoice[valueIndex]);
-		    	return;
+		    	return simulateDuplicate(port, userChoice[valueIndex]);
 		    } else if (userChoice[typeIndex] == 2) {
-		    	simulateDelayed(port, userChoice[valueIndex]);
-		    	return;
+		    	return simulateDelayed(port, userChoice[valueIndex]);
 		    } else if (userChoice[typeIndex] == 3) {
-		    	simulateLost(port, userChoice[valueIndex]);
-		    	return;
+		    	return simulateLost(port, userChoice[valueIndex]);
 		    } else {
 		    	System.out.println("Unknown Error TypeIndex: "+userChoice[typeIndex]);
-		    	return;
+		    	return false;
 		    }
 	    }
 
@@ -175,13 +160,13 @@ public class ErrorSimulatorThread implements Runnable {
 	    	int blockIndex = 4;
 	    	
 	    	//check OpCode
-	    	if (receivePacket.getData()[0] != (byte) 0) return;
-	    	if (receivePacket.getData()[1] != (byte) userChoice[packetIndex]) return;
+	    	if (receivePacket.getData()[0] != (byte) 0) return false;
+	    	if (receivePacket.getData()[1] != (byte) userChoice[packetIndex]) return false;
 	    	
 	    	//check block number
 	    	if (receivePacket.getData()[1] == (byte)3 || receivePacket.getData()[1] == (byte)4) {
-		    	if (receivePacket.getData()[2] != intToByte(userChoice[blockIndex])[0]) return;
-		    	if (receivePacket.getData()[3] != intToByte(userChoice[blockIndex])[1]) return;
+		    	if (receivePacket.getData()[2] != intToByte(userChoice[blockIndex])[0]) return false;
+		    	if (receivePacket.getData()[3] != intToByte(userChoice[blockIndex])[1]) return false;
 	    	}
 	    	
 					//"<Choose Problem Type>",
@@ -190,17 +175,14 @@ public class ErrorSimulatorThread implements Runnable {
 		            //"3     Invalid TID"
 	    	
 		    if (userChoice[problemIndex] == 3) {//"3     Invalid TID"
-		    	simulateIncorrectTID(port);
-		    	return;
+		    	return simulateIncorrectTID(port);
 		    }
 		    if (userChoice[problemIndex] == 2) {//"2     Incorrect Size",
-		    	simulateIncorrectSize(port, userChoice[sizeIndex]);
-		    	return;
+		    	return simulateIncorrectSize(port, userChoice[sizeIndex]);
 		    }
 		    if (userChoice[problemIndex] == 1) {//"1     Corruptted Field",
 			    if (userChoice[packetIndex] == 1 || userChoice[packetIndex] == 2) {
-			    	simulateCorruptedRequest(port, userChoice[fieldIndex]);
-			    	return;
+			    	return simulateCorruptedRequest(port, userChoice[fieldIndex]);
 			    	/*
 					printOptions(new String[]{
 							"<Choose Field>",
@@ -213,8 +195,7 @@ public class ErrorSimulatorThread implements Runnable {
 				    userChoice[fieldIndex] = getUserInput(1, 5);
 				    */
 			    } else if (userChoice[packetIndex] == 3) {
-			    	simulateCorruptedData(port, userChoice[fieldIndex]);
-			    	return;
+			    	return simulateCorruptedData(port, userChoice[fieldIndex]);
 			    	/*
 					printOptions(new String[]{
 							"<Choose Field>",//Opcode |   Block #  |   Data
@@ -225,8 +206,8 @@ public class ErrorSimulatorThread implements Runnable {
 				    userChoice[fieldIndex] = getUserInput(1, 3);
 				    */
 			    } else if (userChoice[packetIndex] == 4) {
-			    	simulateCorruptedAck(port, userChoice[fieldIndex]);
-			    	return;
+			    	return simulateCorruptedAck(port, userChoice[fieldIndex]);
+			    	
 			    	/*
 					printOptions(new String[]{
 							"<Choose Field>",//| Opcode |   Block #  |
@@ -236,8 +217,7 @@ public class ErrorSimulatorThread implements Runnable {
 				    userChoice[fieldIndex] = getUserInput(1, 2);
 				    */
 			    } else if (userChoice[packetIndex] == 5) {
-			    	simulateCorruptedError(port, userChoice[fieldIndex]);
-			    	return;
+			    	return simulateCorruptedError(port, userChoice[fieldIndex]);
 			    	/*
 					printOptions(new String[]{
 							"<Choose Field>",
@@ -250,9 +230,8 @@ public class ErrorSimulatorThread implements Runnable {
 				    */
 			    }
 		    }
-		    
-		    
 	    }
+		return false;
 	}
 	
 	public byte[] intToByte(int value) {
@@ -278,7 +257,9 @@ public class ErrorSimulatorThread implements Runnable {
 	
 
 	
-	public void simulateDuplicate(int port, int value) {
+	public boolean simulateDuplicate(int port, int value) {
+		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+		
 		if (value<0) value = 1;
 		for (int i=0; i<value; i++) {
 			System.out.println("!");
@@ -287,18 +268,24 @@ public class ErrorSimulatorThread implements Runnable {
 			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), port);
 			ErrorSimulatorHelper.send(socket, sendPacket);
 		}
+		return false;//false means error packet do not replace normal packet
 	}
 	
-	public void simulateDelayed(int port, int value) {
+	public boolean simulateDelayed(int port, int value) {
+		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+		
 		System.out.println("!");
 		System.out.println("<simulateDelayed>");
 		System.out.println("!");
         try {
             Thread.sleep(value);
         } catch (InterruptedException e) {}
+        return false;//false means error packet do not replace normal packet
 	}
 	
-	public void simulateLost(int port, int value) {
+	public boolean simulateLost(int port, int value) {
+		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+		
 		if (value<0) value = 1;
 		for (int i=0; i<value; i++) {
 			System.out.println("!");
@@ -307,14 +294,15 @@ public class ErrorSimulatorThread implements Runnable {
 			
 			receivePacket = ErrorSimulatorHelper.newReceive();
 			ErrorSimulatorHelper.receive(socket, receivePacket);
+			
 		}
-
-		
-		//skipNormalPacketSend = false;
+		return false;//false means error packet do not replace normal packet
 	}
 
 	
-	public void simulateIncorrectTID(int port) {
+	public boolean simulateIncorrectTID(int port) {
+		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+		
 		System.out.println("!");
 		System.out.println("<simulateIncorrectTID>");
 		System.out.println("!");
@@ -328,7 +316,7 @@ public class ErrorSimulatorThread implements Runnable {
 		//System.out.print("    |port "+ port);
 		//System.out.print("    |Opcode "+ getOpcode());
 		//System.out.println("    |BLK#"+ getBlockNum());
-
+		return false;//false means error packet do not replace normal packet
 	}
 	
 	
@@ -344,7 +332,9 @@ public class ErrorSimulatorThread implements Runnable {
             });
     userChoice[fieldIndex] = getUserInput(1, 5);
     */
-	public void simulateCorruptedRequest(int port, int field) {
+	public boolean simulateCorruptedRequest(int port, int field) {
+		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+		
 		System.out.println("!");
 		System.out.println("<simulateCorruptedRequest>");
 		System.out.println("!");
@@ -380,12 +370,12 @@ public class ErrorSimulatorThread implements Runnable {
 			receivePacket.getData()[len - 1] = (byte) 255;
 		} else {
 			System.out.println("simulateCorruptedRequest() unknown field");
-			return;//unknown field
+			return false;//unknown field
 		}
 
 		sendPacket = new DatagramPacket(receivePacket.getData(), len, receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
-		skipNormalPacketSend = true;
+		return true;//true means error packet replace normal packet
 	}
 	
 	/*
@@ -397,7 +387,9 @@ public class ErrorSimulatorThread implements Runnable {
             });
     userChoice[fieldIndex] = getUserInput(1, 3);
     */
-	public void simulateCorruptedData(int port, int field) {
+	public boolean simulateCorruptedData(int port, int field) {
+		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+		
 		System.out.println("!");
 		System.out.println("<simulateCorruptedData>");
 		System.out.println("!");
@@ -416,12 +408,13 @@ public class ErrorSimulatorThread implements Runnable {
 			}
 		} else {
 			System.out.println("simulateCorruptedData() unknown field");
-			return;//unknown field
+			return false;//unknown field
 		}
 
 		sendPacket = new DatagramPacket(receivePacket.getData(), len, receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
-		skipNormalPacketSend = true;
+		return true;//true means error packet replace normal packet
+		
 	}
 	
 	/*
@@ -432,7 +425,9 @@ public class ErrorSimulatorThread implements Runnable {
             });
     userChoice[fieldIndex] = getUserInput(1, 2);
     */
-	public void simulateCorruptedAck(int port, int field) {
+	public boolean simulateCorruptedAck(int port, int field) {
+		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+		
 		System.out.println("!");
 		System.out.println("<simulateCorruptedAck>");
 		System.out.println("!");
@@ -445,12 +440,13 @@ public class ErrorSimulatorThread implements Runnable {
 			receivePacket.getData()[3] = (byte) 255;
 		} else {
 			System.out.println("simulateCorruptedAck() unknown field");
-			return;//unknown field
+			return false;//unknown field
 		}
 
 		sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(),	port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
-		skipNormalPacketSend = true;
+		return true;//true means error packet replace normal packet
+		
 	}
 	
 	/*
@@ -463,7 +459,8 @@ public class ErrorSimulatorThread implements Runnable {
             });
     userChoice[fieldIndex] = getUserInput(1, 4);
     */
-	public void simulateCorruptedError(int port, int field) {
+	public boolean simulateCorruptedError(int port, int field) {
+		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
 
 		System.out.println("!");
 		System.out.println("<simulateCorruptedError>");
@@ -485,23 +482,27 @@ public class ErrorSimulatorThread implements Runnable {
 		} else if (field == 4) {
 			receivePacket.getData()[len - 1] = (byte) 255;
 		} else {
-			System.out.println("simulateCorruptedError() unknown field");
-			return;//unknown field
+			System.out.println("simulateCorruptedError() can not generate error, unknown field");
+			return false;//unknown field
 		}
 
 		sendPacket = new DatagramPacket(receivePacket.getData(), len, receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
-		skipNormalPacketSend = true;
+		return true;//true means error packet replace normal packet
+		
 	}
 	
-	public void simulateIncorrectSize(int port, int errorSize) {
+	public boolean simulateIncorrectSize(int port, int errorSize) {
+		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+		
 		System.out.println("!");
 		System.out.println("<simulateIncorrectSize>");
 		System.out.println("!");
 		
 		sendPacket = new DatagramPacket(receivePacket.getData(), errorSize , receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
-		skipNormalPacketSend = true;
+		return true;//true means error packet replace normal packet
+		
 	}
 }
 
