@@ -46,6 +46,7 @@ public class RequestManager implements Runnable {
 		if (type == CommonConstants.RRQ) {
 			byte readData[] = new byte[CommonConstants.DATA_BLOCK_SZ];
 			byte ackRRQ[] = new byte[CommonConstants.ACK_PACKET_SZ];
+			byte tempBuffer[] = new byte[1000];
 			int i = 0, lastSize = 0, n;
 			BufferedInputStream in = null;
 			
@@ -119,13 +120,33 @@ public class RequestManager implements Runnable {
 						System.out.println("ERROR SENDING READ\n" + e.getMessage());
 					}
 					if(verbose) System.out.println("Waiting for ack...\n");
-					received = new DatagramPacket(ackRRQ, ackRRQ.length);
+					//don't know if we're actually going to receive an ack so store in temp buffer
+					received = new DatagramPacket(tempBuffer, tempBuffer.length);
+					TftpPacket recvTftpPacket;
 					try {
 						socket.receive(received);
 						if(verbose)
 							Utils.tryPrintTftpPacket(received);
 					} catch (IOException e) {
 						System.out.println("RECEPTION ERROR AT MANAGER ACK\n" + e.getMessage());
+					}
+					try {
+						recvTftpPacket = TftpPacket.decodeTftpPacket(received);
+					} catch (IllegalArgumentException ile) {
+						// not a TFTP packet, what to do?
+						// retry?
+						return;
+					}
+					//this is an ack as expected
+					if(recvTftpPacket.getType() == TftpType.ACK)
+					{
+						received.setLength(ackRRQ.length);
+						ackRRQ = tempBuffer.clone();
+					}
+					else if(recvTftpPacket.getType() == TftpType.ERROR)
+					{
+						//should not return on error type 5 though
+						return;
 					}
 
 					if(!received.getAddress().equals(clientAddress) || 
@@ -277,7 +298,7 @@ public class RequestManager implements Runnable {
 			}
 
 			
-			//sending initial ack to a WRQ
+			//sending initial ack0 to a WRQ
 			try {
 				send = new DatagramPacket(ack, ack.length, clientAddress, clientPort);
 				socket.send(send);
@@ -294,8 +315,6 @@ public class RequestManager implements Runnable {
 			while (serve) {
 				received = new DatagramPacket(writeData, writeData.length);
 				try {
-					//sending back ack0 for WRQ............WHAT?
-					//What does that comment mean, why we sending it back when it's receiving
 					socket.receive(received);
 					if(verbose){
 						Utils.tryPrintTftpPacket(received);
