@@ -16,21 +16,25 @@ public class ErrorSimulator {
 	private DatagramSocket receiveSocket;
 	private DatagramPacket receivePacket;
 	
-	//public static int mode, errorSize, packetNum = -1;
-	public static Scanner sc;
+	private static Scanner sc;
 
 	public ErrorSimulator() {
 		receiveSocket = ErrorSimulatorHelper.newSocket(DEFAULT_HOST_PORT);
 	}
 	
 	public void receiveRequests(int[] userChoice) {
-		System.out.println("Host waiting for requests...\n");
+		System.out.print("Host waiting for request...");
 		receivePacket = ErrorSimulatorHelper.newReceive(PACKAGE_SIZE);
 		ErrorSimulatorHelper.receive(receiveSocket, receivePacket);
+		System.out.print("Received");
+		System.out.println(" #-1");
 		//clean printing//Utils.tryPrintTftpPacket(receivePacket);
 		
-		System.out.println("Creating new thread...\n");
+		//System.out.println("Create new thread\n");
 		new Thread(new ErrorSimulatorThread(receivePacket, userChoice)).start();
+		//DatagramSocket socket = ErrorSimulatorHelper.newSocket();
+		//new Thread(new ErrorSimulatorThreadClient2Server(socket, receivePacket, userChoice)).start();
+		//new Thread(new ErrorSimulatorThreadServer2Client(socket, receivePacket, userChoice)).start();
 	}	
 	
 	public static void main( String args[] ) {
@@ -38,72 +42,76 @@ public class ErrorSimulator {
 		int[] userChoice = new int[5];
 		Arrays.fill(userChoice, -1);
 		
-		String[] optionList0 = {
+		int mainBranchIndex = 0;
+		
+	    printOptions(new String[]{
 				"<Choose Error Type> (Network Issue or Invalid Data)",
+				"0     No Error",
 	            "1     Invalid Data",
 	            "2     Network Issue"
-		};
-	    printOptions(optionList0);
-	    userChoice[0] = getUserInput(1, 2);
+	            });
+	    userChoice[mainBranchIndex] = getUserInput(0, 2);
 	    
-	    if (userChoice[0] == 2) {
-	    	
+	//network error
+	    if (userChoice[mainBranchIndex] == 2) {
 	    	int typeIndex = 1;
 	    	int valueIndex = 2;
 	    	int packetIndex = 3;
 	    	int blockIndex = 4;
 	    	
-	    	
-			String[] optionList1 = {
+			printOptions(new String[]{
 					"<Choose Network Issue Type>",
 		            "1     Duplicate",
 		            "2     Delayed",
 		            "3     Lost"
-			};
-		    printOptions(optionList1);
+		            });
 		    userChoice[typeIndex] = getUserInput(1, 3);
 		    
+		    
 		    if (userChoice[typeIndex] == 1) {
-				String[] optionList2 = {
+				printOptions(new String[]{
 						"<How many Duplicate packets?>",
-						"?     (Any Integer >= 1)"
-				};
-			    printOptions(optionList2);
+						"(Any Integer >= 1)"
+			            });
 			    userChoice[valueIndex] = getUserInput(1);
 		    } else if  (userChoice[typeIndex] == 2) {
-				String[] optionList2 = {
+				printOptions(new String[]{
 						"<How many mili seconds?>",
-						"?     (Any Integer >= 1)"
-				};
-			    printOptions(optionList2);
+						"(Any Integer >= 1)"
+			            });
 			    userChoice[valueIndex] = getUserInput(1);
-		    } else if  (userChoice[typeIndex] == 2) {
-				String[] optionList2 = {
+		    } else if  (userChoice[typeIndex] == 3) {
+				printOptions(new String[]{
 						"<How many packets lost in a row?>",
-						"?     (Any Integer >= 1)"
-				};
-			    printOptions(optionList2);
+						"(Any Integer >= 1)"
+			            });
 			    userChoice[valueIndex] = getUserInput(1);
 		    }
 		    
-			String[] optionList3 = {
+		    
+			printOptions(new String[]{
 					"<Choose Packet Type> (Error in what type of packet?)",
 		            "1     Read request (RRQ)",
 		            "2     Write request (WRQ)",
 		            "3     Data (DATA)",
 		            "4     Acknowledgment (ACK)",
 		            "5     Error (ERROR)"
-			};
-		    printOptions(optionList3);
+		            });
 		    userChoice[packetIndex] = getUserInput(1, 5);
 		    
-			String[] optionList4 = { 
-					"<Choose the Block #>"
-			};
-		    printOptions(optionList4);
+			printOptions(new String[]{
+					"<Choose the Block #>",
+					"(Any Integer >= 0)"
+		            });
 		    userChoice[blockIndex] = getUserInput(0);
 		    
-	    } else if (userChoice[0] == 1){
+	    }
+	    
+	    
+	    
+	    
+	//data error, TID error
+	    else if (userChoice[mainBranchIndex] == 1){
 	    	
 	    	int problemIndex = 1;
 	    	int packetIndex = 2;
@@ -111,82 +119,75 @@ public class ErrorSimulator {
 	    	int sizeIndex = 3;
 	    	int blockIndex = 4;
 	    	
-			String[] optionList1 = { 
+			printOptions(new String[]{
 					"<Choose Problem Type>",
 		            "1     Corruptted Field",
 		            "2     Incorrect Size",
 		            "3     Invalid TID"
-			};
-		    printOptions(optionList1);
+		            });
 		    userChoice[problemIndex] = getUserInput(1, 3);
 		    
-			String[] optionList2 = {
+			printOptions(new String[]{
 					"<Choose Packet> (Error in what type of packet?)",
 		            "1     Read request (RRQ)",
 		            "2     Write request (WRQ)",
 		            "3     Data (DATA)",
 		            "4     Acknowledgment (ACK)",
 		            "5     Error (ERROR)"
-			};
-		    printOptions(optionList2);
+		            });
 		    userChoice[packetIndex] = getUserInput(1, 5);
 		    
 		    
 		    if (userChoice[problemIndex] == 2) {
-				String[] optionList3 = { 
+				printOptions(new String[]{
 						"<Choose Size #>"
-				};
-			    printOptions(optionList3);
+			            });
 			    userChoice[sizeIndex] = getUserInput(0);
 		    }
 		    
-		    if (userChoice[problemIndex] == 1) {
+		    else if (userChoice[problemIndex] == 1) {
 			    if (userChoice[packetIndex] == 1 || userChoice[packetIndex] == 2) {
-					String[] optionList3 = { //| Opcode |  Filename  |   0  |    Mode    |   0  |
+					printOptions(new String[]{
 							"<Choose Field>",
 				            "1     Opcode",
 				            "2     File Name",
 				            "3     Null byte 1 {0}",
 				            "4     Mode",
 				            "5     Null byte 2 {0}"
-					};
-				    printOptions(optionList3);
+				            });
 				    userChoice[fieldIndex] = getUserInput(1, 5);
 			    } else if (userChoice[packetIndex] == 3) {
-					String[] optionList3 = { 
+					printOptions(new String[]{
 							"<Choose Field>",//Opcode |   Block #  |   Data
 				            "1     Opcode",
 				            "2     Block #",
 				            "3     Data"
-					};
-				    printOptions(optionList3);
+				            });
 				    userChoice[fieldIndex] = getUserInput(1, 3);
 			    } else if (userChoice[packetIndex] == 4) {
-					String[] optionList3 = { 
+					printOptions(new String[]{
 							"<Choose Field>",//| Opcode |   Block #  |
 				            "1     Opcode",
 				            "2     Block #"
-					};
-				    printOptions(optionList3);
+				            });
 				    userChoice[fieldIndex] = getUserInput(1, 2);
 			    } else if (userChoice[packetIndex] == 5) {
-					String[] optionList3 = { // | Opcode |  ErrorCode |   ErrMsg   |   0  |
+					printOptions(new String[]{
 							"<Choose Field>",
 				            "1     Opcode",
 				            "2     ErrorCode",
 				            "3     ErrMsg",
 				            "4     Null byte {0}"
-					};
-				    printOptions(optionList3);
+				            });
 				    userChoice[fieldIndex] = getUserInput(1, 4);
 			    }
 		    }
 
 		    
-			String[] optionList4 = { 
-					"<Choose the Block #>"
-			};
-		    printOptions(optionList4);
+			printOptions(new String[]{
+					"<Choose the Block #>",
+					"(Any Integer >= 0)"
+		            });
 		    userChoice[blockIndex] = getUserInput(0);
 		    
 	    }
@@ -199,13 +200,13 @@ public class ErrorSimulator {
 		}
 	}
 	
-	public static void printOptions(String[] optionList) {
+	private static void printOptions(String[] optionList) {
 		for (String str: optionList) {
 			System.out.println(str);
 		}
 	}
 	
-	public static int getUserInput(int min, int max) {
+	private static int getUserInput(int min, int max) {
 		if (min < 0) min = 0;
 		if (max < min) {
 			System.out.println("getUserInput() error input, max < min");
@@ -226,7 +227,7 @@ public class ErrorSimulator {
 		return number;
 	}
 	
-	public static int getUserInput(int min) {
+	private static int getUserInput(int min) {
 		if (min < 0) min = 0;
 		String str = "";
 		int number = -1;
