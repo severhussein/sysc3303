@@ -579,8 +579,13 @@ public class Client {
 				// and error message
 				// do we need to enhance the help to translate the error code as
 				// well?
-				System.out.println("RECEIVED ERROR :" + errorPacket.getErrorCode() + " :" + errorPacket.getErrorMsg());
-				endOfFile = true;
+				//System.out.println("RECEIVED ERROR :" + errorPacket.getErrorCode() + " :" + errorPacket.getErrorMsg());
+				
+				//should not return on error type 5 though
+				
+				if(errorPacket.getErrorCode()!= 5)
+					break;//same as endOfFile=true ...pretty sure
+
 			} else {
 				// we got TFTP packet but it is either DATA nor ERROR. something
 				// is indeed wrong
