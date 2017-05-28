@@ -246,6 +246,7 @@ public class RequestManager implements Runnable {
 			byte writeData[] = new byte[CommonConstants.DATA_PACKET_SZ];
 			byte ack[] = {0,4,0,0}; //not immutable
 			BufferedOutputStream out = null;
+			FileOutputStream outFile = null;
 			File check = new File(fileName);
 
 			if (check.exists()) {
@@ -269,7 +270,7 @@ public class RequestManager implements Runnable {
 			}
 
 			try {
-				FileOutputStream outFile = new FileOutputStream(fileName);
+				outFile = new FileOutputStream(check);
 				out = new BufferedOutputStream(outFile);
 			} catch (IOException e) {
 				System.out.println("ERROR CREATING FILE\n" + e.getMessage());
@@ -331,17 +332,35 @@ public class RequestManager implements Runnable {
 						out.write(writeData, 4, received.getLength() - 4);
 					} catch (IOException e) {
 						if (check.getUsableSpace() < received.getLength()) {
-							trySend(new TftpErrorPacket(3, "Disk full").generateDatagram(clientAddress, clientPort));
+							
+							trySend(new TftpErrorPacket(3, "Disk full, can't write to file").generateDatagram(clientAddress, clientPort));
 
 							try {
-								Files.delete(check.toPath());
-								out.close();
+								//close file
+								outFile.close();
+								
+								//closing output steram not possible
+								//out.close();
+								
+								//delete file
+								Files.deleteIfExists(check.toPath());
 							} catch (IOException e1) {
 								e1.printStackTrace();
 							}
-							// NEED TO CLOSE SOCKET...and terminate connection
-							this.socket.close(); 
+							// NEED TO CLOSE SOCKET...???
+							//sendReceiveSocket.close(); 
+							//dont think i can do
+							// this, on new transfer will have no socket
 							return;
+//							try {
+//								Files.delete(check.toPath());
+//								out.close();
+//							} catch (IOException e1) {
+//								e1.printStackTrace();
+//							}
+//							// NEED TO CLOSE SOCKET...and terminate connection
+//							this.socket.close(); 
+//							return;
 
 						}
 						else {
