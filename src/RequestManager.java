@@ -350,6 +350,12 @@ public class RequestManager implements Runnable {
 					// retries--;
 					//for iteration 4
 					//continue;
+					try {
+						out.flush();
+						out.close();
+					} catch(IOException e) {
+						System.out.println("Failed flushing file before closing.");
+					}
 					System.out.println("Will terminate this transfer.");
 					break;
 				}
