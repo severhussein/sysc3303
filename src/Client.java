@@ -325,7 +325,15 @@ public class Client {
 							tid));
 					retries--;
 				}
-			} else {
+			}else if(recvTftpPacket.getType()== TftpType.ERROR )//and not error code 5
+			{
+				//if we receive an error, print and return
+				//how will we know if we it's error code 5, because we don't
+				//return, we continue on that one
+				//Utils.tryPrintTftpPacket(receivePacket);
+				return;
+			}
+			else {
 				trySend(new TftpErrorPacket(4, "not ack").generateDatagram(destinationAddress, destinationPort));
 			}
 
