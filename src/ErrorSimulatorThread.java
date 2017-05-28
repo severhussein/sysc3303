@@ -20,7 +20,7 @@ public class ErrorSimulatorThread implements Runnable {
 
 	public void run() {
 		
-		this.serverPort = -1;
+		this.serverPort = 69;
 		this.clientPort = receivePacket.getPort();
 		socket = ErrorSimulatorHelper.newSocket();
 
