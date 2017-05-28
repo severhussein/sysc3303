@@ -346,9 +346,11 @@ public class Client {
 		receivePacket = new DatagramPacket(writeData, writeData.length);
 		int blockNumber = 1;
 		BufferedOutputStream out = null;
+		FileOutputStream outFile = null;
 		TftpPacket recvTftpPacket;
 		try {
-			out = new BufferedOutputStream(new FileOutputStream(fileName));
+			outFile = new FileOutputStream(fileName);
+			out = new BufferedOutputStream(outFile);
 		} catch (Exception e) {
 			// File was checked in main loop, we could only reach here when
 			// something very bad happend
@@ -437,20 +439,30 @@ public class Client {
 					} catch (IOException e) {
 						// parsing the error message is generally a bad idea as
 						// message may differ from os
-						if (file.getUsableSpace() < dataPacket.getDataLength()) {
-							trySend(new TftpErrorPacket(3, "Disk full").generateDatagram(destinationAddress, tid));
+						//this doesnt work, so using a hack
+						//if (file.getUsableSpace() < dataPacket.getDataLength()) 
+						//hack=
+						if(e.getMessage().equals("There is not enough space on the disk"))
+						{
+							trySend(new TftpErrorPacket(3, "Disk full, can't write to file").generateDatagram(destinationAddress, tid));
 
 							try {
-								Files.delete(file.toPath());
-								out.close();
+								//close file
+								outFile.close();
+								
+								//closing output steram not possible
+								//out.close();
+								
+								//delete file
+								Files.deleteIfExists(file.toPath());
 							} catch (IOException e1) {
 								e1.printStackTrace();
 							}
-							// NEED TO CLOSE SOCKET...
-							// sendReceiveSocket.close(); dont think i can do
+							// NEED TO CLOSE SOCKET...??
+							//sendReceiveSocket.close(); 
+							//dont think i can do
 							// this, on new transfer will have no socket
 							return;
-
 						} else {
 							// if io error not due to space, send the message as
 							// a custom error
@@ -476,19 +488,27 @@ public class Client {
 						try {
 							out.flush();
 						} catch (IOException e) {
-							if (file.getUsableSpace() < CommonConstants.DATA_BLOCK_SZ) {
-								trySend(new TftpErrorPacket(3, "Disk full").generateDatagram(destinationAddress, tid));
+							if (e.getMessage().equals("There is not enough space on the disk")) {
+								trySend(new TftpErrorPacket(3, "Disk full, can't write to file").generateDatagram(destinationAddress, tid));
 
 								try {
-									Files.delete(file.toPath());
-									out.close();
+									//close file
+									outFile.close();
+									
+									//closing output steram not possible
+									//out.close();
+									
+									//delete file
+									Files.deleteIfExists(file.toPath());
 								} catch (IOException e1) {
 									e1.printStackTrace();
 								}
-								// NEED TO CLOSE SOCKET...
-								// sendReceiveSocket.close(); dont think i can
-								// do this, on new transfer will have no socket
+								// NEED TO CLOSE SOCKET...???
+								//sendReceiveSocket.close(); 
+								//dont think i can do
+								// this, on new transfer will have no socket
 								return;
+
 							} else {
 								trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(destinationAddress,
 										tid));
