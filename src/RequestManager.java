@@ -190,7 +190,7 @@ public class RequestManager implements Runnable {
 					// Right now, does not throw exception nor
 					// requests re-transmission.
 					// Just prints to console.
-					int block = ((ackRRQ[2] & 0xFF) >> 8) | (ackRRQ[3] & 0xFF);
+					int block = ((ackRRQ[2] & 0xFF) << 8) | (ackRRQ[3] & 0xFF);
 					if (ackRRQ[1] != CommonConstants.ACK && block != i) {
 						buf = new ByteArrayOutputStream();
 						buf.write(0);
