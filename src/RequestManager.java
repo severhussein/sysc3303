@@ -359,7 +359,7 @@ public class RequestManager implements Runnable {
 					try {
 						out.write(writeData, 4, received.getLength() - 4);
 					} catch (IOException e) {
-						if (check.getUsableSpace() < received.getLength()) {
+						if (e.getMessage().equals("There is not enough space on the disk")) {
 							
 							trySend(new TftpErrorPacket(3, "Disk full, can't write to file").generateDatagram(clientAddress, clientPort));
 
