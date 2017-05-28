@@ -26,15 +26,14 @@ public class ErrorSimulator {
 		System.out.print("Host waiting for request...");
 		receivePacket = ErrorSimulatorHelper.newReceive(PACKAGE_SIZE);
 		ErrorSimulatorHelper.receive(receiveSocket, receivePacket);
-		System.out.print("Received");
-		System.out.println(" #-1");
+		//System.out.print("Received");
+		System.out.print("    |port "+ receivePacket.getPort());
+		System.out.print("    |Opcode "+ ""+receivePacket.getData()[0]+ receivePacket.getData()[1]);
+		System.out.println("    |BLK#"+ (-1));
 		//clean printing//Utils.tryPrintTftpPacket(receivePacket);
 		
 		//System.out.println("Create new thread\n");
 		new Thread(new ErrorSimulatorThread(receivePacket, userChoice)).start();
-		//DatagramSocket socket = ErrorSimulatorHelper.newSocket();
-		//new Thread(new ErrorSimulatorThreadClient2Server(socket, receivePacket, userChoice)).start();
-		//new Thread(new ErrorSimulatorThreadServer2Client(socket, receivePacket, userChoice)).start();
 	}	
 	
 	public static void main( String args[] ) {

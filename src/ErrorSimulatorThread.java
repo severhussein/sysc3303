@@ -16,74 +16,104 @@ public class ErrorSimulatorThread implements Runnable {
 	boolean skipNormalPacketSend;
 	
 	public ErrorSimulatorThread(DatagramPacket receivePacket, int[] userChoice) {
-		socket = ErrorSimulatorHelper.newSocket();
-		if (socket != null) {
-			this.serverPort = ErrorSimulator.DEFAULT_SERVER_PORT;
-			this.clientPort = receivePacket.getPort();
 			this.receivePacket = receivePacket;
 			this.userChoice = userChoice;
-		}
 	}
 
 	public void run() {
+		
+		this.serverPort = -1;
+		this.clientPort = receivePacket.getPort();
+		socket = ErrorSimulatorHelper.newSocket();
 
 		boolean serverPortUpdated = false;
 		//int block = 0;
 		skipNormalPacketSend = false;
 				
+		
+		//////////////////"Sending to server..."//////////////////////////////////////
+		simulateError(serverPort);
+		
+		if (!skipNormalPacketSend) {
+			System.out.print("Sending to server...");
+			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), ErrorSimulator.DEFAULT_SERVER_PORT);
+			ErrorSimulatorHelper.send(socket, sendPacket);
+			//System.out.print("Sent");
+			System.out.print("    |Port "+ ErrorSimulator.DEFAULT_SERVER_PORT);
+			System.out.print("    |Opcode "+ getOpcode());
+			System.out.println("    |BLK#"+ getBlockNum());
+			//clean printing//Utils.tryPrintTftpPacket(sendPacket);
+		}
+		skipNormalPacketSend = false;
+		//round++;// first round of request msg was done, increase i here
+		//////////////////"Sending to server..."//////////////////////////////////////
+		
+		
+		
+		int receivedPort = -1;
+		
 		while (true) {
-			//////////////////"Sending to server..."//////////////////////////////////////
-			simulateError(serverPort);
-			
-			if (!skipNormalPacketSend) {
-				System.out.print("Sending to server...");
-				sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), serverPort);
-				ErrorSimulatorHelper.send(socket, sendPacket);
-				System.out.print("Sent");
-				System.out.println(" #"+ getBlockNum());
-				//clean printing//Utils.tryPrintTftpPacket(sendPacket);
-			}
-			skipNormalPacketSend = false;
-			//round++;// first round of request msg was done, increase i here
-			//////////////////"Sending to server..."//////////////////////////////////////
 
-			//////////////////"Receiving from server..."//////////////////////////////////////
-			System.out.print("Receiving from server...");
+			
+			//////////////////"Receiving..."//////////////////////////////////////
+			System.out.print("Receiving...        ");
 			receivePacket = ErrorSimulatorHelper.newReceive();
 			ErrorSimulatorHelper.receive(socket, receivePacket);//form a new packet
 			//clean printing//Utils.tryPrintTftpPacket(receivePacket);
-			System.out.print("Received");
-			System.out.println(" #"+ getBlockNum());
+			//System.out.print("Received");
+			receivedPort = receivePacket.getPort();
+			System.out.print("    |port "+ receivedPort);
+			System.out.print("    |Opcode "+ getOpcode());
+			System.out.println("    |BLK#"+ getBlockNum());
+			//////////////////"Received"//////////////////////////////////////
 			
-			if (!serverPortUpdated) {
-				serverPort = receivePacket.getPort();
-				serverPortUpdated = true;
-			} // get server port here!
-			//////////////////"Receiving from server..."//////////////////////////////////////
-			
-			//////////////////"Sending to Client...\n"//////////////////////////////////////
-			simulateError(clientPort);
-			
-			if (!skipNormalPacketSend) {
-				System.out.print("Sending to Client...");
-				sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), clientPort);
-				ErrorSimulatorHelper.send(socket, sendPacket);
-				System.out.print("Sent");
-				System.out.println(" #"+ getBlockNum());
-				//clean printing//Utils.tryPrintTftpPacket(sendPacket);
+			if (receivedPort == clientPort && serverPortUpdated ) {
+				
+				//////////////////"Sending to server..."//////////////////////////////////////
+				if (userChoice[0] > 0) simulateError(serverPort);
+				
+				if (!skipNormalPacketSend) {
+					System.out.print("Sending to server...");
+					sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), serverPort);
+					ErrorSimulatorHelper.send(socket, sendPacket);
+					//System.out.print("Sent");
+					System.out.print("    |port "+ serverPort);
+					System.out.print("    |Opcode "+ getOpcode());
+					System.out.println("    |BLK#"+ getBlockNum());
+					//clean printing//Utils.tryPrintTftpPacket(sendPacket);
+				}
+				skipNormalPacketSend = false;
+				//round++;// first round of request msg was done, increase i here
+				//////////////////"Sending to server..."//////////////////////////////////////
+			} else if ( (!serverPortUpdated && (receivedPort != clientPort))
+					 || (serverPortUpdated && (receivedPort == serverPort)) ) {
+				if (!serverPortUpdated) {
+					serverPort = receivePacket.getPort();
+					serverPortUpdated = true;
+				} // get server port here!
+				
+				//////////////////"Sending to Client...\n"//////////////////////////////////////
+				if (userChoice[0] > 0) simulateError(clientPort);
+				
+				if (!skipNormalPacketSend) {
+					System.out.print("Sending to Client...");
+					sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), clientPort);
+					ErrorSimulatorHelper.send(socket, sendPacket);
+					//System.out.print("Sent");
+					System.out.print("    |port "+ clientPort);
+					System.out.print("    |Opcode "+ getOpcode());
+					System.out.println("    |BLK#"+ getBlockNum());
+					//clean printing//Utils.tryPrintTftpPacket(sendPacket);
+				}
+				skipNormalPacketSend = false;
+				//////////////////"Sending to Client...\n"//////////////////////////////////////
+			} else if (receivedPort == clientPort && !serverPortUpdated ) {
+				System.out.println("Order incorrect, receive packet from client when server port not set");
+			} else {
+				System.out.println("unknown");
 			}
-			skipNormalPacketSend = false;
-			//////////////////"Sending to Client...\n"//////////////////////////////////////
 
-			//////////////////"Receiving from client...\n"//////////////////////////////////////
-			System.out.print("Receiving from client...");
-			receivePacket = ErrorSimulatorHelper.newReceive();
-			ErrorSimulatorHelper.receive(socket, receivePacket);
-			System.out.println("Received");
-			System.out.println(" #"+ getBlockNum());
-			//clean printing//Utils.tryPrintTftpPacket(receivePacket);
-			// ErrorSimulatorHelper.receive(socket, receivePacket);
-			//////////////////"Receiving from client...\n"//////////////////////////////////////
+
 		}
 	}
 	
@@ -242,7 +272,9 @@ public class ErrorSimulatorThread implements Runnable {
     	return -1;
 	}
 
-	
+	public String getOpcode(){
+	    	return ""+receivePacket.getData()[0]+ receivePacket.getData()[1];
+	}
 	
 
 	
@@ -288,9 +320,14 @@ public class ErrorSimulatorThread implements Runnable {
 		System.out.println("!");
 		
 		DatagramSocket new_socket = ErrorSimulatorHelper.newSocket();
+
+		//System.out.print("<Error TID> Sending to port...");
 		sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(new_socket, sendPacket);
 		//clean printing//Utils.tryPrintTftpPacket(sendPacket);
+		//System.out.print("    |port "+ port);
+		//System.out.print("    |Opcode "+ getOpcode());
+		//System.out.println("    |BLK#"+ getBlockNum());
 
 	}
 	
