@@ -16,7 +16,8 @@ public class ErrorSimulatorThread implements Runnable {
 	
 	public ErrorSimulatorThread(DatagramPacket receivePacket, int[] userChoice) {
 			this.receivePacket = receivePacket;
-			this.userChoice = userChoice;
+			this.userChoice = new int[userChoice.length];
+			System.arraycopy(userChoice, 0, this.userChoice, 0, userChoice.length);
 	}
 
 	public void run() {
@@ -260,25 +261,26 @@ public class ErrorSimulatorThread implements Runnable {
 	public boolean simulateLost(int port, int value) {
 		int valueIndex = 2;//need change accordingly to class field!!
 		if (userChoice[valueIndex]<=0) {
-			userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
-		} else {
-			userChoice[valueIndex] = userChoice[valueIndex] - 1;
+			return false;//do not replace the normal packet
 		}
+		userChoice[valueIndex] = userChoice[valueIndex] - 1;
+		if (userChoice[valueIndex]==0) {
+			userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+		}
+		
 		System.out.println("!");
 		System.out.println("<simulateLost>");
 		System.out.println("!");
 		
 		/*
 		for (int i=0; i<value; i++) {
-
 			System.out.println("Last recieved ignored, recieving new packet...");
 			receivePacket = ErrorSimulatorHelper.newReceive();
 			ErrorSimulatorHelper.receive(socket, receivePacket);
 			System.out.println("Recieved");
-			
 		}
 		*/
-		return true;//
+		return true;//replace the normal packet
 	}
 
 	
