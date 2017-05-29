@@ -567,6 +567,7 @@ public class ErrorSimulatorThread implements Runnable {
 			int lenMode = second - first - 1;
 			len = len - lenMode;
 		} else if (field == 5) {
+			System.arraycopy(receivePacket.getData(), 0, newData, 0, len-1);
 			len--;
 		} else {
 			System.out.println("<Error> unknown field");
@@ -700,7 +701,8 @@ public class ErrorSimulatorThread implements Runnable {
 			newData[4] = 0;
 			len = 5;
 		} else if (field == 4) {//Null byte 1 {0}",
-			len = len - 1;
+			System.arraycopy(receivePacket.getData(), 0, newData, 0, len-1);
+			len--;
 		}  else {
 			System.out.println("<Error> unknown field");
 			return false;//unknown field
