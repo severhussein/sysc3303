@@ -27,3 +27,6 @@ Remove Error (Write), field 1,2,3...
 //possible reason
 //"Print log"
 
+
+Test Case, remove data field from DATA packet
+Read request, it works for the first try, then leave the client to an unstable state
