@@ -27,14 +27,14 @@ public class Utils {
 		} catch (Exception e) {
 			isTftp = false;
 		}
-
+		System.out.println("   This packet contains:");
+		System.out.println("   Address: " + packet.getAddress() + ":" + packet.getPort());
+		System.out.println("   Length: " + packet.getLength());		
 		if (isTftp && tftpPacket != null) {
-			System.out.println("   This packet contains:");
-			System.out.println("   Address: " + packet.getAddress() + ":" + packet.getPort());
-			System.out.println("   Length: " + packet.getLength());			
-			System.out.println("   TFTP " + tftpPacket+"\n");
+				System.out.println("   TFTP " + tftpPacket+"\n");
 		} else {
-			Utils.printDatagramContentWiresharkStyle(packet);
+			//Utils.printDatagramContentWiresharkStyle(packet);
+			System.out.println("   and is not a TFTP pavcket ");
 		}
 	}
 	

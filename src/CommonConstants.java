@@ -85,7 +85,7 @@ public class CommonConstants {
 	
 	public static final int TFTP_MAX_BLOCK_NUMBER = 65535;
 		
-	//let's make it 3s for now so that it is easier to test
+	//let's make it 5s for now so that it is easier to test
 	//in real life this is probably tooo long
-	public static final int SOCKET_TIMEOUT_MS = 3000;
+	public static final int SOCKET_TIMEOUT_MS = 5000;
 }

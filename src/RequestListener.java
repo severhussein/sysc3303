@@ -23,6 +23,10 @@ public class RequestListener {
 			// receiveSock.setSoTimeout(120000);
 		} catch (SocketException e) {
 			System.out.println(e.getMessage());
+			System.out.println("Failed to bind to TFTP port" + CommonConstants.SERVER_LISTEN_PORT);
+			System.out.println("Is there another TFTP server running on this machine?");
+			sc.close();
+			System.exit(1);
 		}
 	}
 
