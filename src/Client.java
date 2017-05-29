@@ -321,7 +321,7 @@ public class Client {
 				trySend(new TftpErrorPacket(4, "not tftp").generateDatagram(receivePacket.getAddress(),
 						receivePacket.getPort()));
 				retries--;
-				continue;
+				return;
 			}
 
 			// let's check if the packet we received is an ack
@@ -434,7 +434,7 @@ public class Client {
 				trySend(new TftpErrorPacket(4, "not tftp").generateDatagram(receivePacket.getAddress(),
 						receivePacket.getPort()));
 				retries--;
-				continue;
+				return;
 			}
 
 			// now let's check what type of TFTP packet is this

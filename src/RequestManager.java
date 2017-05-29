@@ -112,6 +112,7 @@ public class RequestManager implements Runnable {
 
 					byte dataSend[] = buf.toByteArray();
 					try {
+						System.out.println("Sending...");
 						send = new DatagramPacket(dataSend, dataSend.length, clientAddress, clientPort);
 						socket.send(send);
 						if(verbose)
@@ -175,11 +176,13 @@ public class RequestManager implements Runnable {
 						byte errBuf[] = error.toByteArray();
 
 						try {
+							
 							send = new DatagramPacket(errBuf,
 									errBuf.length,
 									received.getAddress(),
 									received.getPort());
 							socket.send(send);
+
 						} catch(IOException e) {
 							System.out.println("ISSUE CREATING ERROR PACKET" + e.getMessage());
 						}
@@ -261,8 +264,9 @@ public class RequestManager implements Runnable {
 				readBlock[1] = (byte) i;
 				buf.write(0);
 				byte dataSend[] = buf.toByteArray();
-
+				
 				try {
+					System.out.println("Sending...");
 					send = new DatagramPacket(dataSend, dataSend.length, clientAddress, clientPort);
 					socket.send(send);
 					if(verbose)
