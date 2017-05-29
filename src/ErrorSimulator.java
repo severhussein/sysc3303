@@ -99,14 +99,14 @@ public class ErrorSimulator {
 		    userChoice[packetIndex] = getUserInput(1, 5);
 		    
  
--		    //should not ask for block number on RRQ AND WRQ
--		    if(userChoice[packetIndex]!=1 && userChoice[packetIndex]!=2 && userChoice[packetIndex]!=5){
--		    	printOptions(new String[]{
--		    			"<Choose the Block #>",
--		    			"(Any Integer >= 0)"
--		            	});
--		    	userChoice[blockIndex] = getUserInput(0);
--		    }
+		    //should not ask for block number on RRQ AND WRQ
+		    if(userChoice[packetIndex]!=1 && userChoice[packetIndex]!=2 && userChoice[packetIndex]!=5){
+		    	printOptions(new String[]{
+		    			"<Choose the Block #>",
+		    			"(Any Integer >= 0)"
+		            	});
+		    	userChoice[blockIndex] = getUserInput(0);
+		    }
 		    
 	    }
 	    
@@ -189,14 +189,14 @@ public class ErrorSimulator {
 
 		    
  
--		    //should not ask for block number on RRQ AND WRQ
--		    if(userChoice[packetIndex]!=1 && userChoice[packetIndex]!=2 && userChoice[packetIndex]!=5){
--		    	printOptions(new String[]{
--		    			"<Choose the Block #>",
--		    			"(Any Integer >= 0)"
--		            	});
--		    	userChoice[blockIndex] = getUserInput(0);
--		    }
+		    //should not ask for block number on RRQ AND WRQ
+		    if(userChoice[packetIndex]!=1 && userChoice[packetIndex]!=2 && userChoice[packetIndex]!=5){
+		    	printOptions(new String[]{
+		    			"<Choose the Block #>",
+		    			"(Any Integer >= 0)"
+		            	});
+		    	userChoice[blockIndex] = getUserInput(0);
+		    }
 		    
 	    }
 	    
