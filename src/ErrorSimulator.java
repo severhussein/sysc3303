@@ -11,7 +11,7 @@ import java.util.Scanner;
 
 public class ErrorSimulator {
 	public static final int DEFAULT_HOST_PORT = 23, DEFAULT_SERVER_PORT = 69, PACKAGE_SIZE = 1000;
-	//public static boolean PRINT_PACKET = false;
+	public static boolean PRINT_PACKET = true;
 	
 	private DatagramSocket receiveSocket;
 	private DatagramPacket receivePacket;
@@ -23,7 +23,7 @@ public class ErrorSimulator {
 	}
 	
 	public void receiveRequests(int[] userChoice) {
-		System.out.print("Host waiting for request...");
+		System.out.println("Host waiting for request...");
 		receivePacket = ErrorSimulatorHelper.newReceive(PACKAGE_SIZE);
 		ErrorSimulatorHelper.receive(receiveSocket, receivePacket);
 		//System.out.print("Received");
@@ -98,14 +98,12 @@ public class ErrorSimulator {
 		            });
 		    userChoice[packetIndex] = getUserInput(1, 5);
 		    
- 
-		    //should not ask for block number on RRQ AND WRQ
-		    if(userChoice[packetIndex]!=1 && userChoice[packetIndex]!=2 && userChoice[packetIndex]!=5){
-		    	printOptions(new String[]{
-		    			"<Choose the Block #>",
-		    			"(Any Integer >= 0)"
-		            	});
-		    	userChoice[blockIndex] = getUserInput(0);
+		    if (userChoice[packetIndex] == 3 || userChoice[packetIndex] == 4) {
+				printOptions(new String[]{
+						"<Choose the Block #>",
+						"(Any Integer >= 0)"
+			            });
+			    userChoice[blockIndex] = getUserInput(0);
 		    }
 		    
 	    }
@@ -187,16 +185,14 @@ public class ErrorSimulator {
 			    }
 		    }
 
-		    
- 
-		    //should not ask for block number on RRQ AND WRQ
-		    if(userChoice[packetIndex]!=1 && userChoice[packetIndex]!=2 && userChoice[packetIndex]!=5){
-		    	printOptions(new String[]{
-		    			"<Choose the Block #>",
-		    			"(Any Integer >= 0)"
-		            	});
-		    	userChoice[blockIndex] = getUserInput(0);
+		    if (userChoice[packetIndex] == 3 || userChoice[packetIndex] == 4) {
+				printOptions(new String[]{
+						"<Choose the Block #>",
+						"(Any Integer >= 0)"
+			            });
+			    userChoice[blockIndex] = getUserInput(0);
 		    }
+
 		    
 	    }
 	    

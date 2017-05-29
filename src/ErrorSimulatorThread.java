@@ -21,7 +21,7 @@ public class ErrorSimulatorThread implements Runnable {
 
 	public void run() {
 		
-		this.serverPort = 69;
+		this.serverPort = -1;
 		this.clientPort = receivePacket.getPort();
 		this.socket = ErrorSimulatorHelper.newSocket();
 		
@@ -226,44 +226,59 @@ public class ErrorSimulatorThread implements Runnable {
 	
 	public boolean simulateDuplicate(int port, int value) {
 		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+		System.out.println("!");
+		System.out.println("<simulateDuplicate>");
+		System.out.println("!");
 		
 		if (value<0) value = 1;
 		for (int i=0; i<value; i++) {
-			System.out.println("!");
-			System.out.println("<simulateDuplicate>");
-			System.out.println("!");
+			ErrorSimulatorHelper.print("Sending Duplicated Packet...");
+			
 			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), port);
 			ErrorSimulatorHelper.send(socket, sendPacket);
+			
+			ErrorSimulatorHelper.print("Sent, Print Duplicated Packet:");
+			ErrorSimulatorHelper.printPacket(sendPacket);
 		}
 		return false;//false means error packet do not replace normal packet
 	}
 	
 	public boolean simulateDelayed(int port, int value) {
 		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
-		
 		System.out.println("!");
 		System.out.println("<simulateDelayed>");
 		System.out.println("!");
+		
+		System.out.println("Waiting " + value + " ms delay");
         try {
             Thread.sleep(value);
         } catch (InterruptedException e) {}
+        System.out.println("Delay finished");
         return false;//false means error packet do not replace normal packet
 	}
 	
 	public boolean simulateLost(int port, int value) {
-		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+		int valueIndex = 2;//need change accordingly to class field!!
+		if (userChoice[valueIndex]<=0) {
+			userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+		} else {
+			userChoice[valueIndex] = userChoice[valueIndex] - 1;
+		}
+		System.out.println("!");
+		System.out.println("<simulateLost>");
+		System.out.println("!");
 		
-		if (value<0) value = 1;
+		/*
 		for (int i=0; i<value; i++) {
-			System.out.println("!");
-			System.out.println("<simulateLost>");
-			System.out.println("!");
-			
+
+			System.out.println("Last recieved ignored, recieving new packet...");
 			receivePacket = ErrorSimulatorHelper.newReceive();
 			ErrorSimulatorHelper.receive(socket, receivePacket);
+			System.out.println("Recieved");
 			
 		}
-		return false;//false means error packet do not replace normal packet
+		*/
+		return true;//
 	}
 
 	
@@ -283,6 +298,10 @@ public class ErrorSimulatorThread implements Runnable {
 		//System.out.print("    |port "+ port);
 		//System.out.print("    |Opcode "+ getOpcode());
 		//System.out.println("    |BLK#"+ getBlockNum());
+		
+		ErrorSimulatorHelper.print("Print Fake Source Packet:");
+		ErrorSimulatorHelper.printPacket(sendPacket);
+		
 		return false;//false means error packet do not replace normal packet
 	}
 	
@@ -304,6 +323,10 @@ public class ErrorSimulatorThread implements Runnable {
 		
 		sendPacket = new DatagramPacket(receivePacket.getData(), errorSize , receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
+		
+		ErrorSimulatorHelper.print("Print Size Modified Packet:");
+		ErrorSimulatorHelper.printPacket(sendPacket);
+		
 		return true;//true means error packet replace normal packet
 		
 	}
@@ -334,34 +357,39 @@ public class ErrorSimulatorThread implements Runnable {
 		System.out.println("!");
 		
 		int len = receivePacket.getLength();
+		int first = -1;
+		int second = -1;
+		int pos = 2;
+		
+		for (; pos < len; pos++) {
+			if (receivePacket.getData()[pos] == 0) {first = pos; break;}
+		}
+		pos++;
+		for (; pos < len; pos++) {
+			if (receivePacket.getData()[pos] == 0) {second = pos; break;}
+		}
+		
+		if ((second < 0) || (second != len - 1)) {
+			System.out.println("<Error> invalid format");
+			return false;
+		}
+		
 		
 		if (field == 1) {
 			receivePacket.getData()[0] = (byte) 255;
 			receivePacket.getData()[1] = (byte) 255;
 		} else if (field == 2) {
-			for (int i = 2; i < len; i++) {
-				if (receivePacket.getData()[i] == 0) break;
+			for (int i = 2; i < first; i++) {
 				receivePacket.getData()[i] = (byte) 255;
 			}
 		} else if (field == 3) {
-			for (int i = 2; i < len; i++) {
-				if (receivePacket.getData()[i] == 0) {
-					receivePacket.getData()[i] = (byte) 255;
-					break;
-				}
-			}
+			receivePacket.getData()[first] = (byte) 255;
 		} else if (field == 4) {
-			for (int i = 2; i < len; i++) {
-				if (receivePacket.getData()[i] == 0) {
-					for (int j = i+1; j < len; j++) {
-						if (receivePacket.getData()[j] == 0) break;
-						receivePacket.getData()[j] = (byte) 255;
-					}
-					break;
-				}
+			for (int i = first + 1; i < second; i++) {
+				receivePacket.getData()[i] = (byte) 255;
 			}
 		} else if (field == 5) {
-			receivePacket.getData()[len - 1] = (byte) 255;
+			receivePacket.getData()[second] = (byte) 255;
 		} else {
 			System.out.println("simulateCorruptedRequest() unknown field");
 			return false;//unknown field
@@ -369,6 +397,10 @@ public class ErrorSimulatorThread implements Runnable {
 
 		sendPacket = new DatagramPacket(receivePacket.getData(), len, receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
+		
+		ErrorSimulatorHelper.print("Print Modified Packet:");
+		ErrorSimulatorHelper.printPacket(sendPacket);
+		
 		return true;//true means error packet replace normal packet
 	}
 	
@@ -407,6 +439,10 @@ public class ErrorSimulatorThread implements Runnable {
 
 		sendPacket = new DatagramPacket(receivePacket.getData(), len, receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
+		
+		ErrorSimulatorHelper.print("Print Modified Packet:");
+		ErrorSimulatorHelper.printPacket(sendPacket);
+		
 		return true;//true means error packet replace normal packet
 		
 	}
@@ -439,6 +475,10 @@ public class ErrorSimulatorThread implements Runnable {
 
 		sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(),	port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
+		
+		ErrorSimulatorHelper.print("Print Modified Packet:");
+		ErrorSimulatorHelper.printPacket(sendPacket);
+		
 		return true;//true means error packet replace normal packet
 		
 	}
@@ -461,6 +501,16 @@ public class ErrorSimulatorThread implements Runnable {
 		System.out.println("!");
 		
 		int len = receivePacket.getLength();
+		int first = -1;
+		int pos = 0;
+		
+		for (; pos < len; pos++) {
+			if (receivePacket.getData()[pos] == 0) {first = pos; break;}
+		}		
+		if ((first < 0) || (first != len - 1)) {
+			System.out.println("<Error> invalid format");
+			return false;
+		}
 		
 		if (field == 1) {
 			receivePacket.getData()[0] = (byte) 255;
@@ -469,12 +519,11 @@ public class ErrorSimulatorThread implements Runnable {
 			receivePacket.getData()[2] = (byte) 255;
 			receivePacket.getData()[3] = (byte) 255;
 		} else if (field == 3) {
-			for (int i = 4; i < len; i++) {
-				if (receivePacket.getData()[i] == 0) break;
+			for (int i = 4; i < first; i++) {
 				receivePacket.getData()[i] = (byte) 255;
 			}
 		} else if (field == 4) {
-			receivePacket.getData()[len - 1] = (byte) 255;
+			receivePacket.getData()[first] = (byte) 255;
 		} else {
 			System.out.println("simulateCorruptedError() can not generate error, unknown field");
 			return false;//unknown field
@@ -482,6 +531,10 @@ public class ErrorSimulatorThread implements Runnable {
 
 		sendPacket = new DatagramPacket(receivePacket.getData(), len, receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
+		
+		ErrorSimulatorHelper.print("Print Modified Packet:");
+		ErrorSimulatorHelper.printPacket(sendPacket);
+		
 		return true;//true means error packet replace normal packet
 		
 	}
@@ -525,47 +578,44 @@ public class ErrorSimulatorThread implements Runnable {
 		System.out.println("!");
 		
 		int len = receivePacket.getLength();
-		byte[] newData = new byte[len];
-		
 		int first = -1;
 		int second = -1;
-		int i = 2;
-		for (; i < len; i++) {
-			if (receivePacket.getData()[i] == 0) {
-				first = i;
-				break;
-			}
+		int pos = 2;
+		
+		for (; pos < len; pos++) {
+			if (receivePacket.getData()[pos] == 0) {first = pos; break;}
 		}
-		i++;
-		for (; i < len; i++) {
-			if (receivePacket.getData()[i] == 0) {
-				second = i;
-				break;
-			}
+		pos++;
+		for (; pos < len; pos++) {
+			if (receivePacket.getData()[pos] == 0) {second = pos; break;}
 		}
-		if (second < 0) {
+		
+		if ((second < 0) || (second != len - 1)) {
 			System.out.println("<Error> invalid format");
 			return false;
 		}
 		
+		byte[] newData = new byte[len];
 		
 		if (field == 1) {//Opcode",
 			System.arraycopy(receivePacket.getData(), 2, newData, 0, len - 2);
 			len = len - 2;
 		} else if (field == 2) {//File Name",
-			System.arraycopy(receivePacket.getData(), 0, newData, 0, 2);
-			int lenFileName = second - first - 1;
-			System.arraycopy(receivePacket.getData(), first+1, newData, 2, len - lenFileName - 2);
+			System.arraycopy(receivePacket.getData(), 0, newData, 0, 2);//copy until just before fielname
+			int lenFileName = first - 2;//start at 2, end at (first -1)
+			System.arraycopy(receivePacket.getData(), first, newData, 2, len - lenFileName - 2);
 			len = len - lenFileName;
 		} else if (field == 3) {//Null byte 1 {0}",
-			System.arraycopy(receivePacket.getData(), 0, newData, 0, first);
-			System.arraycopy(receivePacket.getData(), first+1, newData, first, len - first - 1);
+			System.arraycopy(receivePacket.getData(), 0, newData, 0, first);//copy until just before first
+			System.arraycopy(receivePacket.getData(), first+1, newData, first, len - first - 1);//just after first -> end
 			len = len - 1;
 		} else if (field == 4) {//Mode",
-			System.arraycopy(receivePacket.getData(), 0, newData, 0, second);
-			System.arraycopy(receivePacket.getData(), second+1, newData, second, len - second - 1);
-			len = len - 1;
+			System.arraycopy(receivePacket.getData(), 0, newData, 0, first + 1);//copy until just before mode
+			newData[first + 1] = 0;//this is second null byte
+			int lenMode = second - first - 1;
+			len = len - lenMode;
 		} else if (field == 5) {
+			System.arraycopy(receivePacket.getData(), 0, newData, 0, len-1);
 			len--;
 		} else {
 			System.out.println("<Error> unknown field");
@@ -574,6 +624,10 @@ public class ErrorSimulatorThread implements Runnable {
 
 		sendPacket = new DatagramPacket(newData, len, receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
+		
+		ErrorSimulatorHelper.print("Print Modified Packet:");
+		ErrorSimulatorHelper.printPacket(sendPacket);
+		
 		return true;//true means error packet replace normal packet
 	}
 	
@@ -614,6 +668,10 @@ public class ErrorSimulatorThread implements Runnable {
 
 		sendPacket = new DatagramPacket(newData, len, receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
+		
+		ErrorSimulatorHelper.print("Print Modified Packet:");
+		ErrorSimulatorHelper.printPacket(sendPacket);
+		
 		return true;//true means error packet replace normal packet
 		
 	}
@@ -649,6 +707,10 @@ public class ErrorSimulatorThread implements Runnable {
 		
 		sendPacket = new DatagramPacket(newData, len, receivePacket.getAddress(),	port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
+		
+		ErrorSimulatorHelper.print("Print Modified Packet:");
+		ErrorSimulatorHelper.printPacket(sendPacket);
+		
 		return true;//true means error packet replace normal packet
 		
 	}
@@ -671,20 +733,18 @@ public class ErrorSimulatorThread implements Runnable {
 		System.out.println("!");
 		
 		int len = receivePacket.getLength();
-		byte[] newData = new byte[len];
-		
 		int first = -1;
-		int i = 4;
-		for (; i < len; i++) {
-			if (receivePacket.getData()[i] == 0) {
-				first = i;
-				break;
-			}
-		}
-		if (first < 0) {
+		int pos = 0;
+		
+		for (; pos < len; pos++) {
+			if (receivePacket.getData()[pos] == 0) {first = pos; break;}
+		}		
+		if ((first < 0) || (first != len - 1)) {
 			System.out.println("<Error> invalid format");
 			return false;
 		}
+		
+		byte[] newData = new byte[len];
 		
 		if (field == 1) {//Opcode",
 			System.arraycopy(receivePacket.getData(), 2, newData, 0, len - 2);
@@ -699,7 +759,8 @@ public class ErrorSimulatorThread implements Runnable {
 			newData[4] = 0;
 			len = 5;
 		} else if (field == 4) {//Null byte 1 {0}",
-			len = len - 1;
+			System.arraycopy(receivePacket.getData(), 0, newData, 0, len-1);
+			len--;
 		}  else {
 			System.out.println("<Error> unknown field");
 			return false;//unknown field
@@ -707,6 +768,10 @@ public class ErrorSimulatorThread implements Runnable {
 
 		sendPacket = new DatagramPacket(newData, len, receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
+		
+		ErrorSimulatorHelper.print("Print Modified Packet:");
+		ErrorSimulatorHelper.printPacket(sendPacket);
+		
 		return true;//true means error packet replace normal packet
 		
 	}
