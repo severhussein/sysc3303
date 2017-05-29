@@ -351,34 +351,39 @@ public class ErrorSimulatorThread implements Runnable {
 		System.out.println("!");
 		
 		int len = receivePacket.getLength();
+		int first = -1;
+		int second = -1;
+		int pos = 2;
+		
+		for (; pos < len; pos++) {
+			if (receivePacket.getData()[pos] == 0) {first = pos; break;}
+		}
+		pos++;
+		for (; pos < len; pos++) {
+			if (receivePacket.getData()[pos] == 0) {second = pos; break;}
+		}
+		
+		if ((second < 0) || (second != len - 1)) {
+			System.out.println("<Error> invalid format");
+			return false;
+		}
+		
 		
 		if (field == 1) {
 			receivePacket.getData()[0] = (byte) 255;
 			receivePacket.getData()[1] = (byte) 255;
 		} else if (field == 2) {
-			for (int i = 2; i < len; i++) {
-				if (receivePacket.getData()[i] == 0) break;
+			for (int i = 2; i < first; i++) {
 				receivePacket.getData()[i] = (byte) 255;
 			}
 		} else if (field == 3) {
-			for (int i = 2; i < len; i++) {
-				if (receivePacket.getData()[i] == 0) {
-					receivePacket.getData()[i] = (byte) 255;
-					break;
-				}
-			}
+			receivePacket.getData()[first] = (byte) 255;
 		} else if (field == 4) {
-			for (int i = 2; i < len; i++) {
-				if (receivePacket.getData()[i] == 0) {
-					for (int j = i+1; j < len; j++) {
-						if (receivePacket.getData()[j] == 0) break;
-						receivePacket.getData()[j] = (byte) 255;
-					}
-					break;
-				}
+			for (int i = first + 1; i < second; i++) {
+				receivePacket.getData()[i] = (byte) 255;
 			}
 		} else if (field == 5) {
-			receivePacket.getData()[len - 1] = (byte) 255;
+			receivePacket.getData()[second] = (byte) 255;
 		} else {
 			System.out.println("simulateCorruptedRequest() unknown field");
 			return false;//unknown field
@@ -490,6 +495,16 @@ public class ErrorSimulatorThread implements Runnable {
 		System.out.println("!");
 		
 		int len = receivePacket.getLength();
+		int first = -1;
+		int pos = 0;
+		
+		for (; pos < len; pos++) {
+			if (receivePacket.getData()[pos] == 0) {first = pos; break;}
+		}		
+		if ((first < 0) || (first != len - 1)) {
+			System.out.println("<Error> invalid format");
+			return false;
+		}
 		
 		if (field == 1) {
 			receivePacket.getData()[0] = (byte) 255;
@@ -498,12 +513,11 @@ public class ErrorSimulatorThread implements Runnable {
 			receivePacket.getData()[2] = (byte) 255;
 			receivePacket.getData()[3] = (byte) 255;
 		} else if (field == 3) {
-			for (int i = 4; i < len; i++) {
-				if (receivePacket.getData()[i] == 0) break;
+			for (int i = 4; i < first; i++) {
 				receivePacket.getData()[i] = (byte) 255;
 			}
 		} else if (field == 4) {
-			receivePacket.getData()[len - 1] = (byte) 255;
+			receivePacket.getData()[first] = (byte) 255;
 		} else {
 			System.out.println("simulateCorruptedError() can not generate error, unknown field");
 			return false;//unknown field
@@ -558,29 +572,24 @@ public class ErrorSimulatorThread implements Runnable {
 		System.out.println("!");
 		
 		int len = receivePacket.getLength();
-		byte[] newData = new byte[len];
-		
 		int first = -1;
 		int second = -1;
-		int i = 2;
-		for (; i < len; i++) {
-			if (receivePacket.getData()[i] == 0) {
-				first = i;
-				break;
-			}
+		int pos = 2;
+		
+		for (; pos < len; pos++) {
+			if (receivePacket.getData()[pos] == 0) {first = pos; break;}
 		}
-		i++;
-		for (; i < len; i++) {
-			if (receivePacket.getData()[i] == 0) {
-				second = i;
-				break;
-			}
+		pos++;
+		for (; pos < len; pos++) {
+			if (receivePacket.getData()[pos] == 0) {second = pos; break;}
 		}
-		if (second < 0) {
+		
+		if ((second < 0) || (second != len - 1)) {
 			System.out.println("<Error> invalid format");
 			return false;
 		}
 		
+		byte[] newData = new byte[len];
 		
 		if (field == 1) {//Opcode",
 			System.arraycopy(receivePacket.getData(), 2, newData, 0, len - 2);
@@ -718,20 +727,18 @@ public class ErrorSimulatorThread implements Runnable {
 		System.out.println("!");
 		
 		int len = receivePacket.getLength();
-		byte[] newData = new byte[len];
-		
 		int first = -1;
-		int i = 4;
-		for (; i < len; i++) {
-			if (receivePacket.getData()[i] == 0) {
-				first = i;
-				break;
-			}
-		}
-		if (first < 0) {
+		int pos = 0;
+		
+		for (; pos < len; pos++) {
+			if (receivePacket.getData()[pos] == 0) {first = pos; break;}
+		}		
+		if ((first < 0) || (first != len - 1)) {
 			System.out.println("<Error> invalid format");
 			return false;
 		}
+		
+		byte[] newData = new byte[len];
 		
 		if (field == 1) {//Opcode",
 			System.arraycopy(receivePacket.getData(), 2, newData, 0, len - 2);
