@@ -29,7 +29,6 @@ public class ErrorSimulator {
 		//System.out.print("Received");
 		System.out.print("    |port "+ receivePacket.getPort());
 		System.out.print("    |Opcode "+ ""+receivePacket.getData()[0]+ receivePacket.getData()[1]);
-		//FIXME why is it always -1
 		System.out.println("    |BLK#"+ (-1));
 		//clean printing//Utils.tryPrintTftpPacket(receivePacket);
 		
@@ -99,14 +98,11 @@ public class ErrorSimulator {
 		            });
 		    userChoice[packetIndex] = getUserInput(1, 5);
 		    
-		    //should not ask for block number on RRQ AND WRQ
-		    if(userChoice[packetIndex]!=1 && userChoice[packetIndex]!=2){
-		    	printOptions(new String[]{
-						"<Choose the Block #>",
-						"(Any Integer >= 0)"
-		            	});
-		    	userChoice[blockIndex] = getUserInput(0);
-		    }
+			printOptions(new String[]{
+					"<Choose the Block #>",
+					"(Any Integer >= 0)"
+		            });
+		    userChoice[blockIndex] = getUserInput(0);
 		    
 	    }
 	    
@@ -124,11 +120,12 @@ public class ErrorSimulator {
 	    	
 			printOptions(new String[]{
 					"<Choose Problem Type>",
+					"0     Remove Field",
 		            "1     Corruptted Field",
 		            "2     Incorrect Size",
 		            "3     Invalid TID"
 		            });
-		    userChoice[problemIndex] = getUserInput(1, 3);
+		    userChoice[problemIndex] = getUserInput(0, 3);
 		    
 			printOptions(new String[]{
 					"<Choose Packet> (Error in what type of packet?)",
@@ -148,7 +145,7 @@ public class ErrorSimulator {
 			    userChoice[sizeIndex] = getUserInput(0);
 		    }
 		    
-		    else if (userChoice[problemIndex] == 1) {
+		    else if (userChoice[problemIndex] == 1 || userChoice[problemIndex] == 0) {
 			    if (userChoice[packetIndex] == 1 || userChoice[packetIndex] == 2) {
 					printOptions(new String[]{
 							"<Choose Field>",
@@ -186,14 +183,12 @@ public class ErrorSimulator {
 			    }
 		    }
 
-		    //should not ask for block number on RRQ AND WRQ
-		    if(userChoice[packetIndex]!=1 && userChoice[packetIndex]!=2){
-		    	printOptions(new String[]{
-		    			"<Choose the Block #>",
-		    			"(Any Integer >= 0)"
-		            	});
-		    	userChoice[blockIndex] = getUserInput(0);
-		    }
+		    
+			printOptions(new String[]{
+					"<Choose the Block #>",
+					"(Any Integer >= 0)"
+		            });
+		    userChoice[blockIndex] = getUserInput(0);
 		    
 	    }
 	    

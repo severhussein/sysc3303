@@ -1,5 +1,6 @@
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.util.Arrays;
 
 /**
  * IntHostManager for multi threads need ErrorSimulatorHelper.java
@@ -20,16 +21,13 @@ public class ErrorSimulatorThread implements Runnable {
 
 	public void run() {
 		
-		this.serverPort = 69;
+		this.serverPort = -1;
 		this.clientPort = receivePacket.getPort();
-		socket = ErrorSimulatorHelper.newSocket();
-
-		boolean serverPortUpdated = false;
-				
+		this.socket = ErrorSimulatorHelper.newSocket();
 		
 		//////////////////"Sending to server..."//////////////////////////////////////
 		
-		if (!simulateError(serverPort)) {
+		if (!simulateError(ErrorSimulator.DEFAULT_SERVER_PORT)) {
 			System.out.print("Sending to server...");
 			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), ErrorSimulator.DEFAULT_SERVER_PORT);
 			ErrorSimulatorHelper.send(socket, sendPacket);
@@ -43,7 +41,7 @@ public class ErrorSimulatorThread implements Runnable {
 		//////////////////"Sending to server..."//////////////////////////////////////
 		
 		
-		
+		boolean serverPortUpdated = false;
 		int receivedPort = -1;
 		
 		while (true) {
@@ -168,11 +166,7 @@ public class ErrorSimulatorThread implements Runnable {
 		    	if (receivePacket.getData()[2] != intToByte(userChoice[blockIndex])[0]) return false;
 		    	if (receivePacket.getData()[3] != intToByte(userChoice[blockIndex])[1]) return false;
 	    	}
-	    	
-					//"<Choose Problem Type>",
-		            //"1     Corruptted Field",
-		            //"2     Incorrect Size",
-		            //"3     Invalid TID"
+
 	    	
 		    if (userChoice[problemIndex] == 3) {//"3     Invalid TID"
 		    	return simulateIncorrectTID(port);
@@ -183,56 +177,29 @@ public class ErrorSimulatorThread implements Runnable {
 		    if (userChoice[problemIndex] == 1) {//"1     Corruptted Field",
 			    if (userChoice[packetIndex] == 1 || userChoice[packetIndex] == 2) {
 			    	return simulateCorruptedRequest(port, userChoice[fieldIndex]);
-			    	/*
-					printOptions(new String[]{
-							"<Choose Field>",
-				            "1     Opcode",
-				            "2     File Name",
-				            "3     Null byte 1 {0}",
-				            "4     Mode",
-				            "5     Null byte 2 {0}"
-				            });
-				    userChoice[fieldIndex] = getUserInput(1, 5);
-				    */
 			    } else if (userChoice[packetIndex] == 3) {
 			    	return simulateCorruptedData(port, userChoice[fieldIndex]);
-			    	/*
-					printOptions(new String[]{
-							"<Choose Field>",//Opcode |   Block #  |   Data
-				            "1     Opcode",
-				            "2     Block #",
-				            "3     Data"
-				            });
-				    userChoice[fieldIndex] = getUserInput(1, 3);
-				    */
 			    } else if (userChoice[packetIndex] == 4) {
 			    	return simulateCorruptedAck(port, userChoice[fieldIndex]);
-			    	
-			    	/*
-					printOptions(new String[]{
-							"<Choose Field>",//| Opcode |   Block #  |
-				            "1     Opcode",
-				            "2     Block #"
-				            });
-				    userChoice[fieldIndex] = getUserInput(1, 2);
-				    */
 			    } else if (userChoice[packetIndex] == 5) {
 			    	return simulateCorruptedError(port, userChoice[fieldIndex]);
-			    	/*
-					printOptions(new String[]{
-							"<Choose Field>",
-				            "1     Opcode",
-				            "2     ErrorCode",
-				            "3     ErrMsg",
-				            "4     Null byte {0}"
-				            });
-				    userChoice[fieldIndex] = getUserInput(1, 4);
-				    */
+			    }
+		    }
+		    if (userChoice[problemIndex] == 0) {//"1     Remove Field",
+			    if (userChoice[packetIndex] == 1 || userChoice[packetIndex] == 2) {
+			    	return simulateRemoveRequest(port, userChoice[fieldIndex]);
+			    } else if (userChoice[packetIndex] == 3) {
+			    	return simulateRemoveData(port, userChoice[fieldIndex]);
+			    } else if (userChoice[packetIndex] == 4) {
+			    	return simulateRemoveAck(port, userChoice[fieldIndex]);
+			    } else if (userChoice[packetIndex] == 5) {
+			    	return simulateRemoveError(port, userChoice[fieldIndex]);
 			    }
 		    }
 	    }
 		return false;
 	}
+		
 	
 	public byte[] intToByte(int value) {
 	    return new byte[] {
@@ -318,6 +285,33 @@ public class ErrorSimulatorThread implements Runnable {
 		//System.out.println("    |BLK#"+ getBlockNum());
 		return false;//false means error packet do not replace normal packet
 	}
+	
+	
+	
+	
+	public boolean simulateIncorrectSize(int port, int errorSize) {
+		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+		System.out.println("!");
+		System.out.println("<simulateIncorrectSize>");
+		System.out.println("!");
+		
+		int len = receivePacket.getLength();
+		if (errorSize > len) {
+			byte[] newData = new byte[errorSize];
+			Arrays.fill(newData, (byte) 255);
+			System.arraycopy(receivePacket.getData(), 0, newData, 0, len);
+		}
+		
+		sendPacket = new DatagramPacket(receivePacket.getData(), errorSize , receivePacket.getAddress(), port);
+		ErrorSimulatorHelper.send(socket, sendPacket);
+		return true;//true means error packet replace normal packet
+		
+	}
+	
+	
+	
+	
+	
 	
 	
 	
@@ -492,18 +486,239 @@ public class ErrorSimulatorThread implements Runnable {
 		
 	}
 	
-	public boolean simulateIncorrectSize(int port, int errorSize) {
+	
+	
+	
+	
+	
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	
+	/*
+	printOptions(new String[]{
+			"<Choose Field>",
+            "1     Opcode",
+            "2     File Name",
+            "3     Null byte 1 {0}",
+            "4     Mode",
+            "5     Null byte 2 {0}"
+            });
+    userChoice[fieldIndex] = getUserInput(1, 5);
+    */
+	public boolean simulateRemoveRequest(int port, int field) {
 		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
 		
 		System.out.println("!");
-		System.out.println("<simulateIncorrectSize>");
+		System.out.println("<simulateRemoveRequest>");
 		System.out.println("!");
 		
-		sendPacket = new DatagramPacket(receivePacket.getData(), errorSize , receivePacket.getAddress(), port);
+		int len = receivePacket.getLength();
+		byte[] newData = new byte[len];
+		
+		int first = -1;
+		int second = -1;
+		int i = 2;
+		for (; i < len; i++) {
+			if (receivePacket.getData()[i] == 0) {
+				first = i;
+				break;
+			}
+		}
+		i++;
+		for (; i < len; i++) {
+			if (receivePacket.getData()[i] == 0) {
+				second = i;
+				break;
+			}
+		}
+		if (second < 0) {
+			System.out.println("<Error> invalid format");
+			return false;
+		}
+		
+		
+		if (field == 1) {//Opcode",
+			System.arraycopy(receivePacket.getData(), 2, newData, 0, len - 2);
+			len = len - 2;
+		} else if (field == 2) {//File Name",
+			System.arraycopy(receivePacket.getData(), 0, newData, 0, 2);
+			int lenFileName = second - first - 1;
+			System.arraycopy(receivePacket.getData(), first+1, newData, 2, len - lenFileName - 2);
+			len = len - lenFileName;
+		} else if (field == 3) {//Null byte 1 {0}",
+			System.arraycopy(receivePacket.getData(), 0, newData, 0, first);
+			System.arraycopy(receivePacket.getData(), first+1, newData, first, len - first - 1);
+			len = len - 1;
+		} else if (field == 4) {//Mode",
+			System.arraycopy(receivePacket.getData(), 0, newData, 0, second);
+			System.arraycopy(receivePacket.getData(), second+1, newData, second, len - second - 1);
+			len = len - 1;
+		} else if (field == 5) {
+			len--;
+		} else {
+			System.out.println("<Error> unknown field");
+			return false;//unknown field
+		}
+
+		sendPacket = new DatagramPacket(newData, len, receivePacket.getAddress(), port);
+		ErrorSimulatorHelper.send(socket, sendPacket);
+		return true;//true means error packet replace normal packet
+	}
+	
+	/*
+	printOptions(new String[]{
+			"<Choose Field>",//Opcode |   Block #  |   Data
+            "1     Opcode",
+            "2     Block #",
+            "3     Data"
+            });
+    userChoice[fieldIndex] = getUserInput(1, 3);
+    */
+	public boolean simulateRemoveData(int port, int field) {
+		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+		
+		System.out.println("!");
+		System.out.println("<simulateRemoveData>");
+		System.out.println("!");
+		
+		int len = receivePacket.getLength();
+		byte[] newData = new byte[len];
+		
+		if (field == 1) {
+			System.arraycopy(receivePacket.getData(), 2, newData, 0, len - 2);
+			len = len - 2;
+		} else if (field == 2) {
+			newData[0] = receivePacket.getData()[0];
+			newData[1] = receivePacket.getData()[1];
+			System.arraycopy(receivePacket.getData(), 4, newData, 2, len - 4);
+			len = len - 2;
+		} else if (field == 3) {
+			System.arraycopy(receivePacket.getData(), 0, newData, 0, 4);
+			len = 4;
+		} else {
+			System.out.println("simulateRemoveData:  unknown field");
+			return false;//unknown field
+		}
+
+		sendPacket = new DatagramPacket(newData, len, receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
 		return true;//true means error packet replace normal packet
 		
 	}
+	
+	/*
+	printOptions(new String[]{
+			"<Choose Field>",//| Opcode |   Block #  |
+            "1     Opcode",
+            "2     Block #"
+            });
+    userChoice[fieldIndex] = getUserInput(1, 2);
+    */
+	public boolean simulateRemoveAck(int port, int field) {
+		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+		
+		System.out.println("!");
+		System.out.println("<simulateRemoveAck>");
+		System.out.println("!");
+		
+		int len = 2;
+		byte[] newData = new byte[len];
+		
+		if (field == 1) {
+			newData[0] = receivePacket.getData()[2];
+			newData[1] = receivePacket.getData()[3];
+		} else if (field == 2) {
+			newData[0] = receivePacket.getData()[0];
+			newData[1] = receivePacket.getData()[1];
+		} else {
+			System.out.println("simulateRemoveAck() unknown field");
+			return false;//unknown field
+		}
+		
+		sendPacket = new DatagramPacket(newData, len, receivePacket.getAddress(),	port);
+		ErrorSimulatorHelper.send(socket, sendPacket);
+		return true;//true means error packet replace normal packet
+		
+	}
+	
+	/*
+	printOptions(new String[]{
+			"<Choose Field>",
+            "1     Opcode",
+            "2     ErrorCode",
+            "3     ErrMsg",
+            "4     Null byte {0}"
+            });
+    userChoice[fieldIndex] = getUserInput(1, 4);
+    */
+	public boolean simulateRemoveError(int port, int field) {
+		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+
+		System.out.println("!");
+		System.out.println("<simulateRemoveError>");
+		System.out.println("!");
+		
+		int len = receivePacket.getLength();
+		byte[] newData = new byte[len];
+		
+		int first = -1;
+		int i = 4;
+		for (; i < len; i++) {
+			if (receivePacket.getData()[i] == 0) {
+				first = i;
+				break;
+			}
+		}
+		if (first < 0) {
+			System.out.println("<Error> invalid format");
+			return false;
+		}
+		
+		if (field == 1) {//Opcode",
+			System.arraycopy(receivePacket.getData(), 2, newData, 0, len - 2);
+			len = len - 2;
+		} else if (field == 2) {//ErrorCode
+			newData[0] = receivePacket.getData()[0];
+			newData[1] = receivePacket.getData()[1];
+			System.arraycopy(receivePacket.getData(), 4, newData, 2, len - 4);
+			len = len - 2;
+		} else if (field == 3) {//ErrMsg",
+			System.arraycopy(receivePacket.getData(), 0, newData, 0, 4);
+			newData[4] = 0;
+			len = 5;
+		} else if (field == 4) {//Null byte 1 {0}",
+			len = len - 1;
+		}  else {
+			System.out.println("<Error> unknown field");
+			return false;//unknown field
+		}
+
+		sendPacket = new DatagramPacket(newData, len, receivePacket.getAddress(), port);
+		ErrorSimulatorHelper.send(socket, sendPacket);
+		return true;//true means error packet replace normal packet
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+
 }
 
 /*
