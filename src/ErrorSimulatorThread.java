@@ -208,13 +208,16 @@ public class ErrorSimulatorThread implements Runnable {
 	            (byte)value};
 	}
 	
-	
+	  public int unsignedToBytes(byte b) {
+		    return b & 0xFF;
+		  }
+	  
 	public int getBlockNum(){
 		//invalid opcode
     	if (receivePacket.getData()[0] != (byte) 0) return -1;
     	//check block number
     	if (receivePacket.getData()[1] == (byte)3 || receivePacket.getData()[1] == (byte)4) {
-	    	return (int) (receivePacket.getData()[2] * Math.pow(2, 8) + receivePacket.getData()[3]);
+	    	return ((int) Math.pow(2, 8))*unsignedToBytes(receivePacket.getData()[2]) + unsignedToBytes(receivePacket.getData()[3]);
     	}
     	return -1;
 	}
