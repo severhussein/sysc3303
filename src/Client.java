@@ -237,7 +237,7 @@ public class Client {
 			} else {
 				// not the special ack? what going on? terminate by sending
 				// error 04
-				trySend(new TftpErrorPacket(4, "not ack 0").generateDatagram(receivePacket.getAddress(),
+				trySend(new TftpErrorPacket(4, "Not ACK 0").generateDatagram(receivePacket.getAddress(),
 						receivePacket.getPort()));
 				return;
 			}
@@ -252,7 +252,7 @@ public class Client {
 		}
 		else {
 			// not even an ack!
-			trySend(new TftpErrorPacket(4, "not tftp ack").generateDatagram(receivePacket.getAddress(),
+			trySend(new TftpErrorPacket(4, "Not TFTP ACK").generateDatagram(receivePacket.getAddress(),
 					receivePacket.getPort()));
 			return;
 		}
@@ -332,7 +332,7 @@ public class Client {
 				recvTftpPacket = TftpPacket.decodeTftpPacket(receivePacket);
 			} catch (IllegalArgumentException ile) {
 				// not a TFTP packet, try again
-				trySend(new TftpErrorPacket(4, "not tftp").generateDatagram(receivePacket.getAddress(),
+				trySend(new TftpErrorPacket(4, ile.getMessage()).generateDatagram(receivePacket.getAddress(),
 						receivePacket.getPort()));
 				retries--;
 				return;
@@ -366,7 +366,7 @@ public class Client {
 				//should not return on error type 5 though
 			}
 			else {
-				trySend(new TftpErrorPacket(4, "not ack").generateDatagram(destinationAddress, destinationPort));
+				trySend(new TftpErrorPacket(4, "Not TFTP ACK").generateDatagram(destinationAddress, destinationPort));
 			}
 
 		} while (!finished);
@@ -452,7 +452,7 @@ public class Client {
 				// any part of the format is incorrect (this includes opcode,
 				// missing filename/mode in request.. etc)
 				// is indeed wrong
-				trySend(new TftpErrorPacket(4, "not tftp").generateDatagram(receivePacket.getAddress(),
+				trySend(new TftpErrorPacket(4, ile.getMessage()).generateDatagram(receivePacket.getAddress(),
 						receivePacket.getPort()));
 				retries--;
 								try {

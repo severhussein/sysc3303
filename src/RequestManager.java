@@ -206,7 +206,7 @@ public class RequestManager implements Runnable {
 					} catch (IllegalArgumentException ile) {
 						// not a TFTP packet, notifier sender (which may or may
 						// not be a TFTP client) and try receive again
-						trySend(new TftpErrorPacket(4, "not tftp").generateDatagram(received.getAddress(),
+						trySend(new TftpErrorPacket(4, ile.getMessage()).generateDatagram(received.getAddress(),
 								received.getPort()));
 						socket.close();
 						return;
@@ -245,7 +245,7 @@ public class RequestManager implements Runnable {
 							finished = true;
 					} else {
 						// not ACK, nor ERROR. this is not expected in TFTP file transfer 
-						trySend(new TftpErrorPacket(4, "not ack").generateDatagram(clientAddress, clientPort));
+						trySend(new TftpErrorPacket(4, "Not TFTP ACK").generateDatagram(clientAddress, clientPort));
 						retries--;
 					}
 				} while (!finished);
@@ -337,7 +337,7 @@ public class RequestManager implements Runnable {
 						// thrown then this is a TFTP packet
 						recvTftpPacket = TftpPacket.decodeTftpPacket(received);
 					} catch (IllegalArgumentException ile) {
-						trySend(new TftpErrorPacket(4, "not tftp").generateDatagram(received.getAddress(),
+						trySend(new TftpErrorPacket(4, ile.getMessage()).generateDatagram(received.getAddress(),
 								received.getPort()));
 						socket.close();
 						return;
@@ -418,7 +418,7 @@ public class RequestManager implements Runnable {
 					} else {
 						// we got TFTP packet but it is either DATA nor ERROR.
 						// something is indeed wrong
-						trySend(new TftpErrorPacket(4, "PACKET OPCODE IS NOT DATA").generateDatagram(clientAddress,
+						trySend(new TftpErrorPacket(4, "Not TFTP DATA").generateDatagram(clientAddress,
 								clientPort));
 						serve = false;
 					}
