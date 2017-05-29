@@ -258,12 +258,17 @@ public class ErrorSimulatorThread implements Runnable {
 	}
 	
 	public boolean simulateLost(int port, int value) {
-		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+		int valueIndex = 2;//need change accordingly to class field!!
+		if (userChoice[valueIndex]<=0) {
+			userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+		} else {
+			userChoice[valueIndex] = userChoice[valueIndex] - 1;
+		}
 		System.out.println("!");
 		System.out.println("<simulateLost>");
 		System.out.println("!");
 		
-		if (value<0) value = 1;
+		/*
 		for (int i=0; i<value; i++) {
 
 			System.out.println("Last recieved ignored, recieving new packet...");
@@ -272,7 +277,8 @@ public class ErrorSimulatorThread implements Runnable {
 			System.out.println("Recieved");
 			
 		}
-		return false;//false means error packet do not replace normal packet
+		*/
+		return true;//
 	}
 
 	
