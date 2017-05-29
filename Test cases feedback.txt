@@ -31,7 +31,7 @@ Remove Error (Write), field 1,2,3...
 Test Case, remove data field from DATA packet
 Read request, it works for the first try, then leave the client to an unstable state
 
-
+//should be fixed in 4ee4e783282b748e8952571772b110c16d07d373 or later
 Test Case, duplicate DATA packet, option 2 1 1 3 3
 Result1: read request, file not complete, client shows block# mismatch
 Result2: write request, file not complete, server throws exception
