@@ -310,7 +310,10 @@ public class Client {
 						System.out.println("Timed out on receiving ACK, resend DATA\n");
 					trySend(sendPacket, "");
 					retries--;
-
+					if (retries == 0) {
+						System.out.println("TIMED OUT\n");
+						return;
+					}
 				} catch (IOException e) {
 					System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
 				}
@@ -323,11 +326,6 @@ public class Client {
 						receivePacket.getPort()));
 				retries--;
 				continue;
-			}
-
-			if (retries == 0) {
-				System.out.println("TIMED OUT\n");
-				break;
 			}
 
 			try {
@@ -418,14 +416,19 @@ public class Client {
 						System.out.println("Timed out on receiving DATA, resend ACK/RRQ\n");
 					trySend(sendPacket, "");
 					retries--;
+					if (retries == 0) {
+						System.out.println("TIMED OUT\n");
+						try {
+							out.close();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						return;
+					}
 				} catch (IOException e) {
 					System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
 				}
-			}
-
-			if (retries == 0) {
-				System.out.println("TIMED OUT\n");
-				break;
 			}
 
 			try {
@@ -463,7 +466,7 @@ public class Client {
 				} else if (tid != receivePacket.getPort()) {
 					// send Error Code 5 Unknown transfer ID to terminate this
 					// connection
-					trySend(new TftpErrorPacket(5, "").generateDatagram(receivePacket.getAddress(),
+					trySend(new TftpErrorPacket(5, "Wrong Transfer ID").generateDatagram(receivePacket.getAddress(),
 							receivePacket.getPort()));
 					retries--;
 					continue;
