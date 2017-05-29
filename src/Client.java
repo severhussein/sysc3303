@@ -207,10 +207,10 @@ public class Client {
 			}
 		}
 
-		if (verbose) {
-			System.out.println("Expecting special Ack block 0:");
-			Utils.tryPrintTftpPacket(receivePacket);
-		}
+//		if (verbose) {
+//			System.out.println("Expecting special Ack block 0:");
+//			Utils.tryPrintTftpPacket(receivePacket);
+//		}
 
 		try {
 			recvTftpPacket = TftpPacket.decodeTftpPacket(receivePacket);
@@ -278,6 +278,7 @@ public class Client {
 					System.out.println("ERROR READING FILE\n" + e.getMessage());
 					break;
 				}
+				acked = false;
 			}
 			if (byteRead < CommonConstants.DATA_BLOCK_SZ) {
 				// read returns less than 512, that's the end of file
@@ -320,7 +321,6 @@ public class Client {
 				// error 5
 				trySend(new TftpErrorPacket(5, "Wrong Transfer ID").generateDatagram(receivePacket.getAddress(),
 						receivePacket.getPort()));
-				acked = false;
 				retries--;
 				continue;
 			}
@@ -350,7 +350,7 @@ public class Client {
 						// reached 65535, wrap to 0
 						blockNumber = 0;
 					}
-					acked = true;
+					acked = true;					
 					retries = CommonConstants.TFTP_MAX_NUM_RETRIES; // reset
 				}
 				else {

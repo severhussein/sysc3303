@@ -348,6 +348,7 @@ public class RequestManager implements Runnable {
 							// correct block, reset retry
 							retries = CommonConstants.TFTP_MAX_NUM_RETRIES;
 							try {
+								System.out.println("!!! WRITING DATA BLOCK #" + dataPacket.getBlockNumber());
 								bos.write(dataPacket.getData());
 							} catch (IOException e) {
 								// this doesn't work, so using a hack
@@ -368,10 +369,10 @@ public class RequestManager implements Runnable {
 								serve = false;
 							}
 
-							//write success, send ACK
+							// write success, send ACK
 							send = new TftpAckPacket(blockNumber).generateDatagram(clientAddress, clientPort);
-							if(verbose)
-								System.out.println("Sending Ack:");
+							// if(verbose)
+							// System.out.println("Sending Ack:");
 							trySend(send, "ERROR SENDING ACK\n");
 							blockNumber++;
 							if (blockNumber > CommonConstants.TFTP_MAX_BLOCK_NUMBER) {
@@ -387,7 +388,8 @@ public class RequestManager implements Runnable {
 								try {
 									bos.flush();
 								} catch (IOException e) {
-									//hack, what's the proper way of doing this?
+									// hack, what's the proper way of doing
+									// this?
 									if (e.getMessage().equals("There is not enough space on the disk")) {
 										trySend(new TftpErrorPacket(3, "Disk full, can't write to file")
 												.generateDatagram(clientAddress, clientPort));
@@ -401,6 +403,10 @@ public class RequestManager implements Runnable {
 								}
 								serve = false;
 							}
+						} else if (dataPacket.getBlockNumber() == blockNumber - 1) {
+							System.out.println("Received a duplicate/delayed packet, discard.");
+						} else {
+							System.out.println("Received a out of order packet, discard.");
 						}
 					} else if (recvTftpPacket.getType() == TftpType.ERROR) {
 						TftpErrorPacket errorPacket = (TftpErrorPacket) recvTftpPacket;
