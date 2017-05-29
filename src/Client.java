@@ -352,15 +352,11 @@ public class Client {
 					}
 					acked = true;
 					retries = CommonConstants.TFTP_MAX_NUM_RETRIES; // reset
-				} // else if (ackPacket.getBlockNumber() > blockNumber)
-					// {
-					// is this possible?
-					// }
+				}
 				else {
-					finished = true;
-					trySend(new TftpErrorPacket(4, "PACKET BLOCK # MISMATCH").generateDatagram(destinationAddress,
-							tid));
-					retries--;
+					// received an ACK with incorrect block number
+					// maybe this one was delayed/lost/duplicated
+					// ignore and let try logic handle it
 				}
 			}else if(recvTftpPacket.getType()== TftpType.ERROR )//and not error code 5
 			{
@@ -465,9 +461,6 @@ public class Client {
 					// should we record the IP?
 					tid = receivePacket.getPort();
 				} else if (tid != receivePacket.getPort()) {
-					// TID changed! What happened? some packet lost in network?
-					// send from someone else?
-
 					// send Error Code 5 Unknown transfer ID to terminate this
 					// connection
 					trySend(new TftpErrorPacket(5, "").generateDatagram(receivePacket.getAddress(),
@@ -504,10 +497,6 @@ public class Client {
 							} catch (IOException e1) {
 								e1.printStackTrace();
 							}
-							// NEED TO CLOSE SOCKET...??
-							//sendReceiveSocket.close(); 
-							//dont think i can do
-							// this, on new transfer will have no socket
 							return;
 						} else {
 							// if io error not due to space, send the message as
@@ -549,10 +538,7 @@ public class Client {
 								} catch (IOException e1) {
 									e1.printStackTrace();
 								}
-								// NEED TO CLOSE SOCKET...???
-								//sendReceiveSocket.close(); 
-								//dont think i can do
-								// this, on new transfer will have no socket
+
 								return;
 
 							} else {
@@ -564,14 +550,8 @@ public class Client {
 						endOfFile = true;
 					}
 				}
-				/*
-				 * // else if (dataPacket.getBlockNumber() == blockNumber - 1) {
-				 * // got same DATA again, previous one lost in transmission? //
-				 * sendPacket = new TftpAckPacket(blockNumber).generateDatagram(
-				 * destinationAddress, tid); // trySend(sendPacket,
-				 * "ERROR RESENDING ACK");
-				 */
 
+				//TODO: SHift the order to improve readability
 				else if (dataPacket.getDataLength() > CommonConstants.DATA_BLOCK_SZ) {
 					// WHY IS THIS COMMENTED OUT?
 
@@ -583,11 +563,9 @@ public class Client {
 					// size..").generateDatagram(clientAddress,
 					// clientPort), "");
 				} else {
-					// if we are here then the block number is really off
-					// I guess we should terminate the connection now?
-					trySend(new TftpErrorPacket(4, "PACKET BLOCK # MISMATCH").generateDatagram(destinationAddress,
-							tid));
-					endOfFile = true;
+					// received a DATA with incorrect block number
+					// maybe this one was delayed/lost/duplicated
+					// ignore and let try logic handle it
 				}
 			} else if (recvTftpPacket.getType() == TftpType.ERROR) {
 				TftpErrorPacket errorPacket = (TftpErrorPacket) recvTftpPacket;
