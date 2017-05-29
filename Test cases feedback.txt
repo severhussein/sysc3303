@@ -1,0 +1,29 @@
+Duplicate  (with repeat value N)
+when (1.RRQ 3.DATA in RRQ 3.ACK in RRQ), (1.WRQ 3.DATA in WRQ 3.ACK in WRQ), ERROR to server, ERROR to client
+Delayed  (with time value)
+when (1.RRQ 3.DATA in RRQ 3.ACK in RRQ), (1.WRQ 3.DATA in WRQ 3.ACK in WRQ), ERROR to server, ERROR to client
+Lost (with repeat value N) 
+when (1.RRQ 3.DATA in RRQ 3.ACK in RRQ), (1.WRQ 3.DATA in WRQ 3.ACK in WRQ), ERROR to server, ERROR to client
+
+Incorrect TID 
+when (1.RRQ 3.DATA in RRQ 3.ACK in RRQ), (1.WRQ 3.DATA in WRQ 3.ACK in WRQ), ERROR to server, ERROR to client
+
+Incorrect Size (> packet len), (< packet len) 
+when (1.RRQ 3.DATA in RRQ 3.ACK in RRQ), (1.WRQ 3.DATA in WRQ 3.ACK in WRQ), ERROR to server, ERROR to client
+
+Corrupt Request (Write), field 1,2,3...
+Corrupt Data (Write), field 1,2,3...
+Corrupt Ack (Write), field 1,2,3...
+Corrupt Error (Write), field 1,2,3...
+
+Remove Request (Write), field 1,2,3...
+Remove Data (Write), field 1,2,3...
+Remove Ack (Write), field 1,2,3...
+Remove Error (Write), field 1,2,3...
+
+//example:
+//TID not working, an 0KB data was made, transfer wont complete
+//option 13333
+//possible reason
+//"Print log"
+
