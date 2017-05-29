@@ -88,4 +88,16 @@ public class CommonConstants {
 	//let's make it 5s for now so that it is easier to test
 	//in real life this is probably tooo long
 	public static final int SOCKET_TIMEOUT_MS = 5000;
+	
+	/**
+	 * If received packet's block number is behind up to this number, treat it as delay.
+	 * Else send error back to sender
+	 */
+	public static final int TFTP_BLOCK_MISMATCH_THRESHOLD = 2;
+	
+	
+	/**
+	 * A large enough size for receiving the error packet as well
+	 */
+	public static final int TFTP_RECEIVE_BUFFER_SIZE = 1000;
 }
