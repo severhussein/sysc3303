@@ -21,7 +21,7 @@ public class ErrorSimulatorThread implements Runnable {
 
 	public void run() {
 		
-		this.serverPort = 69;
+		this.serverPort = -1;
 		this.clientPort = receivePacket.getPort();
 		this.socket = ErrorSimulatorHelper.newSocket();
 		
@@ -553,18 +553,19 @@ public class ErrorSimulatorThread implements Runnable {
 			System.arraycopy(receivePacket.getData(), 2, newData, 0, len - 2);
 			len = len - 2;
 		} else if (field == 2) {//File Name",
-			System.arraycopy(receivePacket.getData(), 0, newData, 0, 2);
-			int lenFileName = second - first - 1;
-			System.arraycopy(receivePacket.getData(), first+1, newData, 2, len - lenFileName - 2);
+			System.arraycopy(receivePacket.getData(), 0, newData, 0, 2);//copy until just before fielname
+			int lenFileName = first - 2;//start at 2, end at (first -1)
+			System.arraycopy(receivePacket.getData(), first, newData, 2, len - lenFileName - 2);
 			len = len - lenFileName;
 		} else if (field == 3) {//Null byte 1 {0}",
-			System.arraycopy(receivePacket.getData(), 0, newData, 0, first);
-			System.arraycopy(receivePacket.getData(), first+1, newData, first, len - first - 1);
+			System.arraycopy(receivePacket.getData(), 0, newData, 0, first);//copy until just before first
+			System.arraycopy(receivePacket.getData(), first+1, newData, first, len - first - 1);//just after first -> end
 			len = len - 1;
 		} else if (field == 4) {//Mode",
-			System.arraycopy(receivePacket.getData(), 0, newData, 0, second);
-			System.arraycopy(receivePacket.getData(), second+1, newData, second, len - second - 1);
-			len = len - 1;
+			System.arraycopy(receivePacket.getData(), 0, newData, 0, first + 1);//copy until just before mode
+			newData[first + 1] = 0;//this is second null byte
+			int lenMode = second - first - 1;
+			len = len - lenMode;
 		} else if (field == 5) {
 			len--;
 		} else {
