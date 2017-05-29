@@ -424,6 +424,12 @@ public class Client {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
+				try {
+					out.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 						return;
 					}
 				} catch (IOException e) {
@@ -449,6 +455,12 @@ public class Client {
 				trySend(new TftpErrorPacket(4, "not tftp").generateDatagram(receivePacket.getAddress(),
 						receivePacket.getPort()));
 				retries--;
+								try {
+					out.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				return;
 			}
 
