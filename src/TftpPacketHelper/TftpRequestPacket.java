@@ -74,11 +74,11 @@ public abstract class TftpRequestPacket extends TftpPacket {
 			idx++;
 		}
 		if (idx+1 == len) {
-			throw new IllegalArgumentException("Reached end of packet after getting filename");
+			throw new IllegalArgumentException("Malformed TFTP Request Packet: Reached end of packet after getting filename");
 		}
 		filename = sb.toString();
 		if (filename.length() == 0) {
-			throw new IllegalArgumentException("Empty filename");
+			throw new IllegalArgumentException("Malformed TFTP Request Packet: Empty filename");
 		}
 		idx++;
 		sb = new StringBuilder();

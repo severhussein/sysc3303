@@ -39,8 +39,18 @@ public class TftpErrorPacket extends TftpPacket {
 			sb.append((char) payload[position]);
 			position++;
 		}
+		if (position+1 == position) {
+			throw new IllegalArgumentException("Malformed TFTP Error Packet: Reached end of packet after getting error code");
+		}
 		errorMsg = sb.toString();
-		position++;
+		if (position+1 == len) {
+			//System.out.println("Good packet");
+			return;
+		} else {
+			//System.out.println("Trailing bytes");
+			throw new IllegalArgumentException("Malformed TFTP Error Packet: Trailing bytes after error message");
+		}
+	
 	}
 
 	public final String getErrorMsg() {

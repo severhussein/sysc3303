@@ -21,10 +21,15 @@ public class Utils {
 	public static void tryPrintTftpPacket(DatagramPacket packet) {
 		TftpPacket tftpPacket = null;
 		boolean isTftp = true;
+		StringBuilder sb = new StringBuilder();
 
 		try {
 			tftpPacket = TftpPacket.decodeTftpPacket(packet);
-		} catch (Exception e) {
+		} catch (IllegalArgumentException iae) {
+			isTftp = false;
+			sb.append(iae.getMessage());
+		}
+		catch (Exception e) {
 			isTftp = false;
 		}
 		System.out.println("   This packet contains:");
@@ -34,7 +39,7 @@ public class Utils {
 				System.out.println("   TFTP " + tftpPacket+"\n");
 		} else {
 			//Utils.printDatagramContentWiresharkStyle(packet);
-			System.out.println("   and is not a TFTP pavcket ");
+			System.out.println(" Not proper TFTP packet" + sb + "\n");
 		}
 	}
 	

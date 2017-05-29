@@ -27,7 +27,7 @@ public class TftpAckPacket extends TftpPacket {
 		byte payload[] = packet.getData();
 
 		if (packet.getLength() != ACK_PACKET_SIZE) {
-			throw new IllegalArgumentException("Malformed ack packet");
+			throw new IllegalArgumentException("Malformed TFTP ACK packet, size is not " + ACK_PACKET_SIZE + " bytes");
 		}
 
 		blockNumber = (int) ((payload[2] & 0xff) << 8 | payload[3] & 0xff);
