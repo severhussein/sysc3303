@@ -226,41 +226,50 @@ public class ErrorSimulatorThread implements Runnable {
 	
 	public boolean simulateDuplicate(int port, int value) {
 		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+		System.out.println("!");
+		System.out.println("<simulateDuplicate>");
+		System.out.println("!");
 		
 		if (value<0) value = 1;
 		for (int i=0; i<value; i++) {
-			System.out.println("!");
-			System.out.println("<simulateDuplicate>");
-			System.out.println("!");
+			ErrorSimulatorHelper.print("Sending Duplicated Packet...");
+			
 			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), port);
 			ErrorSimulatorHelper.send(socket, sendPacket);
+			
+			ErrorSimulatorHelper.print("Sent, Print Duplicated Packet:");
+			ErrorSimulatorHelper.printPacket(sendPacket);
 		}
 		return false;//false means error packet do not replace normal packet
 	}
 	
 	public boolean simulateDelayed(int port, int value) {
 		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
-		
 		System.out.println("!");
 		System.out.println("<simulateDelayed>");
 		System.out.println("!");
+		
+		System.out.println("Waiting " + value + " ms delay");
         try {
             Thread.sleep(value);
         } catch (InterruptedException e) {}
+        System.out.println("Delay finished");
         return false;//false means error packet do not replace normal packet
 	}
 	
 	public boolean simulateLost(int port, int value) {
 		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+		System.out.println("!");
+		System.out.println("<simulateLost>");
+		System.out.println("!");
 		
 		if (value<0) value = 1;
 		for (int i=0; i<value; i++) {
-			System.out.println("!");
-			System.out.println("<simulateLost>");
-			System.out.println("!");
-			
+
+			System.out.println("Last recieved ignored, recieving new packet...");
 			receivePacket = ErrorSimulatorHelper.newReceive();
 			ErrorSimulatorHelper.receive(socket, receivePacket);
+			System.out.println("Recieved");
 			
 		}
 		return false;//false means error packet do not replace normal packet
@@ -283,6 +292,10 @@ public class ErrorSimulatorThread implements Runnable {
 		//System.out.print("    |port "+ port);
 		//System.out.print("    |Opcode "+ getOpcode());
 		//System.out.println("    |BLK#"+ getBlockNum());
+		
+		ErrorSimulatorHelper.print("Print Fake Source Packet:");
+		ErrorSimulatorHelper.printPacket(sendPacket);
+		
 		return false;//false means error packet do not replace normal packet
 	}
 	
@@ -304,6 +317,10 @@ public class ErrorSimulatorThread implements Runnable {
 		
 		sendPacket = new DatagramPacket(receivePacket.getData(), errorSize , receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
+		
+		ErrorSimulatorHelper.print("Print Size Modified Packet:");
+		ErrorSimulatorHelper.printPacket(sendPacket);
+		
 		return true;//true means error packet replace normal packet
 		
 	}
@@ -369,6 +386,10 @@ public class ErrorSimulatorThread implements Runnable {
 
 		sendPacket = new DatagramPacket(receivePacket.getData(), len, receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
+		
+		ErrorSimulatorHelper.print("Print Modified Packet:");
+		ErrorSimulatorHelper.printPacket(sendPacket);
+		
 		return true;//true means error packet replace normal packet
 	}
 	
@@ -407,6 +428,10 @@ public class ErrorSimulatorThread implements Runnable {
 
 		sendPacket = new DatagramPacket(receivePacket.getData(), len, receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
+		
+		ErrorSimulatorHelper.print("Print Modified Packet:");
+		ErrorSimulatorHelper.printPacket(sendPacket);
+		
 		return true;//true means error packet replace normal packet
 		
 	}
@@ -439,6 +464,10 @@ public class ErrorSimulatorThread implements Runnable {
 
 		sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(),	port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
+		
+		ErrorSimulatorHelper.print("Print Modified Packet:");
+		ErrorSimulatorHelper.printPacket(sendPacket);
+		
 		return true;//true means error packet replace normal packet
 		
 	}
@@ -482,6 +511,10 @@ public class ErrorSimulatorThread implements Runnable {
 
 		sendPacket = new DatagramPacket(receivePacket.getData(), len, receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
+		
+		ErrorSimulatorHelper.print("Print Modified Packet:");
+		ErrorSimulatorHelper.printPacket(sendPacket);
+		
 		return true;//true means error packet replace normal packet
 		
 	}
@@ -576,6 +609,10 @@ public class ErrorSimulatorThread implements Runnable {
 
 		sendPacket = new DatagramPacket(newData, len, receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
+		
+		ErrorSimulatorHelper.print("Print Modified Packet:");
+		ErrorSimulatorHelper.printPacket(sendPacket);
+		
 		return true;//true means error packet replace normal packet
 	}
 	
@@ -616,6 +653,10 @@ public class ErrorSimulatorThread implements Runnable {
 
 		sendPacket = new DatagramPacket(newData, len, receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
+		
+		ErrorSimulatorHelper.print("Print Modified Packet:");
+		ErrorSimulatorHelper.printPacket(sendPacket);
+		
 		return true;//true means error packet replace normal packet
 		
 	}
@@ -651,6 +692,10 @@ public class ErrorSimulatorThread implements Runnable {
 		
 		sendPacket = new DatagramPacket(newData, len, receivePacket.getAddress(),	port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
+		
+		ErrorSimulatorHelper.print("Print Modified Packet:");
+		ErrorSimulatorHelper.printPacket(sendPacket);
+		
 		return true;//true means error packet replace normal packet
 		
 	}
@@ -710,6 +755,10 @@ public class ErrorSimulatorThread implements Runnable {
 
 		sendPacket = new DatagramPacket(newData, len, receivePacket.getAddress(), port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
+		
+		ErrorSimulatorHelper.print("Print Modified Packet:");
+		ErrorSimulatorHelper.printPacket(sendPacket);
+		
 		return true;//true means error packet replace normal packet
 		
 	}

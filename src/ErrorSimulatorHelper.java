@@ -1,6 +1,7 @@
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.util.Arrays;
 import java.io.IOException;
 
 /**
@@ -73,29 +74,28 @@ public class ErrorSimulatorHelper {
 	//printing helper functions
 	//not needed since this is used in intermediate host, where inthost is the error simulator,
 	//thus you always want to be printing statements (ie, no verbose mode in error simulator)
-	/*public static void print(String str){
-		if (VERB_MODE) System.out.println(str);
-	}*/
 	
-	/*public static void printPacket(DatagramPacket receivePacket){
-		if (!VERB_MODE) return;
-
-	    // Process the received datagram.
-	    //System.out.println("Simulator: Packet received:");
-		System.out.println("<Packet>");
-	    System.out.println("From host: " + receivePacket.getAddress());
-	    System.out.println("Host port: " + receivePacket.getPort());
-	    int len = receivePacket.getLength();
-	    System.out.println("Length: " + len);
-	    System.out.println("Containing: " );
-	    
-	    // print the bytes
-	    System.out.println("Bytes: "  + Arrays.toString(Arrays.copyOfRange(receivePacket.getData(),0,len)));
-	    // print the Strings
-        String received = new String(receivePacket.getData(),0,len);
-        System.out.println("String: " + received);
-        
-	    System.out.println();
-	    System.out.println();
-	}*/
+	public static void print(String str){
+		if (ErrorSimulator.PRINT_PACKET) System.out.println(str);
+	}
+	
+	public static void printPacket(DatagramPacket receivePacket){
+		if (ErrorSimulator.PRINT_PACKET) {
+		    // Process the received datagram.
+		    //System.out.println("Simulator: Packet received:");
+			/*
+			System.out.println("<Packet>");
+		    System.out.println("From host: " + receivePacket.getAddress());
+		    System.out.println("Host port: " + receivePacket.getPort());
+		    */
+		    int len = receivePacket.getLength();
+		    System.out.println("Length: " + len);	    
+		    // print the bytes
+		    System.out.println("Bytes:"  + Arrays.toString(Arrays.copyOfRange(receivePacket.getData(),0,len)));
+		    // print the Strings
+	        String received = new String(receivePacket.getData(),0,len);
+	        System.out.println("String:" + received);
+		    System.out.println();
+		}
+	}
 }
