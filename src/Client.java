@@ -181,14 +181,30 @@ public class Client {
 		TftpPacket recvTftpPacket;
 		boolean finished = false;
 		boolean acked = true;
+		
+		retries = CommonConstants.TFTP_MAX_NUM_RETRIES; // reset
+		
+		// for special ACK 0
+		// TODO: clean this code up 
+		while (retries > 0) {
+			try {
+				if (verbose) {
+					System.out.println("\nReceiving...");
+				}
+				sendReceiveSocket.receive(receivePacket);
+				if (verbose) {
+					Utils.tryPrintTftpPacket(receivePacket);
+				}
+				break;
+			} catch (SocketTimeoutException te) {
+				if (verbose)
+					System.out.println("Timed out on receiving ACK0, resend RRQ\n");
+				trySend(sendPacket, "");
+				retries--;
 
-		// wait for a packet to be returned back
-		try {
-			// Block until a datagram is received via sendReceiveSocket.
-			sendReceiveSocket.receive(receivePacket);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
+			} catch (IOException e) {
+				System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
+			}
 		}
 
 		if (verbose) {
@@ -403,7 +419,7 @@ public class Client {
 					break;
 				} catch (SocketTimeoutException te) {
 					if (verbose)
-						System.out.println("Timed out on receiving DATA, resend ACK\n");
+						System.out.println("Timed out on receiving DATA, resend ACK/RRQ\n");
 					trySend(sendPacket, "");
 					retries--;
 				} catch (IOException e) {
@@ -626,10 +642,6 @@ public class Client {
 			return CommonConstants.VERBOSE;
 		else
 			return CommonConstants.QUIET;
-	}
-
-	public void setOutputMode() {
-		verbose = !verbose;
 	}
 
 	public String getOperationMode() {
