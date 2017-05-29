@@ -303,9 +303,16 @@ public class ErrorSimulatorThread implements Runnable {
 		//System.out.print("    |port "+ port);
 		//System.out.print("    |Opcode "+ getOpcode());
 		//System.out.println("    |BLK#"+ getBlockNum());
+		System.out.print("Sent Fake TID Packet to port: "+ sendPacket.getPort());
 		
-		ErrorSimulatorHelper.print("Print Fake Source Packet:");
-		ErrorSimulatorHelper.printPacket(sendPacket);
+		
+		System.out.println("Recieving ERROR...");
+		
+		receivePacket = ErrorSimulatorHelper.newReceive();
+		ErrorSimulatorHelper.receive(new_socket, receivePacket);
+		
+		System.out.println("Recieved ERORR from port: "+ receivePacket.getPort());
+		
 		
 		return false;//false means error packet do not replace normal packet
 	}
