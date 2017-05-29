@@ -179,22 +179,23 @@ public class RequestManager implements Runnable {
 								System.out.println("Timed out on receiving ACK, resend DATA\n");
 							trySend(send);
 							retries--;
+							if (retries == 0) {
+								// We have exhausted all the retries and still haven't
+								// received a proper ack
+								System.out.println("TIMED OUT\n");
+								// and quit this file transfer...
+								socket.close();
+								return;
+							}
+
 						} catch (IOException e) {
 							System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
 						}
 					}
 
-					if (retries == 0) {
-						// We have exhausted all the retries and still haven't
-						// received a proper ack
-						System.out.println("TIMED OUT\n");
-						// and quit this file transfer...
-						finished = true;
-					}
-
 					if (!received.getAddress().equals(clientAddress) ||received.getPort() != clientPort) {
 						// received a packet with wrong tid, notify the sender with error 5
-						trySend(new TftpErrorPacket(5, "RECEIVED FROM UNEXPECTED TID").generateDatagram(received.getAddress(),
+						trySend(new TftpErrorPacket(5, "Wrong Transfer ID").generateDatagram(received.getAddress(),
 								received.getPort()),"ISSUE SENDING ERROR PACKET");
 						retries--;
 						continue;
@@ -207,7 +208,7 @@ public class RequestManager implements Runnable {
 						// not be a TFTP client) and try receive again
 						trySend(new TftpErrorPacket(4, "not tftp").generateDatagram(received.getAddress(),
 								received.getPort()));
-						retries--;
+						socket.close();
 						return;
 					}
 
@@ -270,6 +271,7 @@ public class RequestManager implements Runnable {
 					} catch (IOException e) {
 						System.out.println("ISSUE SENDING ERROR TYPE 0\n" + e.getMessage());
 					}
+					socket.close();
 					return;
 				} else if (!Files.isWritable(file.toPath())) {
 					try {
@@ -278,6 +280,7 @@ public class RequestManager implements Runnable {
 					} catch (IOException e) {
 						System.out.println("ISSUE SENDING ERROR TYPE 2\n" + e.getMessage());
 					}
+					socket.close();
 					return;
 				}
 			}
@@ -307,23 +310,23 @@ public class RequestManager implements Runnable {
 								System.out.println("Timed out on receiving DATA, resend ACK\n");
 							trySend(send);
 							retries--;
+							if (retries == 0) {
+								// We have exhausted all the retries and still haven't
+								// received a proper DATA
+								System.out.println("TIMED OUT\n");
+								// and quit this file transfer...
+								socket.close();
+								return;
+							}
 						} catch (IOException e) {
 							System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
 						}
 					}
 
-					if (retries == 0) {
-						// We have exhausted all the retries and still haven't
-						// received a proper DATA
-						System.out.println("TIMED OUT\n");
-						// and quit this file transfer...
-						serve = false;
-					}
-
 					if (!received.getAddress().equals(clientAddress) || received.getPort() != clientPort) {
 						// received a packet with wrong tid, notify the sender
 						// with error 5
-						trySend(new TftpErrorPacket(5, "RECEIVED FROM UNEXPECTED TID").generateDatagram(
+						trySend(new TftpErrorPacket(5, "Wrong Transfer ID").generateDatagram(
 								received.getAddress(), received.getPort()), "ISSUE SENDING ERROR PACKET");
 						retries--;
 						continue;
@@ -336,7 +339,7 @@ public class RequestManager implements Runnable {
 					} catch (IllegalArgumentException ile) {
 						trySend(new TftpErrorPacket(4, "not tftp").generateDatagram(received.getAddress(),
 								received.getPort()));
-						retries--;
+						socket.close();
 						return;
 					}
 
@@ -348,7 +351,6 @@ public class RequestManager implements Runnable {
 							// correct block, reset retry
 							retries = CommonConstants.TFTP_MAX_NUM_RETRIES;
 							try {
-								System.out.println("!!! WRITING DATA BLOCK #" + dataPacket.getBlockNumber());
 								bos.write(dataPacket.getData());
 							} catch (IOException e) {
 								// this doesn't work, so using a hack
