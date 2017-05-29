@@ -29,7 +29,6 @@ public class ErrorSimulator {
 		//System.out.print("Received");
 		System.out.print("    |port "+ receivePacket.getPort());
 		System.out.print("    |Opcode "+ ""+receivePacket.getData()[0]+ receivePacket.getData()[1]);
-		//FIXME why iis block number always -1
 		System.out.println("    |BLK#"+ (-1));
 		//clean printing//Utils.tryPrintTftpPacket(receivePacket);
 		
@@ -101,7 +100,7 @@ public class ErrorSimulator {
 		    
  
 -		    //should not ask for block number on RRQ AND WRQ
--		    if(userChoice[packetIndex]!=1 && userChoice[packetIndex]!=2){
+-		    if(userChoice[packetIndex]!=1 && userChoice[packetIndex]!=2 && userChoice[packetIndex]!=5){
 -		    	printOptions(new String[]{
 -		    			"<Choose the Block #>",
 -		    			"(Any Integer >= 0)"
@@ -191,7 +190,7 @@ public class ErrorSimulator {
 		    
  
 -		    //should not ask for block number on RRQ AND WRQ
--		    if(userChoice[packetIndex]!=1 && userChoice[packetIndex]!=2){
+-		    if(userChoice[packetIndex]!=1 && userChoice[packetIndex]!=2 && userChoice[packetIndex]!=5){
 -		    	printOptions(new String[]{
 -		    			"<Choose the Block #>",
 -		    			"(Any Integer >= 0)"
