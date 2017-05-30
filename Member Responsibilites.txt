@@ -99,3 +99,7 @@ Yu-Kai:
 Sever:
 -Testing the whole application for preparation of the project demo
 -Debugging and fixing errors that were found from testing
+
+Alex:
+-Testing/debugging iteration 4 implementations
+-Drawing timeing diagrams for iteration 4 error cases
