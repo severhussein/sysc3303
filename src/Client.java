@@ -635,7 +635,7 @@ public class Client {
 
 	private static String queryFilename() {
 		System.out.println("Enter a filename:");
-		String filename = sc.next();
+		String filename = sc.nextLine();//changed from next() to nextLine() to fix the bug when filename contains space
 
 		return filename;
 	}
