@@ -618,7 +618,7 @@ public class Client {
 		// ask user for input
 		System.out.println(
 				"Enter:\n1 to read a file\n2 to write a file\n3 to toggle output mode\n4 to toggle operation mode\n5 to shutdown");
-		String request = sc.next();
+		String request = sc.nextLine().trim();
 
 		while (!request.equals("1") && !request.equals("2") && !request.equals("5")) {
 			// request to toggle mode
@@ -628,14 +628,14 @@ public class Client {
 				toggleOperation(c);
 			System.out.println(
 					"Enter:\n1 to read a file\n2 to write a file\n3 to toggle output mode\n4 to toggle operation mode\n5 to shutdown");
-			request = sc.next();
+			request = sc.nextLine().trim();
 		}
 		return request;
 	}
 
 	private static String queryFilename() {
 		System.out.println("Enter a filename:");
-		String filename = sc.nextLine();//changed from next() to nextLine() to fix the bug when filename contains space
+		String filename = sc.nextLine();
 
 		return filename;
 	}
