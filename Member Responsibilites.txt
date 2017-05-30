@@ -86,3 +86,12 @@ David (Dawei):
 - Went through both client and server side codes and draw flow chart to analysis and verify error handling.
 - Draw error types sequence diagrams in all 4 new cases.
 - Tested all 4 new cases and verified diagrams matching observed behaviors.
+
+
+*************************************************************************************
+***************************** Iteration 3 *******************************************
+*************************************************************************************
+
+Yu-Kai:
+- Implementation of re-try and re-transmit on client/server
+- General debugging on client/server via packet capture and program trace
