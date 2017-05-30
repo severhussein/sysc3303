@@ -95,3 +95,7 @@ David (Dawei):
 Yu-Kai:
 - Implementation of re-try and re-transmit on client/server
 - General debugging on client/server via packet capture and program trace
+
+Sever:
+-Testing the whole application for preparation of the project demo
+-Debugging and fixing errors that were found from testing
