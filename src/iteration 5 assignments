@@ -1,0 +1,16 @@
+client and host will have to ask for the ip 
+client/server make sure that it checks for IP/ and port for error code 5
+access violation when a file is open (try with pdf)
+inet address getbyname function will throw error on wrong address...needss implementation
+delete file for error code 2
+need to provide documentation for behavior our system
+make sure error messages are more specific
+print message saying "transfer complete" on client/server
+
+
+testing needs to be done for all of the above
+2 clients to 1 server,,,,for same file 
+
+
+would be nice if we can reset the error simulator, ex, press r and it resets the simulator
+also implement if the user wants to change ip on client
