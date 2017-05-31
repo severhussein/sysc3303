@@ -93,8 +93,8 @@ Dawei (David):
 *************************************************************************************
 
 Dawei (David):
-- Implemented the ErrorSimulator cases, including Duplicate, Delayed, Lost
-- Reworked Iteration 2 cases (which code was rewrite to support 10+ new cases)
+- Implemented the ErrorSimulator, including cases of Duplicate, Delayed, Lost.
+- Reworked Iteration 2 cases (which code was rewrited to support 10+ new cases)
 - Reworked UI (5 layers of options to support all added new cases combinations)
 - Testing new cases added for Iteration 4 and reworked Iteration 2.
 
