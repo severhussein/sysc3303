@@ -4,7 +4,7 @@ The necessary files required to run the components as an Eclipse project
 are already included.
 Please select the dropdown menu "File" -> "Import" -> "General"-> 
 "Existing Projects into Workspace" in Eclipse and select the directory 
-containing this readme file as the root directory (sysc3303-iteration1).
+containing this readme file as the root directory.
 
 Once the project is imported, the components can be launched easily via Eclipse.
 Simply navigate to the dropdown menu "Run" -> "Run Configuration" to start each 
@@ -21,10 +21,11 @@ For the "Working Directory:"
 -Hit "Apply" to apply the changes
 -Finally Hit "close"
 
-Do the same for RequestLisener.java but paste into 
+Do the same for Server.java but paste into 
 the working directory "${workspace_loc:sysc3303_t4/serverFileStorage}"
 
 The working directory is now updated and read the DetailedInstructions.txt file to run the code.
+
 *****************************************************************************
 By default the client has the working directory set to the "clientFileStorage"
 folder in the project, while server has it set to "serverFileStorage" folder. 
@@ -33,8 +34,8 @@ as the reference points.
 
 Alternatively, user can choose create their own launch configuration.
 The main method of the client is located in Client class.
-The main method of the error simulator is located in IntHostListener class.
-The main method of the server is located in RequestListener class.
+The main method of the error simulator is located in ErrorSimulator class.
+The main method of the server is located in Server class.
 Be aware that eclipse default the working directory to the root of the project
 folder, user must modify the Run configuration just created to 
 prevent client/server from accessing the same file at the same time.
@@ -50,28 +51,6 @@ or you may open up eclipse and following the import steps previously mentioned, 
 General->Existing Project, you may choose Git->Projects From Git and select Clone URI option. Then input out git URL
 and eclipse will automatically download the repository.
 
-Brief explanation of the source directory:
-src	
-|   Client.java				Contains the implementation of the client component
-|   CommonConstants.java		Contains the constants used in the three components
-|   Helper.java				Handy helper methods
-|   IntHostListener.java		Implementation of packet forwarding and error injection
-|   IntHostManager.java			main method of error simulator and UI
-|   InvalidPacketException.java		Custom exception to indicate the reception of an invalid packet
-|   RequestListener.java		main method, thread spawner and UI of the server
-|   RequestManager.java			Implementation of the rest of TFTP client/server interaction 
-|   ServerScanner.java			Scans server for shutdown command
-|   Utils.java				Contains helper methods to printing packet contents
-|
-\---TftpPacketHelper			A directory containing TFTP help classes which encodes/decodes TFTP packets       
-        TftpAckPacket.java
-        TftpDataPacket.java
-        TftpErrorPacket.java
-        TftpOackPacket.java
-        TftpPacket.java
-        TftpReadRequestPacket.java
-        TftpRequestPacket.java
-        TftpWriteRequestPacket.java
 *******************************************************************************
 To run the iteration 3:
 
