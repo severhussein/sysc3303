@@ -9,7 +9,7 @@ virtual tftp connection, receiving datagrams and writing to a buffer output stre
 acknowledgement packet. I also integrated and tested file transfer for the 3 main modules, Client,
 Intermediate Host, and Server. Lastly, implemented option to operate system in normal or test mode.
 
-David (Dawei):
+Dawei (David):
 For iteration 1, I implemented the host side, and draw all UCM diagrams.
 Improved host with an optimization in the multi-thread behavior, delay between each new request should be lower. And cleaned up the code by Implemented a Helper class.
 - Implemented the host side
@@ -54,7 +54,7 @@ Implemented error packet creation and sending for error message
 types 4 and 5 on server side. Made changes to server UI and added
 functionality to shutdown at any point after start up.
 
-David (Dawei):
+Dawei (David):
 -Implemented the error simulator which create error socket port or packet data based on different error types.
 -Implemented an UI for the host side, prompt the user to choose between different error types, and at which packet number.
 -Draw UCM diagram for error simulator.
@@ -82,7 +82,7 @@ Yu-Kai:
 - Implemented Error code 2 on client and server side
 - General debugging on client/server via packet capture and program trace
 
-David (Dawei):
+Dawei (David):
 - Went through both client and server side codes and draw flow chart to analysis and verify error handling.
 - Draw error types sequence diagrams in all 4 new cases.
 - Tested all 4 new cases and verified diagrams matching observed behaviors.
@@ -91,6 +91,12 @@ David (Dawei):
 *************************************************************************************
 ***************************** Iteration 4 *******************************************
 *************************************************************************************
+
+Dawei (David):
+- Implemented the ErrorSimulator cases, including Duplicate, Delayed, Lost
+- Reworked Iteration 2 cases (which code was rewrite to support 10+ new cases)
+- Reworked UI (5 layers of options to support all added new cases combinations)
+- Testing cases for both Iteration 4 and Iteration 2 (which code was rewrite to extend 10+ new cases)
 
 Yu-Kai:
 - Implementation of re-try and re-transmit on client/server
