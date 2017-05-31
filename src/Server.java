@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.ByteArrayOutputStream;
 import java.util.Scanner;
 
-public class RequestListener {
+public class Server {
 	public static boolean shutdown = false;
 	private DatagramSocket receiveSock;
 	private DatagramSocket sendSocket;;
@@ -16,7 +16,7 @@ public class RequestListener {
 	private static Scanner sc = new Scanner(System.in);
 	private static boolean verbose = true;
 
-	public RequestListener() {
+	public Server() {
 		try {
 			receiveSock = new DatagramSocket(CommonConstants.SERVER_LISTEN_PORT);
 			sendSocket = new DatagramSocket();
@@ -120,7 +120,7 @@ public class RequestListener {
 		// System.out.println(mode);
 
 		if (req == CommonConstants.RRQ || req == CommonConstants.WRQ) {
-			new Thread(new RequestManager(received.getPort(), received.getAddress(), filename, datagram[1], verbose))
+			new Thread(new ServerThread(received.getPort(), received.getAddress(), filename, datagram[1], verbose))
 					.start();
 			System.out.println("\nSending Request and creating new thread\n");
 		} else { // it was invalid, just quit
@@ -163,7 +163,7 @@ public class RequestListener {
 	}
 
 	public static void main(String args[]) {
-		RequestListener s = new RequestListener();
+		Server s = new Server();
 		System.out.println("Server: currently in " + s.getOutputMode() + " mode");
 		queryServerMode(s);
 		new Thread(new ServerScanner(s.getSocket())).start();
@@ -178,7 +178,7 @@ public class RequestListener {
 		System.out.println("Server shutting down.");
 	}
 
-	private static void queryServerMode(RequestListener s) {
+	private static void queryServerMode(Server s) {
 		// ask user for input
 		System.out.println("Enter:\n1 Toggle mode\n2 Begin Server");
 		String request = sc.next();
@@ -203,7 +203,7 @@ public class RequestListener {
 		// return mode;
 	}
 
-	private static void toggleMode(RequestListener s) {
+	private static void toggleMode(Server s) {
 		verbose = !verbose;
 		System.out.println("Mode changed to: " + s.getOutputMode());
 	}

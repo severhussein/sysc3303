@@ -18,7 +18,7 @@ import TftpPacketHelper.TftpDataPacket;
 import TftpPacketHelper.TftpPacket;
 import TftpPacketHelper.TftpPacket.TftpType;
 
-public class RequestManager implements Runnable {
+public class ServerThread implements Runnable {
 	/**
 	 * The specific socket used for interacting with client 
 	 */
@@ -61,7 +61,7 @@ public class RequestManager implements Runnable {
 	 * @param verbose
 	 *            Verbose mode or not
 	 */
-	public RequestManager(int clientPort, InetAddress clientAddress, String fileName, int type, boolean verbose) {
+	public ServerThread(int clientPort, InetAddress clientAddress, String fileName, int type, boolean verbose) {
 		this.clientPort = clientPort;
 		this.clientAddress = clientAddress;
 		this.fileName = fileName;

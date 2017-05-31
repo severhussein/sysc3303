@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<class-diagram version="1.1.14" icons="true" automaticImage="PNG" always-add-relationships="false" 
+<class-diagram version="1.2.0" icons="false" automaticImage="PNG" always-add-relationships="false" 
   generalizations="true" realizations="true" associations="true" dependencies="false" nesting-relationships="true" 
   router="FAN">  
   <class id="1" language="java" name="Utils" project="sysc3303_t4" file="/sysc3303_t4/src/Utils.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1677" y="387"/>    
+    <position height="-1" width="-1" x="625" y="630"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="2" language="java" name="InvalidPacketException" project="sysc3303_t4" 
-    file="/sysc3303_t4/src/InvalidPacketException.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1421" y="469"/>    
+  <class id="2" language="java" name="Server" project="sysc3303_t4" file="/sysc3303_t4/src/Server.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="106" y="189"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -22,70 +22,61 @@
   </class>  
   <class id="3" language="java" name="CommonConstants" project="sysc3303_t4" 
     file="/sysc3303_t4/src/CommonConstants.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1417" y="221"/>    
+    <position height="-1" width="-1" x="328" y="545"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="4" language="java" name="IntHostManager" project="sysc3303_t4" file="/sysc3303_t4/src/IntHostManager.java" 
-    binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1182" y="194"/>    
-    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
-      sort-features="false" accessors="true" visibility="true">      
-      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
-      <operations public="true" package="true" protected="true" private="true" static="true"/>    
-    </display>  
-  </class>  
-  <class id="5" language="java" name="Client" project="sysc3303_t4" file="/sysc3303_t4/src/Client.java" binary="false" 
+  <class id="4" language="java" name="Client" project="sysc3303_t4" file="/sysc3303_t4/src/Client.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="513" width="207" x="41" y="37"/>    
+    <position height="-1" width="-1" x="611" y="270"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="6" language="java" name="ServerScanner" project="sysc3303_t4" file="/sysc3303_t4/src/ServerScanner.java" 
+  <class id="5" language="java" name="ServerScanner" project="sysc3303_t4" file="/sysc3303_t4/src/ServerScanner.java" 
     binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="385" y="360"/>    
+    <position height="-1" width="-1" x="108" y="455"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="7" language="java" name="RequestListener" project="sysc3303_t4" 
-    file="/sysc3303_t4/src/RequestListener.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="701" y="219"/>    
-    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
-      sort-features="false" accessors="true" visibility="true">      
-      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
-      <operations public="true" package="true" protected="true" private="true" static="true"/>    
-    </display>  
-  </class>  
-  <class id="8" language="java" name="IntHostListener" project="sysc3303_t4" 
-    file="/sysc3303_t4/src/IntHostListener.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="952" y="177"/>    
-    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
-      sort-features="false" accessors="true" visibility="true">      
-      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
-      <operations public="true" package="true" protected="true" private="true" static="true"/>    
-    </display>  
-  </class>  
-  <class id="9" language="java" name="RequestManager" project="sysc3303_t4" file="/sysc3303_t4/src/RequestManager.java" 
+  <class id="6" language="java" name="ServerThread" project="sysc3303_t4" file="/sysc3303_t4/src/ServerThread.java" 
     binary="false" corner="BOTTOM_RIGHT">    
-    <position height="243" width="275" x="288" y="37"/>    
+    <position height="-1" width="-1" x="336" y="158"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="10" language="java" name="Helper" project="sysc3303_t4" file="/sysc3303_t4/src/Helper.java" binary="false" 
-    corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1648" y="161"/>    
+  <class id="7" language="java" name="ErrorSimulator" project="sysc3303_t4" file="/sysc3303_t4/src/ErrorSimulator.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="905" y="155"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="8" language="java" name="ErrorSimulatorHelper" project="sysc3303_t4" 
+    file="/sysc3303_t4/src/ErrorSimulatorHelper.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="866" y="425"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="9" language="java" name="ErrorSimulatorThread" project="sysc3303_t4" 
+    file="/sysc3303_t4/src/ErrorSimulatorThread.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1126" y="270"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      

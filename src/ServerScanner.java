@@ -15,7 +15,7 @@ public class ServerScanner implements Runnable {
 		while (!request.equals("shutdown")) {
 			request = sc.next();
 		}
-		RequestListener.shutdown = true;
+		Server.shutdown = true;
 		receiveSock.close();
 		sc.close();
 	}
