@@ -31,7 +31,7 @@ public class Client {
 	
 	private static Scanner sc = new Scanner(System.in);
 	private static File file;
-	private static InetAddress destinationAddress;
+
 	private static int destinationPort = (testMode) ? CommonConstants.HOST_LISTEN_PORT
 			: CommonConstants.SERVER_LISTEN_PORT;
 	private int tid;
@@ -39,6 +39,9 @@ public class Client {
 
 	private DatagramPacket sendPacket, receivePacket;
 	private static DatagramSocket sendReceiveSocket;
+	
+	 //IP address of server
+	private static InetAddress destinationAddress = null;
 
 	public Client() {
 		try {
@@ -60,20 +63,25 @@ public class Client {
 		for (;;) {
 			System.out.println("Client: currently in: " + c.getOutputMode() + " output mode and " + c.getOperationMode()
 					+ " operation mode");
+			
 			String request = queryUserRequest(c);
 
-			if (request.equals("5"))
+			//user wants to shutdown
+			if (request.equals("6"))
 				shutdown();
 
-			try {
-				// code for quick testing on server located on another machine
-				// destinationAddress =
-				// InetAddress.getByName("192.168.217.128");
-				destinationAddress = InetAddress.getLocalHost();
-			} catch (UnknownHostException uhe) {
-				System.out.println("Failed to resolved host name");
-				continue;
-			}
+			//on startup make sure to ask for IP
+			if(destinationAddress==null)
+				setIP(c);
+//			try {
+//				// code for quick testing on server located on another machine
+//				// destinationAddress =
+//				// InetAddress.getByName("192.168.217.128");
+//				destinationAddress = InetAddress.getLocalHost();
+//			} catch (UnknownHostException uhe) {
+//				System.out.println("Failed to resolved host name");
+//				continue;
+//			}
 
 			String filename = queryFilename();
 			file = new File(filename);
@@ -437,6 +445,7 @@ public class Client {
 				// and use the methods of the class to make our life easier
 				TftpDataPacket dataPacket = (TftpDataPacket) recvTftpPacket;
 
+				//FIXME before we check if it's even a data packet we should check TID...i'm pretty sure that's what professor said
 				if (receivePacket.getAddress().equals(destinationAddress) && dataPacket.getBlockNumber() == 1) {
 					// first DATA packet received from server side, take a note
 					// of the TID
@@ -582,6 +591,10 @@ public class Client {
 		System.out.println("\nStarting the transfer...");
 		trySend(sendPacket);
 	}
+	
+	public InetAddress getIP(){
+		return Client.destinationAddress;
+	}
 
 	public String getOutputMode() {
 		if (verbose)
@@ -617,27 +630,72 @@ public class Client {
 	private static String queryUserRequest(Client c) {
 		// ask user for input
 		System.out.println(
-				"Enter:\n1 to read a file\n2 to write a file\n3 to toggle output mode\n4 to toggle operation mode\n5 to shutdown");
+				"\nEnter:\n1 to read a file\n2 to write a file\n3 to toggle output mode\n4 to toggle operation mode\n5 Change server IP address\n6 to shutdown");
 		String request = sc.nextLine().trim();
 
-		while (!request.equals("1") && !request.equals("2") && !request.equals("5")) {
+		while (!request.equals("1") && !request.equals("2") && !request.equals("6")) {
 			// request to toggle mode
 			if (request.equals("3"))
 				toggleMode(c);
 			else if (request.equals("4"))
 				toggleOperation(c);
+			else if(request.equals("5"))
+				setIP(c);
 			System.out.println(
-					"Enter:\n1 to read a file\n2 to write a file\n3 to toggle output mode\n4 to toggle operation mode\n5 to shutdown");
+					"Enter:\n1 to read a file\n2 to write a file\n3 to toggle output mode\n4 to toggle operation mode\n5 Change server IP address\n6 to shutdown");
 			request = sc.nextLine().trim();
 		}
 		return request;
 	}
 
 	private static String queryFilename() {
-		System.out.println("Enter a filename:");
-		String filename = sc.nextLine();
-
+		String filename = "";
+		while(filename.equals(""))
+		{
+			System.out.println("Enter a filename:");
+			filename = sc.nextLine();
+			if(filename.equals(""))
+				System.out.println("Can't have blank file name.");
+		}
 		return filename;
+	}
+	
+	
+	/**
+	 * This method will prompt the user to get the IP address of the server	
+	 */
+	private static void setIP(Client c){
+		//user might want to change server address, so set it back to null
+		destinationAddress = null;
+		do{
+			try {
+				System.out.println("Please enter the server's IP:\n"
+						+ "If you'd like to use the local host enter 1 or local host");
+				String ip = sc.nextLine().trim();
+				
+				//wants local host
+				if(ip.equals("local host")|| ip.equals("1"))
+					destinationAddress = InetAddress.getLocalHost();
+				//optimizing code, getByName function might take a while to parse invalid IP address
+				//thus this code will make program faster
+				else if(ip.length()<3||!ip.contains("."))
+					continue;
+				else
+					destinationAddress = InetAddress.getByName(ip);
+				
+//				IF WE DON'T ALLOW THE CLIENT AND SERVER TO BE ON SAME COMPUTER
+//				THEN UNCOMMENT THIS CODE
+//				if(ip.equals(InetAddress.getLocalHost().getHostAddress())||ip.equals("127.0.0.1")){
+//					System.out.println("Server address can't have same address as this computer.");
+//					destinationAddress = null;
+//					continue;
+//				}
+			} catch (UnknownHostException e) {
+				System.out.println("Please enter a valid IP address\n");
+			}
+		}while(destinationAddress==null);
+		
+		System.out.println("Server IP is: "+c.getIP().getHostAddress());
 	}
 
 	private static void shutdown() {
