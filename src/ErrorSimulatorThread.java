@@ -23,9 +23,10 @@ public class ErrorSimulatorThread implements Runnable {
 	//too many changes, so I just upload the whole file
 	//change descriptions:
 	//1. renamed destinationAddress to serverAddress (to be consistent with clientAddress)
-	//2. added more strict conditions when determine received source
+	//2. added more strict conditions in while loop in run() to determine received source
+	//(previous code was fine when there is no 2nd client luckily use the same port to communicate)
 	//3. also changed the way to call simulateError from simulateError(port) to simulateError(ip, port)
-	//so I dont need to add the new if condition in every methods	
+	//so I dont need to add the new if condition inside every methods	
 	//4. print IP with port number
 	
 	public ErrorSimulatorThread(DatagramPacket receivePacket, int[] userChoice, InetAddress newDestinationAddress) {
