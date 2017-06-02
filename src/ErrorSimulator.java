@@ -33,6 +33,7 @@ public class ErrorSimulator {
 		receivePacket = ErrorSimulatorHelper.newReceive(PACKAGE_SIZE);
 		ErrorSimulatorHelper.receive(receiveSocket, receivePacket);
 		//System.out.print("Received");
+		System.out.print("    |Ip "+ receivePacket.getAddress());
 		System.out.print("    |port "+ receivePacket.getPort());
 		System.out.print("    |Opcode "+ ""+receivePacket.getData()[0]+ receivePacket.getData()[1]);
 		System.out.println("    |BLK#"+ (-1));
@@ -137,11 +138,12 @@ public class ErrorSimulator {
 			printOptions(new String[]{
 					"<Choose Problem Type>",
 					"0     Remove Field",
-		            "1     Corrupted Field",
+		            "1     Corruptted Field",
 		            "2     Incorrect Size",
-		            "3     Invalid TID"
+		            "3     Invalid TID",
+		            "4     Invalid IP"
 		            });
-		    userChoice[problemIndex] = getUserInput(0, 3);
+		    userChoice[problemIndex] = getUserInput(0, 4);
 		    
 			printOptions(new String[]{
 					"<Choose Packet> (Error in what type of packet?)",
@@ -297,54 +299,3 @@ public class ErrorSimulator {
 	}
 
 }
-	
-	
-	/*
-		System.out.println("Type the digit number to choose which error you want to simulate");
-		System.out.println("0 = No Error");
-		System.out.println("1 = send to Client, Port is incorrect (Error type 5)");
-		System.out.println("2 = send to Server, Port is incorrect (Error type 5)");
-		System.out.println("3 = send to Client, Opcode is incorrect (Mess 0th & 1st byte, Error type 4)");
-		System.out.println("4 = send to Server, Opcode is incorrect (Mess 0th & 1st byte, Error type 4)");
-		System.out.println("5 = send to Client, Packet Size is incorrect (size modified, Error type 4)");
-		System.out.println("6 = send to Server, Packet Size is incorrect (size modified, Error type 4)");
-		System.out.println("7 = send to Client, BlockNum is incorrect (Mess 2nd & 3rd byte, Error type 4)");
-		System.out.println("8 = send to Server, BlockNum is incorrect (Mess 2nd & 3rd byte, Error type 4)");
-	 
-
-	public static int decidePacketNum() {
-		//Scanner sc = new Scanner(System.in);
-		System.out.println("Type the digit number to choose which packet you want to insert the error");
-		String str = "";
-		int number = -1;
-		while (number < 0) {
-			str = sc.next();
- 			 try {
-				 number = Integer.parseInt(str);
- 			 } catch (NumberFormatException e) {
-				 number = -1;
-				 System.out.println("Input was not number, please try again");
- 			 }
-		}
-		System.out.println("Will insert at the #" + number + " of packet");
-		return number;
-	}
-	
-	public static int decideErrorSize() {
-		//Scanner sc = new Scanner(System.in);
-		System.out.println("Type the size value, which the error packet would become that size");
-		String str = "";
-		int number = -1;
-		while (number < 0) {
-			str = sc.next();
- 			 try {
-				 number = Integer.parseInt(str);
- 			 } catch (NumberFormatException e) {
-				 number = -1;
-				 System.out.println("Input was not number, please try again");
- 			 }
-		}
-		System.out.println("size set to value: " + number);
-		return number;
-	}
-	*/
