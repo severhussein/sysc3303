@@ -33,10 +33,12 @@ public class ErrorSimulatorThread implements Runnable {
 			this.userChoice = new int[userChoice.length];
 			System.arraycopy(userChoice, 0, this.userChoice, 0, userChoice.length);//do not use equal here. copy content not reference
 			
-			this.serverPort = -1;//keep it as -1 to detect bug, since it should not be used before updated.
+			this.serverPort = -1;
 			this.serverAddress = newDestinationAddress;//server address remain the same in a file transfer
 			this.clientPort = receivePacket.getPort();
 			this.clientAddress = receivePacket.getAddress();;//client address remain the same in a file transfer
+			System.out.println("client IP: "+clientAddress+", Port: "+clientPort);
+			System.out.println("server IP: "+serverAddress+", Port: ??");
 			
 			this.socket = ErrorSimulatorHelper.newSocket();
 			if (socket == null){
@@ -60,7 +62,7 @@ public class ErrorSimulatorThread implements Runnable {
 			//clean printing//Utils.tryPrintTftpPacket(sendPacket);
 		}
 		//round++;// first round of request msg was done, increase i here
-		//////////////////"Sending to server..."//////////////////////////////////////
+		//////////////////"Sent to server..."//////////////////////////////////////
 		
 		int receivedPort = -1;
 		InetAddress receivedAddress = null;
@@ -81,7 +83,7 @@ public class ErrorSimulatorThread implements Runnable {
 			System.out.println("    |BLK#"+ getBlockNum());
 			//////////////////"Received"//////////////////////////////////////
 			
-						/**
+			/**
 			 * Ip Port Updated
 			 * c	c	T	//send to server
 			 * c	s	T
@@ -105,7 +107,7 @@ public class ErrorSimulatorThread implements Runnable {
 			 * ?	?	F
 			 */
 			
-			if ( (receivedAddress == clientAddress) &&  serverPortUpdated && (receivedPort == clientPort) ) {
+			if ( (receivedAddress.equals(clientAddress)) &&  serverPortUpdated && (receivedPort == clientPort) ) {
 				
 				//////////////////"Sending to server..."//////////////////////////////////////
 				if (!simulateError(serverAddress, serverPort)) {
@@ -119,15 +121,17 @@ public class ErrorSimulatorThread implements Runnable {
 					System.out.println("    |BLK#"+ getBlockNum());
 					//clean printing//Utils.tryPrintTftpPacket(sendPacket);
 				}
-				//////////////////"Sending to server..."//////////////////////////////////////
+				//////////////////"Sent to server..."//////////////////////////////////////
 				
-			} else if ( (receivedAddress == serverAddress) && 
+			} else if ( (receivedAddress.equals(serverAddress)) && 
 			( (!serverPortUpdated && ((receivedPort != clientPort) )) || (serverPortUpdated && (receivedPort == serverPort)) ) ) {
 				
+				// update server port
 				if (!serverPortUpdated) {
 					serverPort = receivePacket.getPort();
 					serverPortUpdated = true;
-				} // get server port here!
+					System.out.println("updated server port: "+serverPort);
+				}
 				
 				//////////////////"Sending to Client...\n"//////////////////////////////////////
 				if (!simulateError(clientAddress, clientPort)) {
@@ -141,13 +145,14 @@ public class ErrorSimulatorThread implements Runnable {
 					System.out.println("    |BLK#"+ getBlockNum());
 					//clean printing//Utils.tryPrintTftpPacket(sendPacket);
 				}
-				//////////////////"Sending to Client...\n"//////////////////////////////////////
-			} else if (!serverPortUpdated && (receivedPort == clientPort) && (receivedAddress == clientAddress)) {
+				//////////////////"Sent to Client...\n"//////////////////////////////////////
+			} else if (!serverPortUpdated && (receivedPort == clientPort) && receivedAddress.equals(clientAddress)) {
 				System.out.println("Order incorrect, receive packet from client when server port not set");
 			} else {//remaining case is: serverPortUpdated && (port is neither client nor server)
 				System.out.println("unknown source received");
+				System.out.println("received IP: "+receivedAddress+", Port: "+receivedPort);
+				System.out.println("receivedAddress == serverAddress: "+ (receivedAddress == serverAddress));
 			}
-
 
 		}
 	}
@@ -225,7 +230,7 @@ public class ErrorSimulatorThread implements Runnable {
 		    if (userChoice[problemIndex] == 2) {//"2     Incorrect Size",
 		    	return simulateIncorrectSize(ip, port, userChoice[sizeIndex]);
 		    }
-		    if (userChoice[problemIndex] == 1) {//"1     Corruptted Field",
+		    if (userChoice[problemIndex] == 1) {//"1     Corrupted Field",
 			    if (userChoice[packetIndex] == 1 || userChoice[packetIndex] == 2) {
 			    	return simulateCorruptedRequest(ip, port, userChoice[fieldIndex]);
 			    } else if (userChoice[packetIndex] == 3) {
@@ -327,10 +332,10 @@ public class ErrorSimulatorThread implements Runnable {
 		
 		/*
 		for (int i=0; i<value; i++) {
-			System.out.println("Last recieved ignored, recieving new packet...");
+			System.out.println("Last Received ignored, Receiving new packet...");
 			receivePacket = ErrorSimulatorHelper.newReceive();
 			ErrorSimulatorHelper.receive(socket, receivePacket);
-			System.out.println("Recieved");
+			System.out.println("Received");
 		}
 		*/
 		return true;//replace the normal packet
