@@ -382,6 +382,7 @@ public class Client {
 	}
 
 	private void readFromHost(String fileName) {
+		boolean deleteFile = false;
 		boolean endOfFile = false;
 		byte[] writeData = new byte[CommonConstants.DATA_PACKET_SZ];
 		receivePacket = new DatagramPacket(writeData, writeData.length);
@@ -476,19 +477,19 @@ public class Client {
 						if(e.getMessage().equals("There is not enough space on the disk"))
 						{
 							trySend(new TftpErrorPacket(3, "Disk full, can't write to file").generateDatagram(destinationAddress, tid));
-
-							try {
-								//close file
-								outFile.close();
-								
-								//closing output stream not possible
-								//out.close();
-								
-								//delete file
-								Files.deleteIfExists(file.toPath());
-							} catch (IOException e1) {
-								e1.printStackTrace();
-							}
+							deleteFile = true;
+//							try {
+//								//close file
+//								outFile.close();
+//								
+//								//closing output stream not possible
+//								//out.close();
+//								
+//								//delete file
+//								Files.deleteIfExists(file.toPath());
+//							} catch (IOException e1) {
+//								e1.printStackTrace();
+//							}
 						} else {
 							// if io error not due to space, send the message as
 							// a custom error
@@ -507,19 +508,19 @@ public class Client {
 						} catch (IOException e) {
 							if (e.getMessage().equals("There is not enough space on the disk")) {
 								trySend(new TftpErrorPacket(3, "Disk full, can't write to file").generateDatagram(destinationAddress, tid));
-
-								try {
-									//close file
-									outFile.close();
-									
-									//closing output steram not possible
-									//out.close();
-									
-									//delete file
-									Files.deleteIfExists(file.toPath());
-								} catch (IOException e1) {
-									e1.printStackTrace();
-								}
+								deleteFile = true;
+//								try {
+//									//close file
+//									outFile.close();
+//									
+//									//closing output steram not possible
+//									//out.close();
+//									
+//									//delete file
+//									Files.deleteIfExists(file.toPath());
+//								} catch (IOException e1) {
+//									e1.printStackTrace();
+//								}
 							} else {
 								trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(destinationAddress,
 										tid));
@@ -565,16 +566,29 @@ public class Client {
 						receivePacket.getPort()));
 				break;
 			}
-		}
+		}//end while
+
 		try {
 			out.close();
 		} catch (IOException e) {
 			// Failed to close output stream, this can happen due to various
 			// reason
 			// at this point there is no point of sending error to server
-			// either it was errored before, or last ack had already been sent
+			// either it was errored before, or last ack had already been
+			// sent
 			System.out.println(e.getMessage());
 		}
+		
+		// consolidate file deletion code
+		// if file needs to be deleted set the boolean
+		if (deleteFile) {
+			try {
+				Files.deleteIfExists(file.toPath());
+			} catch (IOException e) {
+				System.out.println("FAILED TO DELETE INCOMEPLETED FILE\n" + e.getMessage());
+			}
+		}
+
 		System.out.println();
 	}
 
@@ -643,7 +657,7 @@ public class Client {
 			else if(request.equals("5"))
 				setDestinationAddress();
 			System.out.println(
-					"Enter:\n1 to read a file\n2 to write a file\n3 to toggle output mode\n4 to toggle operation mode\n5 Change server IP address\n6 to shutdown");
+					"\nEnter:\n1 to read a file\n2 to write a file\n3 to toggle output mode\n4 to toggle operation mode\n5 Change server IP address\n6 to shutdown");
 			request = sc.nextLine().trim();
 		}
 		return request;
