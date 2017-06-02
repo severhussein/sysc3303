@@ -81,7 +81,31 @@ public class ErrorSimulatorThread implements Runnable {
 			System.out.println("    |BLK#"+ getBlockNum());
 			//////////////////"Received"//////////////////////////////////////
 			
-			if (serverPortUpdated &&(receivedPort == clientPort) && (receivedAddress == clientAddress)) {
+						/**
+			 * Ip Port Updated
+			 * c	c	T	//send to server
+			 * c	s	T
+			 * c	?	T
+			 * 
+			 * s	c	T
+			 * s	s	T	//send to client
+			 * s	?	T
+			 * 
+			 * ?	c	T
+			 * ?	s	T
+			 * ?	?	T
+			 * 
+			 * c	c	F	//order error, server port not updated //should "not" just send to port 69
+			 * c	?	F
+			 * 
+			 * s	c	F
+			 * s	?	F	//update port, then send to client
+			 * 
+			 * ?	c	F
+			 * ?	?	F
+			 */
+			
+			if ( (receivedAddress == clientAddress) &&  serverPortUpdated && (receivedPort == clientPort) ) {
 				
 				//////////////////"Sending to server..."//////////////////////////////////////
 				if (!simulateError(serverAddress, serverPort)) {
@@ -96,8 +120,9 @@ public class ErrorSimulatorThread implements Runnable {
 					//clean printing//Utils.tryPrintTftpPacket(sendPacket);
 				}
 				//////////////////"Sending to server..."//////////////////////////////////////
-			} else if ( (!serverPortUpdated && ((receivedPort != clientPort) || (receivedAddress == serverAddress)))
-					 || (serverPortUpdated && (receivedPort == serverPort) && (receivedAddress == serverAddress)) ) {
+				
+			} else if ( (receivedAddress == serverAddress) && 
+			( (!serverPortUpdated && ((receivedPort != clientPort) )) || (serverPortUpdated && (receivedPort == serverPort)) ) ) {
 				
 				if (!serverPortUpdated) {
 					serverPort = receivePacket.getPort();
