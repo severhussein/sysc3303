@@ -323,7 +323,7 @@ public class ErrorSimulatorThread implements Runnable {
 		DatagramPacket tempErrorReceivePacket = ErrorSimulatorHelper.newReceive();
 		ErrorSimulatorHelper.receive(new_socket, tempErrorReceivePacket);
 		
-		System.out.println("Received ERORR from port: "+ receivePacket.getPort());
+		System.out.println("Received ERORR from port: "+ tempErrorReceivePacket.getPort());
 		ErrorSimulatorHelper.printPacket(tempErrorReceivePacket);
 
 		//close the new socket to simulate wrong tid
