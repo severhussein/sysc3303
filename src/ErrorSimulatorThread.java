@@ -20,7 +20,6 @@ public class ErrorSimulatorThread implements Runnable {
 	
 	private int[] userChoice;
 	
-	//too many changes, so I just upload the whole file
 	//change descriptions:
 	//1. renamed destinationAddress to serverAddress (to be consistent with clientAddress)
 	//2. added more strict conditions in while loop in run() to determine received source
