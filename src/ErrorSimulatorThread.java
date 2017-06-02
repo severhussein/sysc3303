@@ -96,7 +96,7 @@ public class ErrorSimulatorThread implements Runnable {
 					//clean printing//Utils.tryPrintTftpPacket(sendPacket);
 				}
 				//////////////////"Sending to server..."//////////////////////////////////////
-			} else if ( (!serverPortUpdated && ((receivedPort != clientPort) || (receivedAddress != clientAddress)))
+			} else if ( (!serverPortUpdated && ((receivedPort != clientPort) || (receivedAddress == serverAddress)))
 					 || (serverPortUpdated && (receivedPort == serverPort) && (receivedAddress == serverAddress)) ) {
 				
 				if (!serverPortUpdated) {
