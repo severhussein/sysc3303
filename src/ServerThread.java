@@ -255,7 +255,7 @@ public class ServerThread implements Runnable {
 					// Maybe the delay caused by network interruption between
 					// send/received is too long?
 					if (errorPacket.getErrorCode() != 5)
-						finished = true;
+						finished = true; //FIXME deleteFile = true?
 				} else {
 					// not ACK, nor ERROR. this is not expected in TFTP file
 					// transfer
@@ -441,13 +441,30 @@ public class ServerThread implements Runnable {
 					}
 				} else if (recvTftpPacket.getType() == TftpType.ERROR) {
 					TftpErrorPacket errorPacket = (TftpErrorPacket) recvTftpPacket;
-
-					if (errorPacket.getErrorCode() != 5)
+					//FIXME delete this later
+					//Utils.printDatagramContentWiresharkStyle(recvTftpPacket.generateDatagram());
+					
+					//if we receive an error packet, that is not error code 5, then we are done with this request
+					if (errorPacket.getErrorCode() != 5){
+						//FIXME might want to set deleteFile=true
 						break;
+					}
+					
+					//else THEN IT must be an error code 5...so why are we sending TFTP error 4 ...
+					//System.out.println("Does it really get here after error code 5...\nError Code="+errorPacket.getErrorCode());
+					
+
+					
+					//FIXME I am commenting this code..it doesn't make sense that we receive an error packet, error code 5, then send
+					//a new error message back with error code 4..
+					
+					/*
 					// we got TFTP packet but it is either DATA nor ERROR.
 					// something is indeed wrong
 					trySend(new TftpErrorPacket(4, "Not TFTP DATA").generateDatagram(clientAddress, clientPort));
 					break;
+					*/
+					
 				}
 			} while (serve);
 

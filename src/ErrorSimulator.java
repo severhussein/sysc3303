@@ -1,4 +1,6 @@
 import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.net.DatagramPacket;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -13,10 +15,14 @@ public class ErrorSimulator {
 	public static final int DEFAULT_HOST_PORT = 23, DEFAULT_SERVER_PORT = 69, PACKAGE_SIZE = 1000;
 	public static boolean PRINT_PACKET = true;
 	
+	
 	private DatagramSocket receiveSocket;
 	private DatagramPacket receivePacket;
 	
 	private static Scanner sc;
+	
+	//IP address of server
+	private static InetAddress destinationAddress = null;
 
 	public ErrorSimulator() {
 		receiveSocket = ErrorSimulatorHelper.newSocket(DEFAULT_HOST_PORT);
@@ -33,11 +39,19 @@ public class ErrorSimulator {
 		//clean printing//Utils.tryPrintTftpPacket(receivePacket);
 		
 		//System.out.println("Create new thread\n");
-		new Thread(new ErrorSimulatorThread(receivePacket, userChoice)).start();
+		new Thread(new ErrorSimulatorThread(receivePacket, userChoice,destinationAddress)).start();
 	}	
 	
 	public static void main( String args[] ) {
 		sc = new Scanner(System.in);
+		
+		//ask where the destination address is
+		//on startup make sure to ask for IP
+		System.out.println("Welcome to the Error Simulator:\n");
+		if(destinationAddress==null)
+			queryDestinationAddress();
+		
+		//simulate error options
 		int[] userChoice = new int[5];
 		Arrays.fill(userChoice, -1);
 		
@@ -123,7 +137,7 @@ public class ErrorSimulator {
 			printOptions(new String[]{
 					"<Choose Problem Type>",
 					"0     Remove Field",
-		            "1     Corruptted Field",
+		            "1     Corrupted Field",
 		            "2     Incorrect Size",
 		            "3     Invalid TID"
 		            });
@@ -245,6 +259,41 @@ public class ErrorSimulator {
 			}
 		}
 		return number;
+	}
+	
+	//get destination address from user
+	private static void queryDestinationAddress(){
+		//user might want to change server address, so set it back to null
+		destinationAddress = null;
+		do{
+			try {
+				System.out.println("Please enter the server's IP:\n"
+						+ "If you'd like to use the local host enter 1 or local host");
+				String ip = sc.nextLine().trim();
+				
+				//wants local host
+				if(ip.equals("local host")|| ip.equals("1"))
+					destinationAddress = InetAddress.getLocalHost();
+				//optimizing code, getByName function might take a while to parse invalid IP address
+				//thus this code will make program faster
+				else if(ip.length()<3||!ip.contains("."))
+					continue;
+				else
+					destinationAddress = InetAddress.getByName(ip);
+				
+//				IF WE DON'T ALLOW THE CLIENT AND SERVER TO BE ON SAME COMPUTER
+//				THEN UNCOMMENT THIS CODE
+//				if(ip.equals(InetAddress.getLocalHost().getHostAddress())||ip.equals("127.0.0.1")){
+//					System.out.println("Server address can't have same address as this computer.");
+//					destinationAddress = null;
+//					continue;
+//				}
+			} catch (UnknownHostException e) {
+				System.out.println("Please enter a valid IP address\n");
+			}
+		}while(destinationAddress==null);
+		
+		System.out.println("Server IP is: "+destinationAddress.getHostAddress()+"\n");
 	}
 
 }

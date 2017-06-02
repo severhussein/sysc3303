@@ -61,8 +61,12 @@ public class Server {
 		// System.out.println("RequestListener received:\n\n" + packet);
 		// System.out.println("\n" + Arrays.toString(packet.getBytes()) + "\n");
 
+		
+		//************************************************************
+		//CREDIT GOES TO PROFESSOR FOR THIS PART OF THE CODE
 		// This is using the Professor's error handling from assignment1
-
+		//************************************************************
+		
 		// If it's a read, send back DATA (03) block 1
 		// If it's a write, send back ACK (04) block 0
 		// Otherwise, ignore it
@@ -179,12 +183,12 @@ public class Server {
 
 	private static void queryServerMode(Server s) {
 		// ask user for input
-		System.out.println("Enter:\n1 Toggle mode\n2 Begin Server");
-		String request = sc.next();
+		System.out.println("Enter:\n1 Begin Server\n2 Toggle mode");
+		String request = sc.nextLine();
 
-		while (!request.equals("2")) {
+		while (!request.equals("1")) {
 			// request to toggle mode
-			if (request.equals("1")) {
+			if (request.equals("2")) {
 				toggleMode(s);
 				// mode = toggleMode(mode);
 			}
@@ -196,8 +200,8 @@ public class Server {
 				//system.exit(1);
 				
 			}
-			System.out.println("Enter:\n1 Toggle mode\n2 Begin Server");
-			request = sc.next();
+			System.out.println("Enter:\n1 Begin Server\n2 Toggle mode");
+			request = sc.nextLine();
 		}
 		// return mode;
 	}
@@ -209,11 +213,11 @@ public class Server {
 
 	private static String queryServerShutDown() {
 		System.out.println("Enter:\n1 For Shutdown\n2 Continue:");
-		String response = sc.next();
+		String response = sc.nextLine();
 
 		while (!response.equals("1") && !response.equals("2")) {
 			System.out.println("Enter:\n1 For Shutdown\n2 Continue:");
-			response = sc.next();
+			response = sc.nextLine();
 		}
 
 		return response;

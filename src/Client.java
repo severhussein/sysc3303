@@ -72,7 +72,7 @@ public class Client {
 
 			//on startup make sure to ask for IP
 			if(destinationAddress==null)
-				setIP(c);
+				setDestinationAddress();
 //			try {
 //				// code for quick testing on server located on another machine
 //				// destinationAddress =
@@ -242,7 +242,7 @@ public class Client {
 			if(errorPacket.getErrorCode()!= 5)
 				return;
 			else 
-				System.out.println("RECEIVED ERROR :" + errorPacket.getErrorCode() + " :" + errorPacket.getErrorMsg());
+				System.out.println("Received Unknown TID error: " + errorPacket.getErrorCode() + " :" + errorPacket.getErrorMsg());
 		}
 		else {
 			// not even an ack!
@@ -362,7 +362,7 @@ public class Client {
 				if(errorPacket.getErrorCode()!= 5)
 					break;
 				else 
-					System.out.println("RECEIVED ERROR :" + errorPacket.getErrorCode() + " :" + errorPacket.getErrorMsg());
+					System.out.println("Received Unknown TID error: " + errorPacket.getErrorCode() + " :" + errorPacket.getErrorMsg());
 			}
 			else {
 				trySend(new TftpErrorPacket(4, "Not TFTP ACK").generateDatagram(destinationAddress, destinationPort));
@@ -553,9 +553,9 @@ public class Client {
 
 				//should not return on error type 5 though
 				if(errorPacket.getErrorCode()!= 5)
-					break;
+					break; 
 				else 
-					System.out.println("RECEIVED ERROR :" + errorPacket.getErrorCode() + " :" + errorPacket.getErrorMsg());
+					System.out.println("Received Unknown TID error: " + errorPacket.getErrorCode() + " :" + errorPacket.getErrorMsg());
 
 			} else {
 				// we got TFTP packet but it is either DATA nor ERROR. something
@@ -640,7 +640,7 @@ public class Client {
 			else if (request.equals("4"))
 				toggleOperation(c);
 			else if(request.equals("5"))
-				setIP(c);
+				setDestinationAddress();
 			System.out.println(
 					"Enter:\n1 to read a file\n2 to write a file\n3 to toggle output mode\n4 to toggle operation mode\n5 Change server IP address\n6 to shutdown");
 			request = sc.nextLine().trim();
@@ -664,12 +664,12 @@ public class Client {
 	/**
 	 * This method will prompt the user to get the IP address of the server	
 	 */
-	private static void setIP(Client c){
+	private static void setDestinationAddress(){
 		//user might want to change server address, so set it back to null
 		destinationAddress = null;
 		do{
 			try {
-				System.out.println("Please enter the server's IP:\n"
+				System.out.println("\nPlease enter the server's IP:\n"
 						+ "If you'd like to use the local host enter 1 or local host");
 				String ip = sc.nextLine().trim();
 				
@@ -695,7 +695,7 @@ public class Client {
 			}
 		}while(destinationAddress==null);
 		
-		System.out.println("Server IP is: "+c.getIP().getHostAddress());
+		System.out.println("Server IP is: "+destinationAddress.getHostAddress()+"\n");
 	}
 
 	private static void shutdown() {

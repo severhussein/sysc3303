@@ -39,7 +39,7 @@ public class Utils {
 				System.out.println("   TFTP " + tftpPacket+"\n");
 		} else {
 			//Utils.printDatagramContentWiresharkStyle(packet);
-			System.out.println(" Not proper TFTP packet" + sb + "\n");
+			System.out.println("   Not proper TFTP packet. " + sb + "\n");
 		}
 	}
 	
