@@ -1,7 +1,7 @@
-host will have to ask for destination address
+
 client/server make sure that it checks for IP/ and port for error code 5
 access violation when a file is open (try with pdf)
-inet address getbyname function will throw error on wrong address...needss implementation
+
 delete file for error code 2
 need to provide documentation for behavior our system
 make sure error messages are more specific
@@ -18,3 +18,5 @@ also implement if the user wants to change ip on client
 *********************************************************************************
 DONE WITH PARTIAL TESTING:
 client asks for destination address
+host will have to ask for destination address
+inet address getbyname function will throw error on wrong address...needss implementation
