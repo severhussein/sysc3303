@@ -1,5 +1,6 @@
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Arrays;
 import java.io.IOException;
@@ -27,6 +28,17 @@ public class ErrorSimulatorHelper {
 	public static DatagramSocket newSocket(int port) {
 		try {
 			DatagramSocket socket = new DatagramSocket(port);
+			//socket.setSoTimeout(5000);
+			return socket;
+		} catch(SocketException e) {
+			System.out.println(e.getMessage());
+		}
+		return null;
+	}
+	
+	public static DatagramSocket newSocket(int port, InetAddress laddr) {
+		try {
+			DatagramSocket socket = new DatagramSocket(port, laddr);
 			//socket.setSoTimeout(5000);
 			return socket;
 		} catch(SocketException e) {
