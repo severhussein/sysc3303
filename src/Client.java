@@ -47,6 +47,7 @@ public class Client {
 		try {
 			sendReceiveSocket = new DatagramSocket();
 			sendReceiveSocket.setSoTimeout(CommonConstants.SOCKET_TIMEOUT_MS);
+
 		} catch (SocketException se) { // Can't create the socket.
 			// unlikely to get there as there should be plenty of free ports
 			se.printStackTrace();

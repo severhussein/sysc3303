@@ -308,7 +308,15 @@ public class ErrorSimulatorThread implements Runnable {
 		else
 			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), port);
 		
+		//simulate a packet with the Wrong TID
 		ErrorSimulatorHelper.send(new_socket, sendPacket);
+		
+		
+		//THIS WAS CAUSING THE CLIENT/SERVER TO TIMEOUT and have to resend data packet
+		//you need to send the packet with the wrong TID, and the packet with the right TID
+		//THEN actually need to send the data it received
+		ErrorSimulatorHelper.send(socket, sendPacket);
+		
 		//clean printing//Utils.tryPrintTftpPacket(sendPacket);
 		//System.out.print("    |port "+ port);
 		//System.out.print("    |Opcode "+ getOpcode());
@@ -325,7 +333,9 @@ public class ErrorSimulatorThread implements Runnable {
 		System.out.println("Received ERORR from port: "+ receivePacket.getPort());
 		ErrorSimulatorHelper.printPacket(receivePacket);
 		
-		return false;//false means error packet do not replace normal packet
+		//FIXME delete me later, but i changed this to return true
+		//because of the bug it was producing i talked about in the text message
+		return true;//false means error packet do not replace normal packet
 	}
 	
 	
