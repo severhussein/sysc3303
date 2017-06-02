@@ -311,27 +311,24 @@ public class ErrorSimulatorThread implements Runnable {
 		//simulate a packet with the Wrong TID
 		ErrorSimulatorHelper.send(new_socket, sendPacket);
 		
-		
-		//THIS WAS CAUSING THE CLIENT/SERVER TO TIMEOUT and have to resend data packet
-		//you need to send the packet with the wrong TID, and the packet with the right TID
-		//THEN actually need to send the data it received
-		ErrorSimulatorHelper.send(socket, sendPacket);
-		
+				
 		//clean printing//Utils.tryPrintTftpPacket(sendPacket);
 		//System.out.print("    |port "+ port);
 		//System.out.print("    |Opcode "+ getOpcode());
 		//System.out.println("    |BLK#"+ getBlockNum());
 		System.out.println("Sent Fake TID Packet to port: "+ sendPacket.getPort());
-		
-		
 		System.out.println("Receiving ERROR...");
 		
+		//block until it receives wrong tid error packet
 		receivePacket = ErrorSimulatorHelper.newReceive();
 		ErrorSimulatorHelper.receive(new_socket, receivePacket);
 		
-
 		System.out.println("Received ERORR from port: "+ receivePacket.getPort());
 		ErrorSimulatorHelper.printPacket(receivePacket);
+		
+		//THIS WAS CAUSING THE CLIENT/SERVER TO TIMEOUT and have to resend data packet
+		//you need to send the packet with the wrong TID, and the packet with the right TID
+		ErrorSimulatorHelper.send(socket, sendPacket);
 		
 		//FIXME delete me later, but i changed this to return true
 		//because of the bug it was producing i talked about in the text message
