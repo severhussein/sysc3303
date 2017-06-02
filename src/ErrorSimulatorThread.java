@@ -334,6 +334,52 @@ public class ErrorSimulatorThread implements Runnable {
 	}
 	
 	
+	//public boolean simulateIncorrectIP(InetAddress ip, int port) {
+	public boolean simulateIncorrectIP(int port) {
+		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+		
+		System.out.println("!");
+		System.out.println("<simulateIncorrect IP>");
+		System.out.println("!");
+		
+		InetAddress fakeIp = null;
+		try {
+			fakeIp = InetAddress.getByName("7.7.7.7");
+		} catch (UnknownHostException e) {
+			System.out.print("Create fake IP failed");
+		}
+		DatagramSocket new_socket = ErrorSimulatorHelper.newSocket(socket.getPort(), fakeIp);
+
+		//System.out.print("<Error TID> Sending to port...");
+		//sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), ip, port);
+		if(port == serverPort||port==ErrorSimulator.DEFAULT_SERVER_PORT)
+			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), destinationAddress, port);
+		else
+			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), port);
+		
+		//simulate a packet with the Wrong TID
+		ErrorSimulatorHelper.send(new_socket, sendPacket);
+		
+				
+		//clean printing//Utils.tryPrintTftpPacket(sendPacket);
+		//System.out.print("    |port "+ port);
+		//System.out.print("    |Opcode "+ getOpcode());
+		//System.out.println("    |BLK#"+ getBlockNum());
+		System.out.println("Sent Fake IP Packet to port: "+ sendPacket.getPort());
+		System.out.println("Receiving ERROR...");
+		
+		//block until it receives wrong tid error packet
+		DatagramPacket tempErrorReceivePacket = ErrorSimulatorHelper.newReceive();
+		ErrorSimulatorHelper.receive(new_socket, tempErrorReceivePacket);
+		
+		System.out.println("Received ERORR from port: "+ tempErrorReceivePacket.getPort());
+		ErrorSimulatorHelper.printPacket(tempErrorReceivePacket);
+
+		//close the new socket to simulate wrong tid
+		new_socket.close();
+
+		return false;//false means error packet do not replace normal packet
+	}
 	
 	
 	public boolean simulateIncorrectSize(int port, int errorSize) {
