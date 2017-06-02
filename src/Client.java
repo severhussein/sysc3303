@@ -388,11 +388,9 @@ public class Client {
 		receivePacket = new DatagramPacket(writeData, writeData.length);
 		int blockNumber = 1;
 		BufferedOutputStream out = null;
-		FileOutputStream outFile = null;
 		TftpPacket recvTftpPacket;
 		try {
-			outFile = new FileOutputStream(fileName);
-			out = new BufferedOutputStream(outFile);
+			out = new BufferedOutputStream(new FileOutputStream(fileName));
 		} catch (Exception e) {
 			// File was checked in main loop, we could only reach here when
 			// something very bad happened
