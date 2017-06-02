@@ -320,19 +320,17 @@ public class ErrorSimulatorThread implements Runnable {
 		System.out.println("Receiving ERROR...");
 		
 		//block until it receives wrong tid error packet
-		receivePacket = ErrorSimulatorHelper.newReceive();
-		ErrorSimulatorHelper.receive(new_socket, receivePacket);
+		DatagramPacket tempErrorReceivePacket = ErrorSimulatorHelper.newReceive();
+		ErrorSimulatorHelper.receive(new_socket, tempErrorReceivePacket);
 		
 		System.out.println("Received ERORR from port: "+ receivePacket.getPort());
-		ErrorSimulatorHelper.printPacket(receivePacket);
-		
-		//THIS WAS CAUSING THE CLIENT/SERVER TO TIMEOUT and have to resend data packet
-		//you need to send the packet with the wrong TID, and the packet with the right TID
-		ErrorSimulatorHelper.send(socket, sendPacket);
-		
-		//FIXME delete me later, but i changed this to return true
-		//because of the bug it was producing i talked about in the text message
-		return true;//false means error packet do not replace normal packet
+		ErrorSimulatorHelper.printPacket(tempErrorReceivePacket);
+
+		//close the new socket to simulate wrong tid
+		new_socket.close();
+
+
+		return false;//false means error packet do not replace normal packet
 	}
 	
 	
