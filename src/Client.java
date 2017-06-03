@@ -232,7 +232,8 @@ public class Client {
 			} else {
 				// not the special ack? what going on? terminate by sending
 				// error 04
-				trySend(new TftpErrorPacket(TftpErrorPacket.ILLEGAL_OP, "Not ACK 0").generateDatagram(receivePacket.getAddress(),
+				trySend(new TftpErrorPacket(TftpErrorPacket.ILLEGAL_OP, 
+						"Did not receive expected request acknowledge.").generateDatagram(receivePacket.getAddress(),
 						receivePacket.getPort()));
 				return;
 			}
@@ -677,8 +678,14 @@ public class Client {
 				//thus this code will make program faster
 				else if(ip.length()<3||!ip.contains("."))
 					continue;
-				else
-					destinationAddress = InetAddress.getByName(ip);
+				else {
+					try {
+						destinationAddress = InetAddress.getByName(ip); 
+					} catch(UnknownHostException e) {
+						System.out.println("The provided address could not be indentified.");
+						System.out.println("Please re-enter the address.");
+					}
+				}
 				
 //				IF WE DON'T ALLOW THE CLIENT AND SERVER TO BE ON SAME COMPUTER
 //				THEN UNCOMMENT THIS CODE
