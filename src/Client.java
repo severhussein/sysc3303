@@ -101,7 +101,6 @@ public class Client {
 					c.writeToHost(filename);
 				}
 			}
-
 		}
 	}
 
@@ -188,6 +187,7 @@ public class Client {
 		TftpPacket recvTftpPacket;
 		boolean finished = false;
 		boolean acked = true;
+		boolean successful = false;
 		
 		retries = CommonConstants.TFTP_MAX_NUM_RETRIES; // reset
 		
@@ -224,7 +224,7 @@ public class Client {
 
 		retries = CommonConstants.TFTP_MAX_NUM_RETRIES; // reset
 		
-		if (recvTftpPacket.getType() == TftpType.ACK) {
+		if (receivePacket.getAddress().equals(destinationAddress) && recvTftpPacket.getType() == TftpType.ACK) {
 			TftpAckPacket ackPacket = (TftpAckPacket) recvTftpPacket;
 			if (ackPacket.getBlockNumber() == 0) {
 				// we got the special ack 0 from server, take note of the tid
@@ -237,17 +237,19 @@ public class Client {
 						receivePacket.getPort()));
 				return;
 			}
-		}else if(recvTftpPacket.getType()== TftpType.ERROR )
+		}else if(receivePacket.getAddress().equals(destinationAddress) && recvTftpPacket.getType()== TftpType.ERROR )
 		{
-			//should execute this code if we received an error packet when we were expecting ack0
+			// should execute this code if we received an error packet when we were expecting ack0
 			TftpErrorPacket errorPacket = (TftpErrorPacket) recvTftpPacket;
-			if(errorPacket.getErrorCode()!= TftpErrorPacket.UNKNOWN_TID)
+			if (errorPacket.getErrorCode() != TftpErrorPacket.UNKNOWN_TID) {
+					System.out.println("Error code " + errorPacket.getErrorCode() + ": " + errorPacket.getErrorMsg());
 				return;
-			else 
-				System.out.println("Received Unknown TID error: " + errorPacket.getErrorCode() + " :" + errorPacket.getErrorMsg());
+			} else {
+				System.out.println(
+						"Received Unknown TID error: " + errorPacket.getErrorCode() + " :" + errorPacket.getErrorMsg());
+			}
 		}
 		else {
-			// not even an ack!
 			trySend(new TftpErrorPacket(TftpErrorPacket.ILLEGAL_OP, "Not TFTP ACK").generateDatagram(receivePacket.getAddress(),
 					receivePacket.getPort()));
 			return;
@@ -320,7 +322,7 @@ public class Client {
 				break;
 			}
 
-			if (receivePacket.getPort() != tid) {
+			if (!receivePacket.getAddress().equals(destinationAddress) || receivePacket.getPort() != tid) {
 				// received a packet with wrong tid, notify the sender with
 				// error 5
 				trySend(new TftpErrorPacket(TftpErrorPacket.UNKNOWN_TID, "Wrong Transfer ID").generateDatagram(receivePacket.getAddress(),
@@ -350,6 +352,9 @@ public class Client {
 					}
 					acked = true;					
 					retries = CommonConstants.TFTP_MAX_NUM_RETRIES; // reset
+					if (finished) {
+						successful = true;
+					}
 				} else if ((blockNumber - ackPacket.getBlockNumber() >= 0 && blockNumber
 						- ackPacket.getBlockNumber() <= CommonConstants.TFTP_BLOCK_MISMATCH_THRESHOLD)) {
 					// do not re-send data for duplicated ACK
@@ -359,15 +364,16 @@ public class Client {
 							.generateDatagram(destinationAddress, tid));
 					break;
 				}
-			}else if(recvTftpPacket.getType()== TftpType.ERROR )//and not error code 5
-			{
+			} else if (recvTftpPacket.getType() == TftpType.ERROR) {
 				TftpErrorPacket errorPacket = (TftpErrorPacket) recvTftpPacket;
-				if(errorPacket.getErrorCode()!= TftpErrorPacket.UNKNOWN_TID)
+				if (errorPacket.getErrorCode() != TftpErrorPacket.UNKNOWN_TID) {
+					System.out.println("Error code " + errorPacket.getErrorCode() + ": " + errorPacket.getErrorMsg());
 					break;
-				else 
-					System.out.println("Received Unknown TID error: " + errorPacket.getErrorCode() + " :" + errorPacket.getErrorMsg());
-			}
-			else {
+				} else {
+					System.out.println("Received Unknown TID error: " + errorPacket.getErrorCode() + " :"
+							+ errorPacket.getErrorMsg());
+				}
+			} else {
 				trySend(new TftpErrorPacket(TftpErrorPacket.ILLEGAL_OP, "Not TFTP ACK")
 						.generateDatagram(destinationAddress, destinationPort));
 				break;
@@ -381,12 +387,16 @@ public class Client {
 			// Failed to close input stream for reading, this is not expected
 			System.out.println(e.getMessage());
 		}
+		if (successful) {
+			System.out.println("File transfer successfully completed.");
+		}
 		System.out.println();
 	}
 
 	private void readFromHost(String fileName) {
 		boolean deleteFile = false;
 		boolean endOfFile = false;
+		boolean successful = false;
 		byte[] writeData = new byte[CommonConstants.DATA_PACKET_SZ];
 		receivePacket = new DatagramPacket(writeData, writeData.length);
 		int blockNumber = 1;
@@ -442,27 +452,23 @@ public class Client {
 				break;
 			}
 
+			if (tid != -1 && (!receivePacket.getAddress().equals(destinationAddress) || receivePacket.getPort() != tid)) {
+				trySend(new TftpErrorPacket(TftpErrorPacket.UNKNOWN_TID, "Wrong Transfer ID")
+						.generateDatagram(receivePacket.getAddress(), receivePacket.getPort()), "ISSUE SENDING ERROR PACKET");
+				retries--;
+				continue;
+			}
 			// now let's check what type of TFTP packet is this
 			if (recvTftpPacket.getType() == TftpType.DATA) {
 				// this is a TFTP data packet, let's cast it to TftpDataPacket
 				// and use the methods of the class to make our life easier
 				TftpDataPacket dataPacket = (TftpDataPacket) recvTftpPacket;
 
-				//FIXME before we check if it's even a data packet we should check TID...i'm pretty sure that's what professor said
-				if (receivePacket.getAddress().equals(destinationAddress) && dataPacket.getBlockNumber() == 1) {
+				if (tid == -1 && receivePacket.getAddress().equals(destinationAddress) && dataPacket.getBlockNumber() == 1) {
 					// first DATA packet received from server side, take a note
 					// of the TID
-					// should we record the IP?
 					tid = receivePacket.getPort();
-				} else if (tid != receivePacket.getPort()) {
-					// send Error Code 5 Unknown transfer ID to terminate this
-					// connection
-					trySend(new TftpErrorPacket(TftpErrorPacket.UNKNOWN_TID, "Wrong Transfer ID").generateDatagram(receivePacket.getAddress(),
-							receivePacket.getPort()));
-					retries--;
-					continue;
-				}
-
+				} 
 				// System.out.println("block" + blockNumber);
 				if (dataPacket.getBlockNumber() == blockNumber) {
 					// ok, we got correct block. write it to file system...
@@ -494,6 +500,7 @@ public class Client {
 						// before sending last ack
 						try {
 							out.flush();
+							successful = true;
 						} catch (IOException e) {
 							if (e.getMessage().equals("There is not enough space on the disk")) {
 								trySend(new TftpErrorPacket(TftpErrorPacket.DISK_FULL, "Disk full, can't write to file").generateDatagram(destinationAddress, tid));
@@ -536,6 +543,7 @@ public class Client {
 					if (errorCode == TftpErrorPacket.FILE_NOT_FOUND) {
 						deleteFile = true;
 					}
+					System.out.println("Error code " + errorPacket.getErrorCode() + ": " + errorPacket.getErrorMsg());
 					break;
 				} else {
 					System.out.println("Received Unknown TID error: " + errorPacket.getErrorCode() + " :"
@@ -559,6 +567,7 @@ public class Client {
 			// at this point there is no point of sending error to server
 			// either it was errored before, or last ack had already been
 			// sent
+			successful = false;
 			System.out.println(e.getMessage());
 		}
 		
@@ -572,6 +581,10 @@ public class Client {
 			}
 		}
 
+		if (successful) {
+			System.out.println("File transfer successfully completed.");
+		}
+		
 		System.out.println();
 	}
 
@@ -588,6 +601,7 @@ public class Client {
 
 		System.out.println("\nStarting the transfer...");
 		trySend(sendPacket);
+		tid = -1;
 	}
 	
 	public InetAddress getIP(){
