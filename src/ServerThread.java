@@ -119,8 +119,9 @@ public class ServerThread implements Runnable {
 			}
 			if (!Files.isReadable(file.toPath())) {
 				try {
-					socket.send(new TftpErrorPacket(2, "Unable to read the file due to insufficient permission")
-							.generateDatagram(clientAddress, clientPort));
+					socket.send(new TftpErrorPacket(TftpErrorPacket.ACCESS_VIOLATION,
+							"Unable to read the file due to insufficient permission").generateDatagram(clientAddress,
+									clientPort));
 				} catch (IOException e) {
 					System.out.println("ISSUE SENDING ERROR TYPE 2\n" + e.getMessage());
 				}
@@ -137,7 +138,8 @@ public class ServerThread implements Runnable {
 			} catch (Exception e) {
 				// File was checked in main loop, we could only reach here when
 				// something very bad happened
-				trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(clientAddress, clientPort));
+				trySend(new TftpErrorPacket(TftpErrorPacket.NOT_DEFINED, e.getMessage()).generateDatagram(clientAddress,
+						clientPort));
 				socket.close();
 				return;
 			}
@@ -151,7 +153,8 @@ public class ServerThread implements Runnable {
 					} catch (IOException e) {
 						// Unexpected error
 						// send the error message as custom error
-						trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(clientAddress, clientPort));
+						trySend(new TftpErrorPacket(TftpErrorPacket.NOT_DEFINED, e.getMessage())
+								.generateDatagram(clientAddress, clientPort));
 						System.out.println("ERROR READING FILE\n" + e.getMessage());
 						break;
 					}
@@ -204,8 +207,8 @@ public class ServerThread implements Runnable {
 				if (!received.getAddress().equals(clientAddress) || received.getPort() != clientPort) {
 					// received a packet with wrong tid, notify the sender with
 					// error 5
-					trySend(new TftpErrorPacket(5, "Wrong Transfer ID").generateDatagram(received.getAddress(),
-							received.getPort()), "ISSUE SENDING ERROR PACKET");
+					trySend(new TftpErrorPacket(TftpErrorPacket.UNKNOWN_TID, "Wrong Transfer ID")
+							.generateDatagram(received.getAddress(), received.getPort()), "ISSUE SENDING ERROR PACKET");
 					retries--;
 					continue;
 				}
@@ -215,8 +218,8 @@ public class ServerThread implements Runnable {
 				} catch (IllegalArgumentException ile) {
 					// not a TFTP packet, notifier sender (which may or may
 					// not be a TFTP client) and try receive again
-					trySend(new TftpErrorPacket(4, ile.getMessage()).generateDatagram(received.getAddress(),
-							received.getPort()));
+					trySend(new TftpErrorPacket(TftpErrorPacket.ILLEGAL_OP, ile.getMessage())
+							.generateDatagram(received.getAddress(), received.getPort()));
 					break;
 				}
 
@@ -240,26 +243,23 @@ public class ServerThread implements Runnable {
 						// do not re-send data for duplicated ACK
 						retries--;
 					} else {
-						trySend(new TftpErrorPacket(4, "Block number mismatch").generateDatagram(clientAddress,
-								clientPort));
+						trySend(new TftpErrorPacket(TftpErrorPacket.ILLEGAL_OP, "Block number mismatch")
+								.generateDatagram(clientAddress, clientPort));
 						break;
 					}
 				} else if (recvTftpPacket.getType() == TftpType.ERROR) {
-					// received an error packet
 					TftpErrorPacket errorPacket = (TftpErrorPacket) recvTftpPacket;
-					// anything other than error 5 (wrong TID) terminates
-					// file transfer
-
 					// Client give us the TID. In what case will we send
 					// data to wrong port?
 					// Maybe the delay caused by network interruption between
 					// send/received is too long?
-					if (errorPacket.getErrorCode() != 5)
-						finished = true; //FIXME deleteFile = true?
+					if (errorPacket.getErrorCode() != TftpErrorPacket.UNKNOWN_TID)
+						finished = true;
 				} else {
 					// not ACK, nor ERROR. this is not expected in TFTP file
 					// transfer
-					trySend(new TftpErrorPacket(4, "Not TFTP ACK").generateDatagram(clientAddress, clientPort));
+					trySend(new TftpErrorPacket(TftpErrorPacket.ILLEGAL_OP, "Not TFTP ACK")
+							.generateDatagram(clientAddress, clientPort));
 					retries--;
 				}
 			} while (!finished);
@@ -283,8 +283,8 @@ public class ServerThread implements Runnable {
 			if (file.exists()) {
 				if (file.isDirectory()) {
 					try {
-						socket.send(new TftpErrorPacket(0, "This is a directory").generateDatagram(clientAddress,
-								clientPort));
+						socket.send(new TftpErrorPacket(TftpErrorPacket.NOT_DEFINED, "This is a directory")
+								.generateDatagram(clientAddress, clientPort));
 					} catch (IOException e) {
 						System.out.println("ISSUE SENDING ERROR TYPE 0\n" + e.getMessage());
 					}
@@ -292,7 +292,7 @@ public class ServerThread implements Runnable {
 					return;
 				} else if (!Files.isWritable(file.toPath())) {
 					try {
-						socket.send(new TftpErrorPacket(2, "Unable to write the file due to insufficient permission")
+						socket.send(new TftpErrorPacket(TftpErrorPacket.ACCESS_VIOLATION, "Unable to write the file due to insufficient permission")
 								.generateDatagram(clientAddress, clientPort));
 					} catch (IOException e) {
 						System.out.println("ISSUE SENDING ERROR TYPE 2\n" + e.getMessage());
@@ -307,7 +307,8 @@ public class ServerThread implements Runnable {
 			} catch (IOException e) {
 				// we have checked the file before opening it
 				// this is not expected
-				trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(clientAddress, clientPort));
+				trySend(new TftpErrorPacket(TftpErrorPacket.NOT_DEFINED, e.getMessage()).generateDatagram(clientAddress,
+						clientPort));
 				System.out.println(e.getMessage());
 				
 				socket.close();
@@ -354,8 +355,8 @@ public class ServerThread implements Runnable {
 				if (!received.getAddress().equals(clientAddress) || received.getPort() != clientPort) {
 					// received a packet with wrong tid, notify the sender
 					// with error 5
-					trySend(new TftpErrorPacket(5, "Wrong Transfer ID").generateDatagram(received.getAddress(),
-							received.getPort()), "ISSUE SENDING ERROR PACKET");
+					trySend(new TftpErrorPacket(TftpErrorPacket.UNKNOWN_TID, "Wrong Transfer ID")
+							.generateDatagram(received.getAddress(), received.getPort()), "ISSUE SENDING ERROR PACKET");
 					retries--;
 					continue;
 				}
@@ -365,8 +366,8 @@ public class ServerThread implements Runnable {
 					// thrown then this is a TFTP packet
 					recvTftpPacket = TftpPacket.decodeTftpPacket(received);
 				} catch (IllegalArgumentException ile) {
-					trySend(new TftpErrorPacket(4, ile.getMessage()).generateDatagram(received.getAddress(),
-							received.getPort()));
+					trySend(new TftpErrorPacket(TftpErrorPacket.ILLEGAL_OP, ile.getMessage())
+							.generateDatagram(received.getAddress(), received.getPort()));
 					break;
 				}
 
@@ -385,14 +386,14 @@ public class ServerThread implements Runnable {
 							// dataPacket.getDataLength())
 							// hack=
 							if (e.getMessage().equals("There is not enough space on the disk")) {
-								trySend(new TftpErrorPacket(3, "Disk full, can't write to file")
+								trySend(new TftpErrorPacket(TftpErrorPacket.DISK_FULL, "Disk full, can't write to file")
 										.generateDatagram(clientAddress, clientPort));
 								deleteFile = true;
 							} else {
 								// if io error not due to space, send the
 								// message as a custom error
-								trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(clientAddress,
-										clientPort));
+								trySend(new TftpErrorPacket(TftpErrorPacket.NOT_DEFINED, e.getMessage())
+										.generateDatagram(clientAddress, clientPort));
 								System.out.println("ERROR WRITING TO FILE\n" + e.getMessage());
 							}
 							break;
@@ -408,12 +409,13 @@ public class ServerThread implements Runnable {
 								// hack, what's the proper way of doing
 								// this?
 								if (e.getMessage().equals("There is not enough space on the disk")) {
-									trySend(new TftpErrorPacket(3, "Disk full, can't write to file")
-											.generateDatagram(clientAddress, clientPort));
+									trySend(new TftpErrorPacket(TftpErrorPacket.DISK_FULL,
+											"Disk full, can't write to file").generateDatagram(clientAddress,
+													clientPort));
 									deleteFile = true;
 								} else {
-									trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(clientAddress,
-											clientPort));
+									trySend(new TftpErrorPacket(TftpErrorPacket.NOT_DEFINED, e.getMessage())
+											.generateDatagram(clientAddress, clientPort));
 									System.out.println("ERROR WRITING TO FILE\n" + e.getMessage());
 								}
 								break;
@@ -435,8 +437,8 @@ public class ServerThread implements Runnable {
 								clientPort), "ERROR SENDING ACK\n");
 						retries--;
 					} else {
-						trySend(new TftpErrorPacket(4, "Block number mismatch").generateDatagram(clientAddress,
-								clientPort));
+						trySend(new TftpErrorPacket(TftpErrorPacket.ILLEGAL_OP, "Block number mismatch")
+								.generateDatagram(clientAddress, clientPort));
 						break;
 					}
 				} else if (recvTftpPacket.getType() == TftpType.ERROR) {
@@ -445,26 +447,14 @@ public class ServerThread implements Runnable {
 					//Utils.printDatagramContentWiresharkStyle(recvTftpPacket.generateDatagram());
 					
 					//if we receive an error packet, that is not error code 5, then we are done with this request
-					if (errorPacket.getErrorCode() != 5){
+					if (errorPacket.getErrorCode() != TftpErrorPacket.UNKNOWN_TID){
 						//FIXME might want to set deleteFile=true
 						break;
 					}
-					
-					//else THEN IT must be an error code 5...so why are we sending TFTP error 4 ...
-					//System.out.println("Does it really get here after error code 5...\nError Code="+errorPacket.getErrorCode());
-					
-
-					
-					//FIXME I am commenting this code..it doesn't make sense that we receive an error packet, error code 5, then send
-					//a new error message back with error code 4..
-					
-					/*
-					// we got TFTP packet but it is either DATA nor ERROR.
-					// something is indeed wrong
-					trySend(new TftpErrorPacket(4, "Not TFTP DATA").generateDatagram(clientAddress, clientPort));
-					break;
-					*/
-					
+				} else {
+					trySend(new TftpErrorPacket(TftpErrorPacket.ILLEGAL_OP, "Not TFTP DATA")
+							.generateDatagram(clientAddress, clientPort));
+					retries--;
 				}
 			} while (serve);
 

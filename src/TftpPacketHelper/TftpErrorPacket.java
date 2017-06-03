@@ -11,6 +11,14 @@ import java.net.DatagramPacket;
  *
  */
 public class TftpErrorPacket extends TftpPacket {
+	public static final int NOT_DEFINED = 0;
+	public static final int FILE_NOT_FOUND = 1;
+	public static final int ACCESS_VIOLATION = 2;
+	public static final int DISK_FULL = 3;
+	public static final int ILLEGAL_OP = 4;
+	public static final int UNKNOWN_TID = 5;
+	public static final int FILE_EXIST = 6;
+	public static final int NO_SUCH_USER = 7;
 
 	public static final String[] errorString = { "Not defined, see error message (if any).", "File not found.",
 			"Access violation.", "Disk full or allocation exceeded.", "Illegal TFTP operation.", "Unknown transfer ID.",

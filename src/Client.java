@@ -232,7 +232,7 @@ public class Client {
 			} else {
 				// not the special ack? what going on? terminate by sending
 				// error 04
-				trySend(new TftpErrorPacket(4, "Not ACK 0").generateDatagram(receivePacket.getAddress(),
+				trySend(new TftpErrorPacket(TftpErrorPacket.ILLEGAL_OP, "Not ACK 0").generateDatagram(receivePacket.getAddress(),
 						receivePacket.getPort()));
 				return;
 			}
@@ -240,14 +240,14 @@ public class Client {
 		{
 			//should execute this code if we received an error packet when we were expecting ack0
 			TftpErrorPacket errorPacket = (TftpErrorPacket) recvTftpPacket;
-			if(errorPacket.getErrorCode()!= 5)
+			if(errorPacket.getErrorCode()!= TftpErrorPacket.UNKNOWN_TID)
 				return;
 			else 
 				System.out.println("Received Unknown TID error: " + errorPacket.getErrorCode() + " :" + errorPacket.getErrorMsg());
 		}
 		else {
 			// not even an ack!
-			trySend(new TftpErrorPacket(4, "Not TFTP ACK").generateDatagram(receivePacket.getAddress(),
+			trySend(new TftpErrorPacket(TftpErrorPacket.ILLEGAL_OP, "Not TFTP ACK").generateDatagram(receivePacket.getAddress(),
 					receivePacket.getPort()));
 			return;
 		}
@@ -257,7 +257,7 @@ public class Client {
 		} catch (Exception e) {
 			// File was checked in main loop, we could only reach here when
 			// something very bad happened
-			trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(destinationAddress, tid));
+			trySend(new TftpErrorPacket(TftpErrorPacket.NOT_DEFINED, e.getMessage()).generateDatagram(destinationAddress, tid));
 			return;
 		}
 
@@ -322,7 +322,7 @@ public class Client {
 			if (receivePacket.getPort() != tid) {
 				// received a packet with wrong tid, notify the sender with
 				// error 5
-				trySend(new TftpErrorPacket(5, "Wrong Transfer ID").generateDatagram(receivePacket.getAddress(),
+				trySend(new TftpErrorPacket(TftpErrorPacket.UNKNOWN_TID, "Wrong Transfer ID").generateDatagram(receivePacket.getAddress(),
 						receivePacket.getPort()));
 				retries--;
 				continue;
@@ -332,8 +332,8 @@ public class Client {
 				recvTftpPacket = TftpPacket.decodeTftpPacket(receivePacket);
 			} catch (IllegalArgumentException ile) {
 				// not a TFTP packet, try again
-				trySend(new TftpErrorPacket(4, ile.getMessage()).generateDatagram(receivePacket.getAddress(),
-						receivePacket.getPort()));
+				trySend(new TftpErrorPacket(TftpErrorPacket.ILLEGAL_OP, ile.getMessage())
+						.generateDatagram(receivePacket.getAddress(), receivePacket.getPort()));
 				break;
 			}
 
@@ -354,19 +354,21 @@ public class Client {
 					// do not re-send data for duplicated ACK
 					retries--;
 				} else {
-					trySend(new TftpErrorPacket(4, "Block number mismatch").generateDatagram(destinationAddress, tid));
+					trySend(new TftpErrorPacket(TftpErrorPacket.ILLEGAL_OP, "Block number mismatch")
+							.generateDatagram(destinationAddress, tid));
 					break;
 				}
 			}else if(recvTftpPacket.getType()== TftpType.ERROR )//and not error code 5
 			{
 				TftpErrorPacket errorPacket = (TftpErrorPacket) recvTftpPacket;
-				if(errorPacket.getErrorCode()!= 5)
+				if(errorPacket.getErrorCode()!= TftpErrorPacket.UNKNOWN_TID)
 					break;
 				else 
 					System.out.println("Received Unknown TID error: " + errorPacket.getErrorCode() + " :" + errorPacket.getErrorMsg());
 			}
 			else {
-				trySend(new TftpErrorPacket(4, "Not TFTP ACK").generateDatagram(destinationAddress, destinationPort));
+				trySend(new TftpErrorPacket(TftpErrorPacket.ILLEGAL_OP, "Not TFTP ACK")
+						.generateDatagram(destinationAddress, destinationPort));
 				break;
 			}
 
@@ -394,7 +396,7 @@ public class Client {
 		} catch (Exception e) {
 			// File was checked in main loop, we could only reach here when
 			// something very bad happened
-			trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(destinationAddress, destinationPort));
+			trySend(new TftpErrorPacket(TftpErrorPacket.NOT_DEFINED, e.getMessage()).generateDatagram(destinationAddress, destinationPort));
 			return;
 		}
 
@@ -434,7 +436,7 @@ public class Client {
 				// then it is a TFTP packet
 				recvTftpPacket = TftpPacket.decodeTftpPacket(receivePacket);
 			} catch (IllegalArgumentException ile) {
-				trySend(new TftpErrorPacket(4, ile.getMessage()).generateDatagram(receivePacket.getAddress(),
+				trySend(new TftpErrorPacket(TftpErrorPacket.ILLEGAL_OP, ile.getMessage()).generateDatagram(receivePacket.getAddress(),
 						receivePacket.getPort()));
 				break;
 			}
@@ -454,7 +456,7 @@ public class Client {
 				} else if (tid != receivePacket.getPort()) {
 					// send Error Code 5 Unknown transfer ID to terminate this
 					// connection
-					trySend(new TftpErrorPacket(5, "Wrong Transfer ID").generateDatagram(receivePacket.getAddress(),
+					trySend(new TftpErrorPacket(TftpErrorPacket.UNKNOWN_TID, "Wrong Transfer ID").generateDatagram(receivePacket.getAddress(),
 							receivePacket.getPort()));
 					retries--;
 					continue;
@@ -474,24 +476,12 @@ public class Client {
 						//hack=
 						if(e.getMessage().equals("There is not enough space on the disk"))
 						{
-							trySend(new TftpErrorPacket(3, "Disk full, can't write to file").generateDatagram(destinationAddress, tid));
+							trySend(new TftpErrorPacket(TftpErrorPacket.DISK_FULL, "Disk full, can't write to file").generateDatagram(destinationAddress, tid));
 							deleteFile = true;
-//							try {
-//								//close file
-//								outFile.close();
-//								
-//								//closing output stream not possible
-//								//out.close();
-//								
-//								//delete file
-//								Files.deleteIfExists(file.toPath());
-//							} catch (IOException e1) {
-//								e1.printStackTrace();
-//							}
 						} else {
 							// if io error not due to space, send the message as
 							// a custom error
-							trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(destinationAddress, tid));
+							trySend(new TftpErrorPacket(TftpErrorPacket.NOT_DEFINED, e.getMessage()).generateDatagram(destinationAddress, tid));
 							System.out.println("ERROR WRITING TO FILE\n" + e.getMessage());
 						}
 						break;
@@ -505,22 +495,10 @@ public class Client {
 							out.flush();
 						} catch (IOException e) {
 							if (e.getMessage().equals("There is not enough space on the disk")) {
-								trySend(new TftpErrorPacket(3, "Disk full, can't write to file").generateDatagram(destinationAddress, tid));
+								trySend(new TftpErrorPacket(TftpErrorPacket.DISK_FULL, "Disk full, can't write to file").generateDatagram(destinationAddress, tid));
 								deleteFile = true;
-//								try {
-//									//close file
-//									outFile.close();
-//									
-//									//closing output steram not possible
-//									//out.close();
-//									
-//									//delete file
-//									Files.deleteIfExists(file.toPath());
-//								} catch (IOException e1) {
-//									e1.printStackTrace();
-//								}
 							} else {
-								trySend(new TftpErrorPacket(0, e.getMessage()).generateDatagram(destinationAddress,
+								trySend(new TftpErrorPacket(TftpErrorPacket.NOT_DEFINED, e.getMessage()).generateDatagram(destinationAddress,
 										tid));
 								System.out.println("ERROR WRITING TO FILE\n" + e.getMessage());
 							}
@@ -544,24 +522,30 @@ public class Client {
 							"ERROR SENDING ACK\n");
 					retries--;
 				} else {
-					trySend(new TftpErrorPacket(4, "Block number mismatch")
+					trySend(new TftpErrorPacket(TftpErrorPacket.ILLEGAL_OP, "Block number mismatch")
 							.generateDatagram(destinationAddress, tid));
 					break;
 				}
 			} else if (recvTftpPacket.getType() == TftpType.ERROR) {
 				TftpErrorPacket errorPacket = (TftpErrorPacket) recvTftpPacket;
-
-				//should not return on error type 5 though
-				if(errorPacket.getErrorCode()!= 5)
-					break; 
-				else 
-					System.out.println("Received Unknown TID error: " + errorPacket.getErrorCode() + " :" + errorPacket.getErrorMsg());
+				int errorCode = errorPacket.getErrorCode();	
+				
+				// should not return on error type 5 though
+				if (errorCode != TftpErrorPacket.UNKNOWN_TID) {
+					if (errorCode == TftpErrorPacket.FILE_NOT_FOUND) {
+						deleteFile = true;
+					}
+					break;
+				} else {
+					System.out.println("Received Unknown TID error: " + errorPacket.getErrorCode() + " :"
+							+ errorPacket.getErrorMsg());
+				}
 
 			} else {
 				// we got TFTP packet but it is either DATA nor ERROR. something
 				// is indeed wrong
-				trySend(new TftpErrorPacket(4, "PACKET OPCODE IS NOT DATA").generateDatagram(destinationAddress,
-						receivePacket.getPort()));
+				trySend(new TftpErrorPacket(TftpErrorPacket.ILLEGAL_OP, "Not TFTP DATA")
+						.generateDatagram(destinationAddress, receivePacket.getPort()));
 				break;
 			}
 		}//end while
