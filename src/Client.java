@@ -232,7 +232,8 @@ public class Client {
 			} else {
 				// not the special ack? what going on? terminate by sending
 				// error 04
-				trySend(new TftpErrorPacket(4, "Not ACK 0").generateDatagram(receivePacket.getAddress(),
+				trySend(new TftpErrorPacket(4, 
+						"Did not receive expected request acknowledge.").generateDatagram(receivePacket.getAddress(),
 						receivePacket.getPort()));
 				return;
 			}
