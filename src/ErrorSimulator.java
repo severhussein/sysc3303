@@ -278,7 +278,7 @@ public class ErrorSimulator {
 					destinationAddress = InetAddress.getLocalHost();
 				//optimizing code, getByName function might take a while to parse invalid IP address
 				//thus this code will make program faster
-				else if(ip.length()<3||!ip.contains("."))
+				else if(Utils.quickResolve(ip) == null)
 					continue;
 				else
 					destinationAddress = InetAddress.getByName(ip);

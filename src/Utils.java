@@ -1,4 +1,7 @@
 import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import TftpPacketHelper.TftpPacket;
 
 /**
@@ -117,5 +120,46 @@ public class Utils {
 		}
 		System.out.println();
 		
+	}
+	
+	/**
+	 * Do a quick resolve by calling InetAddress.getByName in a new thread.
+	 * 
+	 * @param hostname
+	 * @return resolved address if resolved in time, null when not in time or
+	 *         UnknownHostException was thrown
+	 */
+	public static InetAddress quickResolve(String hostname) {
+		Resolver resolver = new Resolver(hostname);
+		Thread t = new Thread(resolver);
+		t.start();
+		try {
+			t.join(2000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return resolver.get();
+	}
+
+	private static class Resolver implements Runnable {
+		private String hostname;
+		private InetAddress address = null;
+		public Resolver(String hostname) {
+			this.hostname = hostname;
+		}
+
+		public void run() {
+			try {
+				InetAddress addr = InetAddress.getByName(hostname);
+				this.address = addr;
+			} catch (UnknownHostException e) {
+			}
+		}
+
+		public synchronized InetAddress get() {
+			return address;
+		}
 	}
 }
