@@ -120,3 +120,7 @@ Dawei Chen (David):
 Yu-Kai:
 - Improvement on minor details 
 - General debugging on client/server via packet capture and program trace
+
+Alex:
+- General debugging.
+- Testing system functions and test scenarios.
