@@ -10,6 +10,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
+import TftpPacketHelper.TftpErrorPacket;
+import TftpPacketHelper.TftpPacket;
+
 public class Server {
 	public static boolean shutdown = false;
 	private DatagramSocket receiveSock;
@@ -58,8 +61,10 @@ public class Server {
 			else System.out.println("HOST RECEPTION ERROR\n" + e.getMessage());
 		}
 
-		if (verbose)
+		if (verbose){
+			System.out.println("Receiving...");
 			Utils.tryPrintTftpPacket(received);
+		}
 
 		packetLength = received.getLength();
 
@@ -138,8 +143,16 @@ public class Server {
 			error.write(5);
 			error.write(0);
 			error.write(4);
+			String errorMessage = "READ/WRITE Request invalid format";
 			try {
-				error.write("READ/WRITE REQUEST INVALID FORMAT".getBytes());
+				// use the help to decode the packet, if no exception is
+				// thrown then this is a TFTP packet
+				TftpPacket.decodeTftpPacket(received);
+			} catch (IllegalArgumentException ile) {
+				errorMessage = ile.getMessage();
+			}
+			try {
+				error.write(errorMessage.getBytes());
 			} catch (IOException e) {
 				System.out.println("ERROR CREATING ERROR BYTE ARRAY\n" + e.getMessage());
 			}
@@ -149,8 +162,10 @@ public class Server {
 
 			try {
 				send = new DatagramPacket(errBuf, errBuf.length, received.getAddress(), received.getPort());
-				if (verbose)
+				if (verbose){
+					System.out.println("Sending...");
 					Utils.tryPrintTftpPacket(send);
+				}
 				sendSocket.send(send);
 			} catch (IOException | IllegalArgumentException e) {
 				if(e instanceof IllegalArgumentException) return;
