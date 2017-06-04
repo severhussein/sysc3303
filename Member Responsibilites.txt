@@ -116,6 +116,8 @@ Alex:
 *************************************************************************************
 
 Dawei Chen (David):
+- Improved Error Simulator, made all cases support IP address for Iteration 5.
+- Testing and debugging Error Simulator for final presentation.
 
 Yu-Kai:
 - Improvement on minor details 
