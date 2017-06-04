@@ -97,7 +97,7 @@ public abstract class TftpPacket {
 		}
 		
 		if (payload[0] != 0) {
-			throw new IllegalArgumentException("Malformed TFTP Packet: First byte not zero.");
+			throw new IllegalArgumentException("Malformed TFTP Packet: First byte not zero");
 		}
 
 		switch (payload[1]) {
@@ -114,7 +114,7 @@ public abstract class TftpPacket {
 		//case TFTP_OACK:
 			//return new TftpOackPacket(packet);
 		default:
-			throw new IllegalArgumentException("Malformed TFTP Packet: Invalid Opcode" + payload[1]);
+			throw new IllegalArgumentException("Malformed TFTP Packet: Invalid Opcode " + payload[1]);
 		}
 	}
 

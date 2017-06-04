@@ -24,7 +24,7 @@ public class TftpErrorPacket extends TftpPacket {
 			"Access violation.", "Disk full or allocation exceeded.", "Illegal TFTP operation.", "Unknown transfer ID.",
 			"File already exists.", "No such user." };
 
-	private final short errorCode;
+	private final int errorCode;
 	private final String errorMsg;
 
 	public TftpErrorPacket(int errorCode, String errMsg) {
@@ -41,7 +41,11 @@ public class TftpErrorPacket extends TftpPacket {
 		int len = packet.getLength();
 		StringBuilder sb = new StringBuilder();
 
-		errorCode = (short) ((payload[2] & 0xff) << 8 | payload[3] & 0xff);
+		errorCode = (int) ((payload[2] & 0xff) << 8 | payload[3] & 0xff);
+
+		if (errorCode > NO_SUCH_USER) {
+			throw new IllegalArgumentException("Malformed TFTP Error Packet: Invalid Error Code " + errorCode);
+		}
 
 		while (position < len && payload[position] != 0) {
 			sb.append((char) payload[position]);
@@ -51,9 +55,6 @@ public class TftpErrorPacket extends TftpPacket {
 			throw new IllegalArgumentException("Malformed TFTP Error Packet: Reached end of packet after getting error code");
 		}
 		errorMsg = sb.toString();
-		if (payload[position] != 0) {
-			throw new IllegalArgumentException("Malformed TFTP Error Packet: Error msg not null terminated");
-		}
 		if (position+1 == len) {
 			//System.out.println("Good packet");
 			return;
@@ -69,7 +70,7 @@ public class TftpErrorPacket extends TftpPacket {
 	}
 
 	public short getErrorCode() {
-		return errorCode;
+		return (short) errorCode;
 	}
 
 	@Override
