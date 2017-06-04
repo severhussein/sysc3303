@@ -123,7 +123,8 @@ public class ServerThread implements Runnable {
 
 				socket.close();
 				return;
-			} else if (!server.canThisFileBeRead(file)) {
+			}
+			if (!server.canThisFileBeRead(file)) {
 				trySend(new TftpErrorPacket(TftpErrorPacket.ACCESS_VIOLATION, "This file is being written")
 						.generateDatagram(clientAddress, clientPort));
 
@@ -297,7 +298,8 @@ public class ServerThread implements Runnable {
 					socket.close();
 					return;
 				}
-			} else if (!server.canThisFileBeWritten(file)) {
+			}
+			if (!server.canThisFileBeWritten(file)) {
 				trySend(new TftpErrorPacket(TftpErrorPacket.ACCESS_VIOLATION, "This file is being read/written")
 							.generateDatagram(clientAddress, clientPort));
 
