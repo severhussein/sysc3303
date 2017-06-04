@@ -92,6 +92,10 @@ public abstract class TftpPacket {
 	public static TftpPacket decodeTftpPacket(DatagramPacket packet) throws IllegalArgumentException {
 		byte[] payload = packet.getData();
 
+		if (packet.getLength() < 4) {
+			throw new IllegalArgumentException("Malformed TFTP Packet: Size smaller than 4");
+		}
+		
 		if (payload[0] != 0) {
 			throw new IllegalArgumentException("Malformed TFTP Packet: First byte not zero.");
 		}
