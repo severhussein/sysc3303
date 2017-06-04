@@ -140,10 +140,10 @@ public class ErrorSimulator {
 					"0     Remove Field",
 		            "1     Corruptted Field",
 		            "2     Incorrect Size",
-		            "3     Invalid TID",
-		            "4     Invalid IP"
+		            "3     Invalid TID"
+		            //"4     Invalid IP"
 		            });
-		    userChoice[problemIndex] = getUserInput(0, 4);
+		    userChoice[problemIndex] = getUserInput(0, 3);
 		    
 			printOptions(new String[]{
 					"<Choose Packet> (Error in what type of packet?)",
