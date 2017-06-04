@@ -280,8 +280,14 @@ public class ErrorSimulator {
 				//thus this code will make program faster
 				else if(Utils.quickResolve(ip) == null)
 					continue;
-				else
-					destinationAddress = InetAddress.getByName(ip);
+				else {
+					try {
+						destinationAddress = InetAddress.getByName(ip); 
+					} catch(UnknownHostException e) {
+						System.out.println("The provided address could not be indentified.");
+						System.out.println("Please re-enter the address.");
+					}	
+				}
 				
 //				IF WE DON'T ALLOW THE CLIENT AND SERVER TO BE ON SAME COMPUTER
 //				THEN UNCOMMENT THIS CODE
