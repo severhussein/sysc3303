@@ -116,3 +116,7 @@ Alex:
 *************************************************************************************
 
 Dawei Chen (David):
+
+Yu-Kai:
+- Improvement on minor details 
+- General debugging on client/server via packet capture and program trace
