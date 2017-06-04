@@ -53,8 +53,9 @@ public class TftpDataPacket extends TftpPacket {
 
 		if (packet.getLength() - 4 > DATA_PACKET_DAFAULT_SIZE) {
 			// only the original TFTP, w/o options
-			throw new IllegalArgumentException("Malformed TFTP DATA packet: packed data size (" + payload.length
-					+ ") is larger than maximum size " + DATA_PACKET_DAFAULT_SIZE + " bytes");
+			throw new IllegalArgumentException(
+					"Malformed TFTP DATA packet: packed data size (" + (packet.getLength() - 4)
+							+ ") is larger than maximum size " + DATA_PACKET_DAFAULT_SIZE + " bytes");
 		}
 
 		blockNumber = (int) ((payload[2] & 0xff) << 8 | payload[3] & 0xff);
