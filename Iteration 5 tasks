@@ -1,4 +1,4 @@
-access violation when a file is open (try with pdf)
+access violation when a file is open (try with pdf) - tried this... could not simulate an error(OS allows multiple process to open file).
 
 need to provide documentation for behavior our system
 
@@ -11,7 +11,7 @@ also implement if the user wants to change ip on client
 DONE WITH PARTIAL TESTING:
 client asks for destination address
 host will have to ask for destination address
-inet address getbyname function will throw error on wrong address...needss implementation
+inet address getbyname function will throw error on wrong address
 delete file for error code 2
 client/server make sure that it checks for IP/ and port for error code 5
 print message saying "transfer complete" on client/server
