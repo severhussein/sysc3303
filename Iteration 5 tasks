@@ -5,11 +5,12 @@ need to provide documentation for behavior our system
 testing needs to be done for all of the above
 
 would be nice if we can reset the error simulator, ex, press r and it resets the simulator
-also implement if the user wants to change ip on client
+
 
 *********************************************************************************
 DONE WITH PARTIAL TESTING:
 client asks for destination address
+also implement if the user wants to change ip on client
 host will have to ask for destination address
 inet address getbyname function will throw error on wrong address
 delete file for error code 2
