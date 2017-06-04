@@ -21,7 +21,7 @@
   </class>  
   <class id="3" language="java" name="CommonConstants" project="sysc3303_t4" 
     file="/sysc3303_t4/src/CommonConstants.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="328" y="545"/>    
+    <position height="-1" width="-1" x="338" y="488"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -30,7 +30,7 @@
   </class>  
   <class id="4" language="java" name="Client" project="sysc3303_t4" file="/sysc3303_t4/src/Client.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="611" y="270"/>    
+    <position height="-1" width="-1" x="609" y="218"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -39,7 +39,7 @@
   </class>  
   <class id="5" language="java" name="ServerScanner" project="sysc3303_t4" file="/sysc3303_t4/src/ServerScanner.java" 
     binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="108" y="455"/>    
+    <position height="-1" width="-1" x="105" y="528"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -48,7 +48,7 @@
   </class>  
   <class id="6" language="java" name="ServerThread" project="sysc3303_t4" file="/sysc3303_t4/src/ServerThread.java" 
     binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="336" y="158"/>    
+    <position height="-1" width="-1" x="359" y="92"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -57,7 +57,7 @@
   </class>  
   <class id="7" language="java" name="ErrorSimulator" project="sysc3303_t4" file="/sysc3303_t4/src/ErrorSimulator.java" 
     binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="905" y="155"/>    
+    <position height="-1" width="-1" x="834" y="107"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -66,7 +66,7 @@
   </class>  
   <class id="8" language="java" name="ErrorSimulatorHelper" project="sysc3303_t4" 
     file="/sysc3303_t4/src/ErrorSimulatorHelper.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="866" y="425"/>    
+    <position height="-1" width="-1" x="866" y="405"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -75,7 +75,7 @@
   </class>  
   <class id="9" language="java" name="ErrorSimulatorThread" project="sysc3303_t4" 
     file="/sysc3303_t4/src/ErrorSimulatorThread.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1126" y="270"/>    
+    <position height="-1" width="-1" x="1178" y="251"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      

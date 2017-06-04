@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<class-diagram version="1.1.14" icons="true" automaticImage="PNG" always-add-relationships="false" 
-  generalizations="true" realizations="true" associations="true" dependencies="false" nesting-relationships="true" 
-  router="FAN">  
+<class-diagram version="1.2.0" icons="true" automaticImage="PNG" always-add-relationships="false" generalizations="true" 
+  realizations="true" associations="true" dependencies="false" nesting-relationships="true" router="FAN">  
   <class id="1" language="java" name="TftpPacketHelper.TftpReadRequestPacket" project="sysc3303_t4" 
     file="/sysc3303_t4/src/TftpPacketHelper/TftpReadRequestPacket.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="99" width="268" x="403" y="687"/>    
+    <position height="-1" width="-1" x="239" y="336"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -13,7 +12,7 @@
   </class>  
   <class id="2" language="java" name="TftpPacketHelper.TftpErrorPacket" project="sysc3303_t4" 
     file="/sysc3303_t4/src/TftpPacketHelper/TftpErrorPacket.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="225" width="187" x="287" y="62"/>    
+    <position height="-1" width="-1" x="107" y="-154"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -22,7 +21,7 @@
   </class>  
   <class id="3" language="java" name="TftpPacketHelper.TftpRequestPacket" project="sysc3303_t4" 
     file="/sysc3303_t4/src/TftpPacketHelper/TftpRequestPacket.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="585" width="288" x="711" y="62"/>    
+    <position height="-1" width="-1" x="580" y="360"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -31,7 +30,7 @@
   </class>  
   <class id="4" language="java" name="TftpPacketHelper.TftpPacket" project="sysc3303_t4" 
     file="/sysc3303_t4/src/TftpPacketHelper/TftpPacket.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="369" width="277" x="711" y="-347"/>    
+    <position height="-1" width="-1" x="574" y="-157"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -40,7 +39,7 @@
   </class>  
   <enumeration id="5" language="java" name="TftpPacketHelper.TftpRequestPacket.TftpTransferMode" project="sysc3303_t4" 
     file="/sysc3303_t4/src/TftpPacketHelper/TftpRequestPacket.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="153" width="186" x="711" y="687"/>    
+    <position height="-1" width="-1" x="246" y="501"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -49,7 +48,7 @@
   </enumeration>  
   <class id="6" language="java" name="TftpPacketHelper.TftpWriteRequestPacket" project="sysc3303_t4" 
     file="/sysc3303_t4/src/TftpPacketHelper/TftpWriteRequestPacket.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="99" width="268" x="937" y="687"/>    
+    <position height="-1" width="-1" x="914" y="446"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -58,7 +57,7 @@
   </class>  
   <enumeration id="7" language="java" name="TftpPacketHelper.TftpPacket.TftpType" project="sysc3303_t4" 
     file="/sysc3303_t4/src/TftpPacketHelper/TftpPacket.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="225" width="157" x="514" y="62"/>    
+    <position height="-1" width="-1" x="289" y="18"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -67,7 +66,7 @@
   </enumeration>  
   <class id="8" language="java" name="TftpPacketHelper.TftpAckPacket" project="sysc3303_t4" 
     file="/sysc3303_t4/src/TftpPacketHelper/TftpAckPacket.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="189" width="182" x="1039" y="62"/>    
+    <position height="-1" width="-1" x="855" y="162"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -76,7 +75,7 @@
   </class>  
   <class id="9" language="java" name="TftpPacketHelper.TftpDataPacket" project="sysc3303_t4" 
     file="/sysc3303_t4/src/TftpPacketHelper/TftpDataPacket.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="243" width="185" x="1261" y="62"/>    
+    <position height="-1" width="-1" x="841" y="-208"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -85,7 +84,7 @@
   </class>  
   <class id="10" language="java" name="TftpPacketHelper.TftpOackPacket" project="sysc3303_t4" 
     file="/sysc3303_t4/src/TftpPacketHelper/TftpOackPacket.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="459" width="188" x="1486" y="62"/>    
+    <position height="-1" width="-1" x="1086" y="69"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -93,55 +92,63 @@
     </display>  
   </class>  
   <generalization id="11">    
-    <end type="SOURCE" refId="6"/>    
-    <end type="TARGET" refId="3"/>  
-  </generalization>  
-  <generalization id="12">    
-    <end type="SOURCE" refId="9"/>    
-    <end type="TARGET" refId="4"/>  
-  </generalization>  
-  <generalization id="13">    
-    <end type="SOURCE" refId="3"/>    
-    <end type="TARGET" refId="4"/>  
-  </generalization>  
-  <nesting id="14">    
-    <end type="SOURCE" refId="4"/>    
-    <end type="TARGET" refId="7"/>  
-  </nesting>  
-  <generalization id="15">    
     <end type="SOURCE" refId="2"/>    
     <end type="TARGET" refId="4"/>  
   </generalization>  
-  <generalization id="16">    
-    <end type="SOURCE" refId="10"/>    
-    <end type="TARGET" refId="4"/>  
-  </generalization>  
-  <nesting id="17">    
-    <end type="SOURCE" refId="3"/>    
-    <end type="TARGET" refId="5"/>  
-  </nesting>  
-  <association id="18">    
-    <end type="SOURCE" refId="3" navigable="false">      
-      <attribute id="19" name="mode"/>      
-      <multiplicity id="20" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="5" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <association id="21">    
+  <association id="12">    
     <end type="SOURCE" refId="4" navigable="false">      
-      <attribute id="22" name="packetType"/>      
-      <multiplicity id="23" minimum="0" maximum="1"/>    
+      <attribute id="13" name="packetType">        
+        <position height="0" width="0" x="-303" y="-156"/>      
+      </attribute>      
+      <multiplicity id="14" minimum="0" maximum="1">        
+        <position height="0" width="0" x="-303" y="-156"/>      
+      </multiplicity>    
     </end>    
     <end type="TARGET" refId="7" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <generalization id="24">    
+  <generalization id="15">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="3"/>  
+  </generalization>  
+  <nesting id="16">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="5"/>  
+  </nesting>  
+  <generalization id="17">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="4"/>  
+  </generalization>  
+  <generalization id="18">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="4"/>  
+  </generalization>  
+  <generalization id="19">    
     <end type="SOURCE" refId="1"/>    
     <end type="TARGET" refId="3"/>  
   </generalization>  
+  <association id="20">    
+    <end type="SOURCE" refId="3" navigable="false">      
+      <attribute id="21" name="mode">        
+        <position height="0" width="0" x="-558" y="-262"/>      
+      </attribute>      
+      <multiplicity id="22" minimum="0" maximum="1">        
+        <position height="0" width="0" x="-558" y="-262"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="5" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="23">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="7"/>  
+  </nesting>  
+  <generalization id="24">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="4"/>  
+  </generalization>  
   <generalization id="25">    
-    <end type="SOURCE" refId="8"/>    
+    <end type="SOURCE" refId="9"/>    
     <end type="TARGET" refId="4"/>  
   </generalization>  
   <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
