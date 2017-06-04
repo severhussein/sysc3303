@@ -54,7 +54,7 @@ public class TftpDataPacket extends TftpPacket {
 		if (packet.getLength() - 4 > DATA_PACKET_DAFAULT_SIZE) {
 			// only the original TFTP, w/o options
 			throw new IllegalArgumentException(
-					"Malformed TFTP DATA packet: packed data size (" + (packet.getLength() - 4)
+					"Malformed TFTP DATA packet: packet data size (" + (packet.getLength() - 4)
 							+ ") is larger than maximum size " + DATA_PACKET_DAFAULT_SIZE + " bytes");
 		}
 
