@@ -70,6 +70,7 @@ public class ErrorSimulatorThread implements Runnable {
 		while (true) {
 
 			//////////////////"Receiving..."//////////////////////////////////////
+			System.out.println();
 			System.out.print("Receiving...        ");
 			receivePacket = ErrorSimulatorHelper.newReceive();//new packet
 			ErrorSimulatorHelper.receive(socket, receivePacket);//receive
@@ -487,8 +488,10 @@ public class ErrorSimulatorThread implements Runnable {
 		}
 		
 		if ((second < 0) || (second != len - 1)) {
-			System.out.println("<Error> invalid format");
-			return false;
+			System.out.println("<Error> invalid format, null byte at position" + second);
+			ErrorSimulatorHelper.print("Print receivePacket:");
+			ErrorSimulatorHelper.printPacket(receivePacket);
+			//return false;
 		}
 		
 		
@@ -625,10 +628,10 @@ public class ErrorSimulatorThread implements Runnable {
 			if (receivePacket.getData()[pos] == 0) {first = pos; break;}
 		}		
 		if ((first < 0) || (first != len - 1)) {
-			System.out.println("<Error> invalid format" + first);
+			System.out.println("<Error> invalid format, null byte at position" + first);
 			ErrorSimulatorHelper.print("Print receivePacket:");
 			ErrorSimulatorHelper.printPacket(receivePacket);
-			return false;
+			//return false;
 		}
 		
 		if (field == 1) {
@@ -710,8 +713,10 @@ public class ErrorSimulatorThread implements Runnable {
 		}
 		
 		if ((second < 0) || (second != len - 1)) {
-			System.out.println("<Error> invalid format");
-			return false;
+			System.out.println("<Error> invalid format, second null byte at position" + second);
+			ErrorSimulatorHelper.print("Print receivePacket:");
+			ErrorSimulatorHelper.printPacket(receivePacket);
+			//return false;
 		}
 		
 		byte[] newData = new byte[len];
@@ -859,8 +864,10 @@ public class ErrorSimulatorThread implements Runnable {
 			if (receivePacket.getData()[pos] == 0) {first = pos; break;}
 		}		
 		if ((first < 0) || (first != len - 1)) {
-			System.out.println("<Error> invalid format");
-			return false;
+			System.out.println("<Error> invalid format, null byte at position" + first);
+			ErrorSimulatorHelper.print("Print receivePacket:");
+			ErrorSimulatorHelper.printPacket(receivePacket);
+			//return false;
 		}
 		
 		byte[] newData = new byte[len];
