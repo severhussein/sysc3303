@@ -397,7 +397,7 @@ public class Client {
 		boolean deleteFile = false;
 		boolean endOfFile = false;
 		boolean successful = false;
-		byte[] writeData = new byte[CommonConstants.DATA_PACKET_SZ];
+		byte[] writeData = new byte[CommonConstants.TFTP_RECEIVE_BUFFER_SIZE];
 		receivePacket = new DatagramPacket(writeData, writeData.length);
 		int blockNumber = 1;
 		BufferedOutputStream out = null;
