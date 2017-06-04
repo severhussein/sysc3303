@@ -1,0 +1,41 @@
+Support for the errors:
+
+0         Not defined, see error message (if any).
+ 1         File not found.
+ 2         Access violation.
+ 3         Disk full or allocation exceeded.
+ 4         Illegal TFTP operation.              
+ 5         Unknown transfer ID.              
+ 6         File already exists.             Allows overwrite
+ 7         No such user.                    Deprecated
+
+ 
+The error simulator can be deployed on the same machine as client, or server. It can also be deployed on a separate machine. However we suggest deploying the error simulator on the same machine as the client.
+This server implementation supports overwriting existing files, so no error 6 will ever be expected.
+
+Not allow error code other than the ones noted in RFC1350
+Not allowing writing into file being read, not allowing reading into file being written.
+Not allowing file being write concurrently
+
+
+├───src
+│   │   Client.java
+│   │   CommonConstants.java
+│   │   ErrorSimulator.java
+│   │   ErrorSimulatorHelper.java
+│   │   ErrorSimulatorThread.java
+│   │   InvalidPacketException.java
+│   │   Server.java
+│   │   ServerScanner.java
+│   │   ServerThread.java
+│   │   Utils.java
+│   │
+│   └───TftpPacketHelper
+│           TftpAckPacket.java
+│           TftpDataPacket.java
+│           TftpErrorPacket.java
+│           TftpOackPacket.java
+│           TftpPacket.java
+│           TftpReadRequestPacket.java
+│           TftpRequestPacket.java
+│           TftpWriteRequestPacket.java
