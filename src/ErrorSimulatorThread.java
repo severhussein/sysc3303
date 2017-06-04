@@ -434,9 +434,11 @@ public class ErrorSimulatorThread implements Runnable {
 			byte[] newData = new byte[errorSize];
 			Arrays.fill(newData, (byte) 255);
 			System.arraycopy(receivePacket.getData(), 0, newData, 0, len);
+			sendPacket = new DatagramPacket(newData, errorSize , ip, port);
+		} else {
+			sendPacket = new DatagramPacket(receivePacket.getData(), errorSize , ip, port);
 		}
 		
-		sendPacket = new DatagramPacket(receivePacket.getData(), errorSize , ip, port);
 		ErrorSimulatorHelper.send(socket, sendPacket);
 		
 		ErrorSimulatorHelper.print("Print Size Modified Packet:");
