@@ -1,4 +1,4 @@
-﻿This README file explaisn how to setup the ECLIPSE project and an explanation of the java files included.
+﻿This README file explains how to setup the ECLIPSE project and an explanation of the java files included.
 
 The necessary files required to run the components as an Eclipse project 
 are already included.
