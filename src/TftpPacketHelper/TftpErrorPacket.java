@@ -51,6 +51,9 @@ public class TftpErrorPacket extends TftpPacket {
 			throw new IllegalArgumentException("Malformed TFTP Error Packet: Reached end of packet after getting error code");
 		}
 		errorMsg = sb.toString();
+		if (payload[position] != 0) {
+			throw new IllegalArgumentException("Malformed TFTP Error Packet: Error msg not null terminated");
+		}
 		if (position+1 == len) {
 			//System.out.println("Good packet");
 			return;

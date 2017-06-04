@@ -89,12 +89,15 @@ public abstract class TftpRequestPacket extends TftpPacket {
 		}
 		String modeStr = sb.toString().toLowerCase();
 
+		if (payload[idx] != 0) {
+			throw new IllegalArgumentException("Malformed TFTP Request Packet: Mode not null terminated");
+		}
 		if (modeStr.equals(MODE_ASCII_STRING)) {
 			mode = TftpTransferMode.MODE_ASCII;
 		} else if (modeStr.equals(MODE_OCTET_STRING)) {
 			mode = TftpTransferMode.MODE_OCTET;
 		} else {
-			throw new IllegalArgumentException("Neither ascii nor octet mode");
+			throw new IllegalArgumentException("Malformed TFTP Request Packet: Neither ascii nor octet mode");
 		}
 
 		if (idx+1 == len) {
@@ -102,7 +105,7 @@ public abstract class TftpRequestPacket extends TftpPacket {
 			return;
 		} else {
 			//System.out.println("Trailing bytes");
-			throw new IllegalArgumentException("Trailing bytes after mode");
+			throw new IllegalArgumentException("Malformed TFTP Request Packet: Trailing bytes after mode");
 		}
 		
 		//no plan to support TFTP options, comment it out for now
