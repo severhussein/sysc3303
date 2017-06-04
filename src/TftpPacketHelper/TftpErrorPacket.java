@@ -47,22 +47,25 @@ public class TftpErrorPacket extends TftpPacket {
 			throw new IllegalArgumentException("Malformed TFTP Error Packet: Invalid Error Code " + errorCode);
 		}
 
+		if (position == len) {
+			throw new IllegalArgumentException(
+					"Malformed TFTP Error Packet: Reached end of packet after getting error code");
+		}
+
 		while (position < len && payload[position] != 0) {
 			sb.append((char) payload[position]);
 			position++;
 		}
-		if (position+1 == position) {
-			throw new IllegalArgumentException("Malformed TFTP Error Packet: Reached end of packet after getting error code");
-		}
+
 		errorMsg = sb.toString();
-		if (position+1 == len) {
-			//System.out.println("Good packet");
+		if (position + 1 == len) {
+			// System.out.println("Good packet");
 			return;
 		} else {
-			//System.out.println("Trailing bytes");
+			// System.out.println("Trailing bytes");
 			throw new IllegalArgumentException("Malformed TFTP Error Packet: Trailing bytes after error message");
 		}
-	
+
 	}
 
 	public final String getErrorMsg() {
