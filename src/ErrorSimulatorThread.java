@@ -853,7 +853,7 @@ public class ErrorSimulatorThread implements Runnable {
 		
 		int len = receivePacket.getLength();
 		int first = -1;
-		int pos = 0;
+		int pos = 4;
 		
 		for (; pos < len; pos++) {
 			if (receivePacket.getData()[pos] == 0) {first = pos; break;}
