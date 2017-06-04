@@ -110,31 +110,23 @@ public class ServerThread implements Runnable {
 										errBuf.length,
 										clientAddress,
 										clientPort);
-				try {
-					socket.send(send);
-				} catch (IOException e) {
-					System.out.println("ISSUE SENDING ERROR TYPE 1\n" + e.getMessage());
-				}
+
+				trySend(send);
+
 				socket.close();
 				return;
 			}
 			if (!Files.isReadable(file.toPath())) {
-				try {
-					socket.send(new TftpErrorPacket(TftpErrorPacket.ACCESS_VIOLATION,
-							"Unable to read the file due to insufficient permission").generateDatagram(clientAddress,
-									clientPort));
-				} catch (IOException e) {
-					System.out.println("ISSUE SENDING ERROR TYPE 2\n" + e.getMessage());
-				}
+				trySend(new TftpErrorPacket(TftpErrorPacket.ACCESS_VIOLATION,
+						"Unable to read the file due to insufficient permission").generateDatagram(clientAddress,
+								clientPort));
+
 				socket.close();
 				return;
 			} else if (!server.canThisFileBeRead(file)) {
-				try {
-					socket.send(new TftpErrorPacket(TftpErrorPacket.ACCESS_VIOLATION, "This file is being written")
-							.generateDatagram(clientAddress, clientPort));
-				} catch (IOException e) {
-					System.out.println("ISSUE SENDING ERROR TYPE 2\n" + e.getMessage());
-				}
+				trySend(new TftpErrorPacket(TftpErrorPacket.ACCESS_VIOLATION, "This file is being written")
+						.generateDatagram(clientAddress, clientPort));
+
 				socket.close();
 				return;
 			}
@@ -293,31 +285,22 @@ public class ServerThread implements Runnable {
 			/* Sanity check on the file to be written */
 			if (file.exists()) {
 				if (file.isDirectory()) {
-					try {
-						socket.send(new TftpErrorPacket(TftpErrorPacket.NOT_DEFINED, "This is a directory")
+
+						trySend(new TftpErrorPacket(TftpErrorPacket.NOT_DEFINED, "This is a directory")
 								.generateDatagram(clientAddress, clientPort));
-					} catch (IOException e) {
-						System.out.println("ISSUE SENDING ERROR TYPE 0\n" + e.getMessage());
-					}
+
 					socket.close();
 					return;
 				} else if (!Files.isWritable(file.toPath())) {
-					try {
-						socket.send(new TftpErrorPacket(TftpErrorPacket.ACCESS_VIOLATION, "Unable to write the file due to insufficient permission")
+						trySend(new TftpErrorPacket(TftpErrorPacket.ACCESS_VIOLATION, "Unable to write the file due to insufficient permission")
 								.generateDatagram(clientAddress, clientPort));
-					} catch (IOException e) {
-						System.out.println("ISSUE SENDING ERROR TYPE 2\n" + e.getMessage());
-					}
 					socket.close();
 					return;
 				}
 			} else if (!server.canThisFileBeWritten(file)) {
-				try {
-					socket.send(new TftpErrorPacket(TftpErrorPacket.ACCESS_VIOLATION, "This file is being read/written")
+				trySend(new TftpErrorPacket(TftpErrorPacket.ACCESS_VIOLATION, "This file is being read/written")
 							.generateDatagram(clientAddress, clientPort));
-				} catch (IOException e) {
-					System.out.println("ISSUE SENDING ERROR TYPE 2\n" + e.getMessage());
-				}
+
 				socket.close();
 				return;
 			}
