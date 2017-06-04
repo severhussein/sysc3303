@@ -126,3 +126,9 @@ Yu-Kai:
 Alex:
 - General debugging.
 - Testing system functions and test scenarios.
+
+Sever:
+-Implement destination address on client, also if the user wants to change ip on client on new request
+-Implement destination address on Error Simulator
+-Testing system with different test scendarios
+-Debugging on issues we found from the test cases
