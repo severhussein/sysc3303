@@ -619,13 +619,15 @@ public class ErrorSimulatorThread implements Runnable {
 		
 		int len = receivePacket.getLength();
 		int first = -1;
-		int pos = 0;
+		int pos = 4;
 		
 		for (; pos < len; pos++) {
 			if (receivePacket.getData()[pos] == 0) {first = pos; break;}
 		}		
 		if ((first < 0) || (first != len - 1)) {
-			System.out.println("<Error> invalid format");
+			System.out.println("<Error> invalid format" + first);
+			ErrorSimulatorHelper.print("Print receivePacket:");
+			ErrorSimulatorHelper.printPacket(receivePacket);
 			return false;
 		}
 		
