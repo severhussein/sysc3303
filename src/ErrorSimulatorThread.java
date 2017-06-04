@@ -221,9 +221,11 @@ public class ErrorSimulatorThread implements Runnable {
 		    	if (receivePacket.getData()[3] != intToByte(userChoice[blockIndex])[1]) return false;
 	    	}
 
+		    /*
 		    if (userChoice[problemIndex] == 4) {//"4     Invalid IP"
 		    	return simulateIncorrectIP(ip, port);
 		    }
+		    */
 		    if (userChoice[problemIndex] == 3) {//"3     Invalid TID"
 		    	return simulateIncorrectTID(ip, port);
 		    }
@@ -341,47 +343,7 @@ public class ErrorSimulatorThread implements Runnable {
 		return true;//replace the normal packet
 	}
 
-	/*
-	public boolean simulateIncorrectTID(int port) {
-		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
-		
-		System.out.println("!");
-		System.out.println("<simulateIncorrectTID>");
-		System.out.println("!");
-		
-		DatagramSocket new_socket = ErrorSimulatorHelper.newSocket();
-
-		//System.out.print("<Error TID> Sending to port...");
-		if(port == serverPort||port==ErrorSimulator.DEFAULT_SERVER_PORT)
-			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), destinationAddress, port);
-		else
-			sendPacket = new DatagramPacket(receivePacket.getData(), receivePacket.getLength(), receivePacket.getAddress(), port);
-		
-		//simulate a packet with the Wrong TID
-		ErrorSimulatorHelper.send(new_socket, sendPacket);
-		
-				
-		//clean printing//Utils.tryPrintTftpPacket(sendPacket);
-		//System.out.print("    |port "+ port);
-		//System.out.print("    |Opcode "+ getOpcode());
-		//System.out.println("    |BLK#"+ getBlockNum());
-		System.out.println("Sent Fake TID Packet to port: "+ sendPacket.getPort());
-		System.out.println("Receiving ERROR...");
-		
-		//block until it receives wrong tid error packet
-		DatagramPacket tempErrorReceivePacket = ErrorSimulatorHelper.newReceive();
-		ErrorSimulatorHelper.receive(new_socket, tempErrorReceivePacket);
-		
-		System.out.println("Received ERORR from port: "+ tempErrorReceivePacket.getPort());
-		ErrorSimulatorHelper.printPacket(tempErrorReceivePacket);
-
-		//close the new socket to simulate wrong tid
-		new_socket.close();
-
-
-		return false;//false means error packet do not replace normal packet
-	}
-	 */
+	
 	public boolean simulateIncorrectTID(InetAddress ip, int port) {
 		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
 		
@@ -417,7 +379,7 @@ public class ErrorSimulatorThread implements Runnable {
 
 		return false;//false means error packet do not replace normal packet
 	}
-	
+	/*
 	public boolean simulateIncorrectIP(InetAddress ip, int port) {
 		userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
 		
@@ -458,7 +420,7 @@ public class ErrorSimulatorThread implements Runnable {
 
 		return false;//false means error packet do not replace normal packet
 	}
-	
+	*/
 	
 	
 	public boolean simulateIncorrectSize(InetAddress ip, int port, int errorSize) {
