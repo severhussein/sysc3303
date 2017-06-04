@@ -10,23 +10,6 @@ Once the project is imported, the components can be launched easily via Eclipse.
 Simply navigate to the dropdown menu "Run" -> "Run Configuration" to start each 
 components individually using the included run configurations.
 
-*****************: FOLLOWING STEPS ARE ONLY OPTIONAL:**********************
-(If user prefer not using "Run Configuration" above, following way is then needed.)
-
-Run the Client.java class, then exit the java aplication.
-Then:
-Select "Run"->"Run Configurations"
-On the left hand side there is a list of Java Applications, ensure it is on Client
-Select the tab "Arguments" near the top 
-For the "Working Directory:"
--Select "other" and paste "${workspace_loc:sysc3303_t4/clientFileStorage}"
--Hit "Apply" to apply the changes
--Finally Hit "close"
-
-Do the same for Server.java but paste into 
-the working directory "${workspace_loc:sysc3303_t4/serverFileStorage}"
-
-The working directory is now updated and read the DetailedInstructions.txt file to run the code.
 
 ****************************<FILE READ/WRITE>***********************************
 By default the client has the working directory set to the "clientFileStorage"
