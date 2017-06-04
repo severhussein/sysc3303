@@ -24,10 +24,7 @@ public class ServerThread implements Runnable {
 	 */
 	private DatagramSocket socket;
 	private DatagramPacket send, received;
-	/**
-	 * filename parameter in the request packet
-	 */
-	private String fileName;
+	private File file;
 	/**
 	 * AKA TID of client
 	 */
@@ -45,6 +42,7 @@ public class ServerThread implements Runnable {
 	 * Amount of retries left before we terminate the transfer
 	 */
 	private int retries;
+	private Server server;
 
 	/**
 	 * Server-Client interaction thread for dealing with the actual file
@@ -54,19 +52,23 @@ public class ServerThread implements Runnable {
 	 *            AKA TID of client
 	 * @param clientAddress
 	 *            Address of the client
-	 * @param fileName
-	 *            filename parameter in the request packet
+	 * @param file
+	 *            File being accessed
 	 * @param type
 	 *            Either RRQ or WRQ
 	 * @param verbose
 	 *            Verbose mode or not
+	 * @param server
+	 *            the server instance creating this thread
 	 */
-	public ServerThread(int clientPort, InetAddress clientAddress, String fileName, int type, boolean verbose) {
+	public ServerThread(int clientPort, InetAddress clientAddress, File file, int type, boolean verbose,
+			Server server) {
 		this.clientPort = clientPort;
 		this.clientAddress = clientAddress;
-		this.fileName = fileName;
+		this.file = file;
 		this.type = type;
 		this.verbose = verbose;
+		this.server = server;
 		try {
 			this.socket = new DatagramSocket();
 			this.socket.setSoTimeout(CommonConstants.SOCKET_TIMEOUT_MS);
@@ -89,7 +91,6 @@ public class ServerThread implements Runnable {
 			//this can be either EOF or any error condition
 			boolean finished = false;
 					
-			File file = new File(fileName);
 			if(!file.isFile()) {
 				ByteArrayOutputStream error = new ByteArrayOutputStream();
 				error.write(0);
@@ -97,7 +98,7 @@ public class ServerThread implements Runnable {
 				error.write(0);
 				error.write(1);
 				try {
-					error.write((fileName + " could not be found or is not a file.").getBytes());
+					error.write((file + " could not be found or is not a file.").getBytes());
 				} catch (IOException e) {
 					System.out.println("ISSUE MAKING ERROR TYPE 1\n" + e.getMessage());
 				}
@@ -127,6 +128,15 @@ public class ServerThread implements Runnable {
 				}
 				socket.close();
 				return;
+			} else if (!server.canThisFileBeRead(file)) {
+				try {
+					socket.send(new TftpErrorPacket(TftpErrorPacket.ACCESS_VIOLATION, "This file is being written")
+							.generateDatagram(clientAddress, clientPort));
+				} catch (IOException e) {
+					System.out.println("ISSUE SENDING ERROR TYPE 2\n" + e.getMessage());
+				}
+				socket.close();
+				return;
 			}
 
 			//true if the data we read from disk has been acked
@@ -135,6 +145,7 @@ public class ServerThread implements Runnable {
 			
 			try {
 				bis = new BufferedInputStream(new FileInputStream(file));
+				server.declareThisFileInRead(file);
 			} catch (Exception e) {
 				// File was checked in main loop, we could only reach here when
 				// something very bad happened
@@ -273,10 +284,10 @@ public class ServerThread implements Runnable {
 				// this is not expected
 				System.out.println("ERROR CLOSING FILE\n" + e.getMessage());
 			}
+			server.declareThisFileNotInRead(file);
 		} else if (type == CommonConstants.WRQ) {
 			BufferedOutputStream bos;
 			boolean serve = true;
-			File file = new File(fileName);
 			boolean deleteFile = false;
 
 			/* Sanity check on the file to be written */
@@ -300,10 +311,20 @@ public class ServerThread implements Runnable {
 					socket.close();
 					return;
 				}
+			} else if (!server.canThisFileBeWritten(file)) {
+				try {
+					socket.send(new TftpErrorPacket(TftpErrorPacket.ACCESS_VIOLATION, "This file is being read/written")
+							.generateDatagram(clientAddress, clientPort));
+				} catch (IOException e) {
+					System.out.println("ISSUE SENDING ERROR TYPE 2\n" + e.getMessage());
+				}
+				socket.close();
+				return;
 			}
-			
+
 			try {
 				bos = new BufferedOutputStream(new FileOutputStream(file));
+				server.declareThisFileInWrite(file);
 			} catch (IOException e) {
 				// we have checked the file before opening it
 				// this is not expected
@@ -469,7 +490,7 @@ public class ServerThread implements Runnable {
 					System.out.println(e1.getMessage());
 				}
 			}
-
+			server.declareThisFileNotInWrite(file);
 			// consolidate file deletion code
 			// if file needs to be deleted set the boolean
 			if (deleteFile) {

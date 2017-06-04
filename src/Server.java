@@ -1,9 +1,13 @@
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Server {
@@ -14,6 +18,8 @@ public class Server {
 	private String response;
 	private static Scanner sc = new Scanner(System.in);
 	private static boolean verbose = true;
+	private static List<File> fileInRead = Collections.synchronizedList(new LinkedList<File>());
+	private static List<File> fileInWrite = Collections.synchronizedList(new LinkedList<File>());
 
 	public Server() {
 		try {
@@ -123,9 +129,9 @@ public class Server {
 		// System.out.println(mode);
 
 		if (req == CommonConstants.RRQ || req == CommonConstants.WRQ) {
-			new Thread(new ServerThread(received.getPort(), received.getAddress(), filename, datagram[1], verbose))
+			new Thread(new ServerThread(received.getPort(), received.getAddress(), new File(filename), datagram[1], verbose, this))
 					.start();
-			System.out.println("\nSending Request and creating new thread\n");
+			System.out.println("\nCreating new thread\n");
 		} else { // it was invalid, just quit
 			ByteArrayOutputStream error = new ByteArrayOutputStream();
 			error.write(0);
@@ -230,5 +236,36 @@ public class Server {
 		sc.close();
 		System.exit(1);
 
+	}
+
+	
+	public void declareThisFileNotInWrite(File file) {
+		fileInWrite.remove(file);
+	}
+
+	public void declareThisFileNotInRead(File file) {
+		fileInRead.remove(file);
+	}
+
+	public void declareThisFileInWrite(File file) {
+		fileInWrite.add(file);
+	}
+
+	public void declareThisFileInRead(File file) {
+		fileInRead.add(file);
+	}
+
+	public boolean canThisFileBeWritten(File file) {
+		if (fileInRead.contains(file) || fileInWrite.contains(file)) {
+			return false;
+		}
+		return true;
+	}
+
+	public boolean canThisFileBeRead(File file) {
+		if (fileInWrite.contains(file)) {
+			return false;
+		}
+		return true;
 	}
 }
