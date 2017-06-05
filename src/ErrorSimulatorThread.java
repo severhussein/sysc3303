@@ -18,6 +18,7 @@ public class ErrorSimulatorThread implements Runnable {
 	private boolean serverPortUpdated = false;
 	
 	private int[] userChoice;
+	private int[] globalUserChoice;
 	
 	//change descriptions:
 	//1. renamed destinationAddress to serverAddress (to be consistent with clientAddress)
@@ -29,6 +30,7 @@ public class ErrorSimulatorThread implements Runnable {
 	
 	public ErrorSimulatorThread(DatagramPacket receivePacket, int[] userChoice, InetAddress newDestinationAddress) {
 			this.receivePacket = receivePacket;
+			this.globalUserChoice = userChoice;
 			this.userChoice = new int[userChoice.length];
 			System.arraycopy(userChoice, 0, this.userChoice, 0, userChoice.length);//do not use equal here. copy content not reference
 			
@@ -151,7 +153,7 @@ public class ErrorSimulatorThread implements Runnable {
 			} else {//remaining case is: serverPortUpdated && (port is neither client nor server)
 				System.out.println("unknown source received");
 				System.out.println("received IP: "+receivedAddress+", Port: "+receivedPort);
-				System.out.println("receivedAddress == serverAddress: "+ (receivedAddress == serverAddress));
+				//System.out.println("receivedAddress == serverAddress: "+ (receivedAddress == serverAddress));
 			}
 
 		}
@@ -320,17 +322,35 @@ public class ErrorSimulatorThread implements Runnable {
 	
 	public boolean simulateLost(InetAddress ip, int port, int value) {
 		int valueIndex = 2;//need change accordingly to class field!!
-		if (userChoice[valueIndex]<=0) {
-			return false;//do not replace the normal packet
-		}
-		userChoice[valueIndex] = userChoice[valueIndex] - 1;
-		if (userChoice[valueIndex]==0) {
-			userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
-		}
+		int packetIndex = 3;//need change accordingly to class field!!
 		
-		System.out.println("!");
-		System.out.println("<simulateLost>");
-		System.out.println("!");
+		if ((userChoice[packetIndex] != 1) && (userChoice[packetIndex] != 2) ){
+			if (userChoice[valueIndex]<=0) {
+				return false;//do not replace the normal packet
+			}
+			System.out.println("!");
+			System.out.println("<simulateLost> current count = "+userChoice[valueIndex]);
+			System.out.println("!");
+			
+			userChoice[valueIndex] = userChoice[valueIndex] - 1;
+			if (userChoice[valueIndex]==0) {
+				userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+			}
+			System.out.println("remain count = "+userChoice[valueIndex]);
+		} else {
+			if (globalUserChoice[valueIndex]<=0) {
+				return false;//do not replace the normal packet
+			}
+			System.out.println("!");
+			System.out.println("<simulateLost> current count = "+globalUserChoice[valueIndex]);
+			System.out.println("!");
+			
+			globalUserChoice[valueIndex] = globalUserChoice[valueIndex] - 1;
+			if (globalUserChoice[valueIndex]==0) {
+				globalUserChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+			}
+			System.out.println("remain count = "+globalUserChoice[valueIndex]);
+		}
 		
 		/*
 		for (int i=0; i<value; i++) {
