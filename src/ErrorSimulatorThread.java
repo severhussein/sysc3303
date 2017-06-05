@@ -39,7 +39,7 @@ public class ErrorSimulatorThread implements Runnable {
 			this.clientPort = receivePacket.getPort();
 			this.clientAddress = receivePacket.getAddress();;//client address remain the same in a file transfer
 			System.out.println("client IP: "+clientAddress+", Port: "+clientPort);
-			System.out.println("server IP: "+serverAddress+", Port: ??");
+			System.out.println("server IP: "+serverAddress+");
 			
 			this.socket = ErrorSimulatorHelper.newSocket();
 			if (socket == null){
@@ -324,42 +324,27 @@ public class ErrorSimulatorThread implements Runnable {
 		int valueIndex = 2;//need change accordingly to class field!!
 		int packetIndex = 3;//need change accordingly to class field!!
 		
+		int[] localChoice;
+	
 		if ((userChoice[packetIndex] != 1) && (userChoice[packetIndex] != 2) ){
-			if (userChoice[valueIndex]<=0) {
-				return false;//do not replace the normal packet
-			}
-			System.out.println("!");
-			System.out.println("<simulateLost> current count = "+userChoice[valueIndex]);
-			System.out.println("!");
-			
-			userChoice[valueIndex] = userChoice[valueIndex] - 1;
-			if (userChoice[valueIndex]==0) {
-				userChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
-			}
-			System.out.println("remain count = "+userChoice[valueIndex]);
+			localChoice = userChoice;
 		} else {
-			if (globalUserChoice[valueIndex]<=0) {
-				return false;//do not replace the normal packet
-			}
-			System.out.println("!");
-			System.out.println("<simulateLost> current count = "+globalUserChoice[valueIndex]);
-			System.out.println("!");
-			
-			globalUserChoice[valueIndex] = globalUserChoice[valueIndex] - 1;
-			if (globalUserChoice[valueIndex]==0) {
-				globalUserChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
-			}
-			System.out.println("remain count = "+globalUserChoice[valueIndex]);
-		}
+			localChoice = globalUserChoice;
+		}//to handle request packet lost, in this case, new thread will be created, userChoice array wont work
 		
-		/*
-		for (int i=0; i<value; i++) {
-			System.out.println("Last Received ignored, Receiving new packet...");
-			receivePacket = ErrorSimulatorHelper.newReceive();
-			ErrorSimulatorHelper.receive(socket, receivePacket);
-			System.out.println("Received");
+		if (localChoice[valueIndex]<=0) {
+			return false;//do not replace the normal packet
 		}
-		*/
+		System.out.println("!");
+		System.out.println("<simulateLost> current count = "+localChoice[valueIndex]);
+		System.out.println("!");
+			
+		localChoice[valueIndex] = localChoice[valueIndex] - 1;
+		if (localChoice[valueIndex]==0) {
+			localChoice[0] = 0;//to mark that the error was simulated, do not simulate it again
+		}
+		System.out.println("remain count = "+localChoice[valueIndex]);
+		
 		return true;//replace the normal packet
 	}
 
