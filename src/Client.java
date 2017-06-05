@@ -43,19 +43,6 @@ public class Client {
 	 //IP address of server
 	private static InetAddress destinationAddress = null;
 
-	public Client() {
-		try {
-			sendReceiveSocket = new DatagramSocket();
-			sendReceiveSocket.setSoTimeout(CommonConstants.SOCKET_TIMEOUT_MS);
-
-		} catch (SocketException se) { // Can't create the socket.
-			// unlikely to get there as there should be plenty of free ports
-			se.printStackTrace();
-			sc.close();
-			System.exit(1);
-		}
-	}
-
 	public static void main(String args[]) throws IllegalArgumentException, IOException {
 		Client c = new Client();
 		byte[] data;
@@ -101,6 +88,8 @@ public class Client {
 					c.writeToHost(filename);
 				}
 			}
+			if (!sendReceiveSocket.isClosed())
+				sendReceiveSocket.close();
 		}
 	}
 
@@ -597,6 +586,17 @@ public class Client {
 	 *             when things goes wrong
 	 */
 	public void sendRequest(byte[] payload) {
+		try {
+			sendReceiveSocket = new DatagramSocket();
+			sendReceiveSocket.setSoTimeout(CommonConstants.SOCKET_TIMEOUT_MS);
+
+		} catch (SocketException se) { // Can't create the socket.
+			// unlikely to get there as there should be plenty of free ports
+			se.printStackTrace();
+			sc.close();
+			System.exit(1);
+		}
+		
 		sendPacket = new DatagramPacket(payload, payload.length, destinationAddress, destinationPort);
 
 		System.out.println("\nStarting the transfer...");
