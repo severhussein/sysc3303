@@ -100,12 +100,15 @@ Note 3 (Disable/Toggle client Testing mode):
 
 Note 4 (Shutdown Client):
 	In Client console, when it asking to choose from 5 options at the begining or each time it done a file transfer.
-	Choose 5 (shutdown).
+	Choose 6 (shutdown).
 
 Note 5 (Shutdown Server):
 	Type "shutdown" in Server console. It will shut down after the current transfer finished.
 	*During a large file is transfering, if server is in Verbose mode (default), you may have difficulty to type in console, since message refreshes so quickly.
 	*To avoid this, use Quite Mode on server.
+	
+Note 6 (Restart ErrorSimulator / change error case):
+	Just hit the terminate red square button and restart it. According to project specification, it is fine to restart error simulator this way.
 	
 
 Support for the errors:
