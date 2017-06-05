@@ -44,11 +44,12 @@ To run the system:
 -Next, on the Server, choose option 1 to begin running the Server
 
 2- Run the ErrorSimulator.java
-- Enter the ip address of the server. If the error simulator and server are running on the same machine, input 1 for loopback.
-- To simulate Packet Duplicate at Data#3, choose options by the sequence: {2, 1, 1, 3, 3} (detail and other cases see Case Steps below)
+- Fisrt, enter the server ip address. If the error simulator and server are running on the same machine, input 1 for local machine.
+- Then choose error cases based on what you want, "Incorrect Data" includes data fields, size, TID errors, "Network Error" includes duplicate, delayed and lost.
+- For example, to simulate Packet Duplicate at Data#3, choose options by the sequence: {2, 1, 1, 3, 3} (detail and other cases see Case Steps below)
 
 3- Run the Client.java:
-- Entet the ip address of the error simulator. If the error simulator and client are running on the same machine, input 1 for loopback.
+- Choose "change IP", then input the ip address of the error simulator. If the error simulator and client are running on the same machine, input 1 for local machine.
 -You can toggle between normal and test mode, as well as quiet and verbose mode. (Default at Verbose Mode + Test Mode) (see note 2, 3 below)
 -To read a file, select option 1, but first read the "FILE READ/WRITE SECTION" above
 -To write a file, select option 2, but first read the "FILE READ/WRITE SECTION" above
@@ -56,27 +57,27 @@ To run the system:
 <Case Steps to Simulator Network Errors>
 
 Packet Duplicate (Data packet #3 as example)
-	(i) Run ErrorSimulator.java, choose options by the sequence: {2, 1, 1, 3, 3}
+	(i) Run ErrorSimulator.java, input server ip, then choose options by the sequence: {2, 1, 1, 3, 3}
 	* The first 2 options has to be {2, 1}, but the last 3 options can be changed according to user's need.
 	(ii) Run Server.java, choose "1" (begin server). Then the server is ready.
-	(iii a read file) Run Client.java, choose "1" (Read), then type "serverFile.txt". Then the transfer will be started.
-	(iii b write file) Run Client.java, choose "2" (Write), then type "clientFile.txt". Then the transfer will be started.
+	(iii a read file) Run Client.java, set host ip, then choose "1" (Read), then type "serverFile.txt". Then the transfer will be started.
+	(iii b write file) Run Client.java, set host ip, then choose "2" (Write), then type "clientFile.txt". Then the transfer will be started.
 
 Packet Delayed (Data packet #3, 7000 ms delay as example)
-	(i) Run ErrorSimulator.java, choose options by the sequence: {2, 2, 7000, 3, 3}
+	(i) Run ErrorSimulator.java, input server ip, then choose options by the sequence: {2, 2, 7000, 3, 3}
 	* This will delay for 7000 ms, which is higher than 5000 ms threshold, and transfer will timeout.
 	* The first 2 options has to be {2, 2}, but the last 3 options can be changed according to user's need.
 	(ii) Run Server.java, choose "1" (begin server). Then the server is ready.
-	(iii a read file) Run Client.java, choose "1" (Read), then type "serverFile.txt". Then the transfer will be started.
-	(iii b write file) Run Client.java, choose "2" (Write), then type "clientFile.txt". Then the transfer will be started.
+	(iii a read file) Run Client.java, set host ip, then choose "1" (Read), then type "serverFile.txt". Then the transfer will be started.
+	(iii b write file) Run Client.java, set host ip, then choose "2" (Write), then type "clientFile.txt". Then the transfer will be started.
 
 Packet Lost (Data packet #3 as example)
-	(i) Run ErrorSimulator.java, choose options by the sequence: {2, 3, 1, 3, 3}
+	(i) Run ErrorSimulator.java, input server ip, then choose options by the sequence: {2, 3, 1, 3, 3}
 	* The first 2 options has to be {2, 3}, but the last 3 options can be changed according to user's need.
 	(ii) Run Server.java, choose "1" (begin server). Then the server is ready.
 	* Before doing next step, make sure everything on Server and ErrorSimulator was set, or the Client will not get response and act like request packet lost.
-	(iii a read file) Run Client.java, choose "1" (Read), then type "serverFile.txt". Then the transfer will be started.
-	(iii b write file) Run Client.java, choose "2" (Write), then type "clientFile.txt". Then the transfer will be started.
+	(iii a read file) Run Client.java, set host ip, then choose "1" (Read), then type "serverFile.txt". Then the transfer will be started.
+	(iii b write file) Run Client.java, set host ip, then choose "2" (Write), then type "clientFile.txt". Then the transfer will be started.
 
 
 <Notes about UI settings>
