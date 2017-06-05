@@ -41,7 +41,7 @@ To run the system:
 
 1- Run the Server.java
 -The server has two modes, a verbose mode, and a quiet mode, (Default at Verbose Mode)  (see note 1 below)
--Next, on the Server, enter option 2 to begin running the Server
+-Next, on the Server, choose option 1 to begin running the Server
 
 2- Run the ErrorSimulator.java
 - Enter the ip address of the server. If the error simulator and server are running on the same machine, input 1 for loopback.
@@ -58,7 +58,7 @@ To run the system:
 Packet Duplicate (Data packet #3 as example)
 	(i) Run ErrorSimulator.java, choose options by the sequence: {2, 1, 1, 3, 3}
 	* The first 2 options has to be {2, 1}, but the last 3 options can be changed according to user's need.
-	(ii) Run Server.java, choose "2" (begin server). Then the server is ready.
+	(ii) Run Server.java, choose "1" (begin server). Then the server is ready.
 	(iii a read file) Run Client.java, choose "1" (Read), then type "serverFile.txt". Then the transfer will be started.
 	(iii b write file) Run Client.java, choose "2" (Write), then type "clientFile.txt". Then the transfer will be started.
 
@@ -66,14 +66,14 @@ Packet Delayed (Data packet #3, 7000 ms delay as example)
 	(i) Run ErrorSimulator.java, choose options by the sequence: {2, 2, 7000, 3, 3}
 	* This will delay for 7000 ms, which is higher than 5000 ms threshold, and transfer will timeout.
 	* The first 2 options has to be {2, 2}, but the last 3 options can be changed according to user's need.
-	(ii) Run Server.java, choose "2" (begin server). Then the server is ready.
+	(ii) Run Server.java, choose "1" (begin server). Then the server is ready.
 	(iii a read file) Run Client.java, choose "1" (Read), then type "serverFile.txt". Then the transfer will be started.
 	(iii b write file) Run Client.java, choose "2" (Write), then type "clientFile.txt". Then the transfer will be started.
 
 Packet Lost (Data packet #3 as example)
 	(i) Run ErrorSimulator.java, choose options by the sequence: {2, 3, 1, 3, 3}
 	* The first 2 options has to be {2, 3}, but the last 3 options can be changed according to user's need.
-	(ii) Run Server.java, choose "2" (begin server). Then the server is ready.
+	(ii) Run Server.java, choose "1" (begin server). Then the server is ready.
 	* Before doing next step, make sure everything on Server and ErrorSimulator was set, or the Client will not get response and act like request packet lost.
 	(iii a read file) Run Client.java, choose "1" (Read), then type "serverFile.txt". Then the transfer will be started.
 	(iii b write file) Run Client.java, choose "2" (Write), then type "clientFile.txt". Then the transfer will be started.
@@ -84,7 +84,7 @@ Packet Lost (Data packet #3 as example)
 Note 1 (Disable/Toggle Server Verbose mode):
 	By default, Verbose mode is ON.
 	In Server console, it ask user to choose from 2 options at the begining.
-	Choose 1 (Toggle mode).
+	Choose 2 (Toggle mode).
 
 Note 2 (Disable/Toggle client Verbose mode):
 	By default, Verbose mode is ON.
