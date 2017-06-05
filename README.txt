@@ -33,20 +33,22 @@ http://help.eclipse.org/mars/index.jsp?topic=%2Forg.eclipse.jdt.doc.user%2Ftasks
 An Alternative to getting the project files from the submit program is to download directly from our git.
 Our URL is https://github.com/severhussein/sysc3303.git. You may enter the URL into a browser and download it there
 or you may open up eclipse and following the import steps previously mentioned, instead of choosing
-General->Existing Project, you may choose Git->Projects From Git and select Clone URI option. Then input out git URL
+General->Existing Project, you may choose Git->Projects From Git and select Clone URI option. Then input our git URL
 and eclipse will automatically download the repository.
 
 *******************************************************************************
-To run the iteration 4:
+To run the system:
 
 1- Run the Server.java
 -The server has two modes, a verbose mode, and a quiet mode, (Default at Verbose Mode)  (see note 1 below)
 -Next, on the Server, enter option 2 to begin running the Server
 
 2- Run the ErrorSimulator.java
+- Enter the ip address of the server. If the error simulator and server are running on the same machine, input 1 for loopback.
 - To simulate Packet Duplicate at Data#3, choose options by the sequence: {2, 1, 1, 3, 3} (detail and other cases see Case Steps below)
 
 3- Run the Client.java:
+- Entet the ip address of the error simulator. If the error simulator and client are running on the same machine, input 1 for loopback.
 -You can toggle between normal and test mode, as well as quiet and verbose mode. (Default at Verbose Mode + Test Mode) (see note 2, 3 below)
 -To read a file, select option 1, but first read the "FILE READ/WRITE SECTION" above
 -To write a file, select option 2, but first read the "FILE READ/WRITE SECTION" above
@@ -103,3 +105,49 @@ Note 5 (Shutdown Server):
 	Type "shutdown" in Server console. It will shut down after the current transfer finished.
 	*During a large file is transfering, if server is in Verbose mode (default), you may have difficulty to type in console, since message refreshes so quickly.
 	*To avoid this, use Quite Mode on server.
+	
+
+Support for the errors:
+
+ 0         Not defined, see error message (if any).
+ 1         File not found.
+ 2         Access violation.
+ 3         Disk full or allocation exceeded.
+ 4         Illegal TFTP operation.              
+ 5         Unknown transfer ID.              
+ 6         File already exists.             Allows overwrite
+ 7         No such user.                    Deprecated
+ 
+
+The required Java version is 1.8. This project should run on Java 1.7 as well, but it is not recommended as the verification are done on Java 1.8 only.
+If a disk full error (error code 3) is encountered during a file transfer, the uncompleted file will be removed to reduce the chance of affecting regular operation of the system.
+
+The error simulator can be deployed on the same machine as client, or server. It can also be deployed on a separate machine. However we suggest deploying the error simulator on the same machine as the client.
+This server implementation supports overwriting existing files, so no error 6 will ever be expected.
+
+Not allow error code other than the ones noted in RFC1350
+Not allowing writing into file being read, not allowing reading into file being written.
+Not allowing file being write concurrently
+
+
+├───src
+│   │   Client.java
+│   │   CommonConstants.java
+│   │   ErrorSimulator.java
+│   │   ErrorSimulatorHelper.java
+│   │   ErrorSimulatorThread.java
+│   │   InvalidPacketException.java
+│   │   Server.java
+│   │   ServerScanner.java
+│   │   ServerThread.java
+│   │   Utils.java
+│   │
+│   └───TftpPacketHelper
+│           TftpAckPacket.java
+│           TftpDataPacket.java
+│           TftpErrorPacket.java
+│           TftpOackPacket.java
+│           TftpPacket.java
+│           TftpReadRequestPacket.java
+│           TftpRequestPacket.java
+│           TftpWriteRequestPacket.java
