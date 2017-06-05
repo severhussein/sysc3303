@@ -171,7 +171,7 @@ Note 6 (Restart ErrorSimulator / change error case):
 
 
 
-******************************************************************************************
+***********************************EXPLANATION OF JAVA FILES************************************
 
 ├───src
 │   │   Client.java			-The client side application that allows RRQ and WRQ to be sent to server
