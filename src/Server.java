@@ -261,25 +261,27 @@ public class Server {
 		fileInRead.remove(file);
 	}
 
-	public void declareThisFileInWrite(File file) {
+	private void declareThisFileInWrite(File file) {
 		fileInWrite.add(file);
 	}
 
-	public void declareThisFileInRead(File file) {
+	private void declareThisFileInRead(File file) {
 		fileInRead.add(file);
 	}
 
-	public boolean canThisFileBeWritten(File file) {
+	public synchronized boolean canThisFileBeWritten(File file) {
 		if (fileInRead.contains(file) || fileInWrite.contains(file)) {
 			return false;
 		}
+		declareThisFileInWrite(file);
 		return true;
 	}
 
-	public boolean canThisFileBeRead(File file) {
+	public synchronized boolean canThisFileBeRead(File file) {
 		if (fileInWrite.contains(file)) {
 			return false;
 		}
+		declareThisFileInRead(file);
 		return true;
 	}
 }

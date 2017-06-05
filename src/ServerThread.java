@@ -138,13 +138,13 @@ public class ServerThread implements Runnable {
 			
 			try {
 				bis = new BufferedInputStream(new FileInputStream(file));
-				server.declareThisFileInRead(file);
 			} catch (Exception e) {
 				// File was checked in main loop, we could only reach here when
 				// something very bad happened
 				trySend(new TftpErrorPacket(TftpErrorPacket.NOT_DEFINED, e.getMessage()).generateDatagram(clientAddress,
 						clientPort));
 				socket.close();
+				server.declareThisFileNotInRead(file);
 				return;
 			}
 
@@ -309,7 +309,6 @@ public class ServerThread implements Runnable {
 
 			try {
 				bos = new BufferedOutputStream(new FileOutputStream(file));
-				server.declareThisFileInWrite(file);
 			} catch (IOException e) {
 				// we have checked the file before opening it
 				// this is not expected
@@ -318,6 +317,7 @@ public class ServerThread implements Runnable {
 				System.out.println(e.getMessage());
 				
 				socket.close();
+				server.declareThisFileNotInWrite(file);
 				return;
 			}
 
