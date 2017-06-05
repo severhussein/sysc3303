@@ -39,7 +39,7 @@ public class ErrorSimulatorThread implements Runnable {
 			this.clientPort = receivePacket.getPort();
 			this.clientAddress = receivePacket.getAddress();;//client address remain the same in a file transfer
 			System.out.println("client IP: "+clientAddress+", Port: "+clientPort);
-			System.out.println("server IP: "+serverAddress+");
+			System.out.println("server IP: "+serverAddress);
 			
 			this.socket = ErrorSimulatorHelper.newSocket();
 			if (socket == null){
