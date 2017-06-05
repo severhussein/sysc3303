@@ -125,6 +125,7 @@ Support for the errors:
 
 The required Java version is 1.8. This project should run on Java 1.7 as well, but it is not recommended as the verification are done on Java 1.8 only.
 If a disk full error (error code 3) is encountered during a file transfer, the uncompleted file will be removed to reduce the chance of affecting regular operation of the system.
+Timeouts on receiving acknowledges are 5 seconds. If an acknowledge is not received, then the corresponding data block will be resent upto 5 times. After 5 retries, the request will timeout and the connection will close. The client must request a new connection.
 
 The error simulator can be deployed on the same machine as client, or server. It can also be deployed on a separate machine. However we suggest deploying the error simulator on the same machine as the client.
 This server implementation supports overwriting existing files, so no error 6 will ever be expected.
